@@ -33,9 +33,6 @@ Usage()
 	cat <<EOF
 initroot - fills chroot with initial set of packages.
 
-This program is free software, covered by the GNU General Public License.
-initroot comes with ABSOLUTELY NO WARRANTY, see license for details.
-
 Usage: $PROG [options] <path-to-workdir>
 
 <path-to-workdir> must be valid writable directory.
@@ -43,7 +40,7 @@ Usage: $PROG [options] <path-to-workdir>
 Valid options are:
   --no-cache                    do not use cache;
   --no-contents-indices         do not use content indices;
-  --repackage-source            package source as well as binaries;
+  --repackage-source            repackage source as well as binaries;
   --number=NUMBER               subconfig identifier;
   --hasher-priv-dir=DIR         hasher-priv directory;
   --nprocs=NUMBER               number of CPUs to use;
@@ -52,12 +49,13 @@ Valid options are:
   --pkg-build-list=LIST         override default build package file list;
   -q, --quiet                   try to be more quiet;
   -v, --verbose                 print a message for each action;
+  -V, --version                 print program version and exit;
   -h, --help                    show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,h -l no-cache,no-contents-indices,repackage-source,pkg-init-list:,pkg-build-list:,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,V,h -l no-cache,no-contents-indices,repackage-source,pkg-init-list:,pkg-build-list:,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help,version -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
@@ -95,6 +93,8 @@ while :; do
 		-q|--quiet) quiet=-q
 			;;
 		-v|--verbose) verbose=-v
+			;;
+		-V|--version) print_version initroot
 			;;
 		-h|--help) Usage 0
 			;;
