@@ -26,37 +26,35 @@ archive_chroot_cache()
 {
 	[ -n "$rebuild_chroot_cache" ] || return 0
 
-	local terminated=
-	trap 'terminated=1' HUP INT QUIT TERM
+	local rpmdb_archive="cache/chroot/rpmdb.tar"
+	local chroot_archive="cache/chroot/chroot.cpio"
+
+	trap 'rm -f -- "$rpmdb_archive" "$chroot_archive"' EXIT HUP INT QUIT TERM
 
 	# rpmdb
-	local rpmdb_archive="cache/chroot/rpmdb.tar"
-	if tar -cf "$rpmdb_archive" -C aptbox/var/lib/rpm/ . && [ -z "$terminated" ]; then
-		Verbose "archived RPM database"
-	else
-		rm -f -- "$rpmdb_archive"
-		Fatal "archiving of RPM database failed."
-	fi
-		
-	# chroot
-	local list="cache/chroot/chroot.list"
-	wlimit_time_elapsed=60 wlimit_time_idle=60 \
-	"$chrootuid1" $number "$chroot" /.host/find $(cd chroot && /bin/ls -1 |grep -v ^dev) >"$list" &&
-		[ -s "$list" ] && [ -z "$terminated" ] &&
-		Verbose "generated chroot filelist" ||
-		Fatal "generation of chroot filelist failed."
-	local chroot_archive="cache/chroot/chroot.cpio"
-	if wlimit_time_elapsed=300 wlimit_time_idle=300 \
-	   "$chrootuid1" $number "$chroot" /.host/cpio --create --quiet --format=newc <"$list" >"$chroot_archive" &&
-	   [ -z "$terminated" ]; then
-		Verbose "archived chroot"
-	else
-		rm -f -- "$chroot_archive"
-		Fatal "archiving of chroot failed."
-	fi
-	rm -f -- "$list"
+	tar -cf "$rpmdb_archive" -C aptbox/var/lib/rpm/ . &&
+		Verbose "RPM database archivation complete" ||
+		Fatal "RPM database archivation failed."
 
-	trap - HUP INT QUIT TERM
+	# chroot
+	local list
+	list=`ls -1 chroot/ |grep -v ^dev` && [ -n "$list" ] ||
+		Fatal "chroot is not ready for archivation."
+
+	cat >"$entry" <<__EOF__
+$entry_fakeroot_header
+
+list="$(/.host/find $list)"
+printf %s "\$list" |
+	/.host/cpio --create --quiet --format=newc
+__EOF__
+
+	wlimit_time_elapsed=300 wlimit_time_idle=300 \
+	"$chrootuid1" $number "$chroot" /.host/entry >"$chroot_archive" &&
+		Verbose "chroot archivation complete" ||
+		Fatal "chroot archivation failed."
+
+	trap - EXIT HUP INT QUIT TERM
 } # archive_chroot_cache
 
 check_chroot_cache()
@@ -152,7 +150,7 @@ create_chroot()
 	Verbose "unpacked initial package list."
 
 	cat >"$entry" <<__EOF__
-$entry_header
+$entry_fakeroot_header
 
 export DURING_INSTALL=1
 # WORKAROUND: mtab is missing in setup-2.2.2-alt1

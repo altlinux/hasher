@@ -47,6 +47,8 @@ See %_docdir/%name-%version/QUICKSTART for details.
     --pkg-init-list and --pkg-build-list options.
 - hsh:
   + new option: --initroot-only.
+- archive_chroot_cache:
+  + optimized find/cpio.
 
 * Thu Jul 15 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0-alt1
 - Added hasher(7) manpage.
