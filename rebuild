@@ -135,7 +135,6 @@ fi
 
 # Copy source to chroot.
 copy_chroot_incoming "$source"
-purge_chroot_out
 
 # Execute sisyphus_check.
 [ -n "$no_sisyphus_check_in" ] ||
@@ -175,16 +174,22 @@ __EOF__
 	fi
 	Verbose "$sname: calculated build dependencies: $deps"
 
-	[ -z "$deps" ] || "$hasher_dir/install" \
-		${quiet:+$quiet} \
-		${verbose:+$verbose} \
-		${number:+--number=$number} \
-		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
-		-- \
-		"$workdir" $deps
+	if [ -n "$deps" ]; then
+		"$hasher_dir/install" \
+			${quiet:+$quiet} \
+			${verbose:+$verbose} \
+			${number:+--number=$number} \
+			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
+			-- \
+			"$workdir" $deps
+
+		copy_chroot_incoming "$source"
+	fi
 fi
 
 # Build the package.
+purge_chroot_out
+
 cat >"$entry" <<__EOF__
 $entry_header
 
