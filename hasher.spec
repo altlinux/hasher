@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.7
+Version: 0.9.8
 Release: alt1
 BuildArch: noarch
 
@@ -39,6 +39,14 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Sat Jan 31 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.8-alt1
+- mkaptbox:
+  + added --no-uptdate option;
+  + enable --update mode by default;
+  + create apt wrappers in aptbox;
+  + added mkaptbox(1) manpage;
+  + added %_bindir/mkaptbox symlink.
+
 * Tue Jan 13 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.7-alt1
 - functions: fixed bug introduced by apt_prefix support.
 - create_contents: optimize --no-contents-indices case.
