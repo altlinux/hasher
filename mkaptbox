@@ -98,11 +98,14 @@ mkdir -p $verbose -- \
 	./var/lib/apt/lists/partial \
 	./var/lib/rpm
 
+ln -s $verbose /etc/apt/sources.list ./etc/apt/sources.list.d/0-system
+
 # apt.conf file.
 export APT_CONFIG="$aptbox/etc/apt/apt.conf"
 cat >"$APT_CONFIG" <<__EOF__
 Dir::State "$aptbox/var/lib/apt/";
 Dir::Cache "$aptbox/var/cache/apt/";
+Dir::Etc::SourceList "/var/empty/missing";
 Dir::Etc::SourceParts "$aptbox/etc/apt/sources.list.d";
 RPM::RootDir "$aptbox";
 APT::Install::Virtual "true";
@@ -110,7 +113,7 @@ APT::Install::VirtualVersion "true";
 __EOF__
 Verbose "created APT configuration file \`$APT_CONFIG'"
 
-target_config="./etc/apt/sources.list.d/$target.auto"
+target_config="./etc/apt/sources.list.d/1-$target.hasher"
 cat >"$target_config" <<__EOF__
 rpm file:$workdir/repo $target auto
 __EOF__
