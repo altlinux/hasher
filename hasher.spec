@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.9
+Version: 0.9.9.1
 Release: alt1
 BuildArch: noarch
 
@@ -17,8 +17,7 @@ Requires: sisyphus >= 0.5.3-alt1
 
 Obsoletes: pkg-build-utils, libbte
 
-# Automatically added by buildreq on Fri May 02 2003
-BuildRequires: help2man
+BuildPreReq: help2man
 
 %description
 This package provides package hasher utilities.
@@ -39,6 +38,15 @@ This package provides package hasher utilities.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Sun Jun 13 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.1-alt1
+- mkaptbox: include custom apt.conf (if any) to header
+  of the generated apt.conf file.
+- Minor changes:
+  + mkchroot: create chroot/.out with mode 1770 and group gid2.
+  + rmchroot: chmod chroot/.out, too.
+  + copy_chroot_incoming(): call purge_chroot_in() before copying.
+  + do not call purge_chroot_in() before copy_chroot_incoming().
+
 * Tue Feb 03 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9-alt1
 - hsh,rebuild: implemented --rebuild-prog option.
 - hsh,install: implemented --pkg-init-list/--pkg-build-list options.
