@@ -33,7 +33,7 @@ mkaptbox comes with ABSOLUTELY NO WARRANTY, see license for details.
 Usage: $PROG [options] <path-to-workdir>
 
 Valid options are:
---no-stuff              do not use built packages;
+--no-stuff              do not install built packages;
 -f, --force             force aptbox creation;
 -u, --update            run "apt-get update" after creation;
 -v, --verbose           print a message for each action;

@@ -35,7 +35,7 @@ Usage: $PROG [options] <path-to-workdir>
 Valid options are:
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
---nprocs=NUMBER                 number of processors to use;
+--nprocs=NUMBER                 number of CPUs to use;
 --install-langs=LANGLIST        list of languages to install;
 --contents-index-bin=INDEX      pkg contents binary index;
 --contents-index-all=INDEX      pkg contents complete index;
