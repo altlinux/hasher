@@ -12,7 +12,7 @@ $Id$
   /usr/share/hasher/, and high-level utility, /usr/bin/hsh.
 
   Example of use:
-  $ hasher workdir path/to/foobar-1.0.src.rpm
+  $ hsh workdir path/to/foobar-1.0.src.rpm
 
   Working directory ("workdir" in example above) MUST exist.
 
