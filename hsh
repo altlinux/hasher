@@ -37,6 +37,7 @@ Valid options are:
 --target=ARCH                   target architecture;
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
+--nprocs=NUMBER                 number of processors to use;
 --contents-index-bin=INDEX      pkg contents binary index;
 --contents-index-all=INDEX      pkg contents complete index;
 -v, --verbose                   print a message for each action;
@@ -45,9 +46,10 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l target:,number:,hasher-priv-dir:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l target:,number:,hasher-priv-dir:,nprocs:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
+nprocs=
 contents_index_all=
 contents_index_bin=
 while :; do
@@ -60,6 +62,13 @@ while :; do
 			[ -z "$(echo -E "$number" |tr -d [0-9])" ] ||
 				Fatal "--number: $number: invalid number."
 			number="-$number"
+			shift
+			;;
+		--nprocs)
+			shift
+			nprocs="$1"
+			[ -z "$(echo -E "$nprocs" |tr -d [0-9])" ] ||
+				Fatal "--nprocs: $nprocs: invalid number."
 			shift
 			;;
 		--hasher-priv-dir) shift; hasher_priv_dir="$1"; shift
@@ -104,6 +113,7 @@ for f in "$@"; do
 			${verbose:+$verbose} \
 			${number:+$number} \
 			--hasher-priv-dir="$hasher_priv_dir" \
+			${nprocs:+--nprocs=$nprocs} \
 			${contents_index_all:+--contents-index-all=$contents_index_all} \
 			${contents_index_bin:+--contents-index-all=$contents_index_bin} \
 			#
