@@ -131,11 +131,12 @@ if [ -z "$nodeps" ]; then
 	deps="$(printf %s "$deps" |grep -v '^rpmlib(' |tr -d [[:blank:]])" ||:
 	Verbose "$sname: calculated dependencies: $deps"
 
-	[ -z "$deps" ] || /usr/share/hasher/install \
+	[ -z "$deps" ] || "$hasher_dir/install" \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
 		${number:+--number=$number} \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
+		-- \
 		"$workdir" $deps
 fi
 
