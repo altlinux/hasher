@@ -158,6 +158,11 @@ prepare_contents()
 
 create_contents()
 {
+	if [ -n "$no_contents_indices" ]; then
+		contents_index_bin=
+		return 0
+	fi
+
 	local tmpdir=cache/contents/tmp
 	rm -rf "$tmpdir"
 	mkdir -p "$tmpdir"
