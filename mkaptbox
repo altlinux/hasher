@@ -33,6 +33,7 @@ mkaptbox comes with ABSOLUTELY NO WARRANTY, see license for details.
 Usage: $PROG [options] <path-to-workdir>
 
 Valid options are:
+--no-stuff              do not use built packages;
 -f, --force             force aptbox creation;
 -u, --update            run "apt-get update" after creation;
 -v, --verbose           print a message for each action;
@@ -41,13 +42,16 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,v,h -l force,update,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o f,u,v,h -l no-stuff,force,update,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 force=
 update=
+no_stuff=
 while :; do
 	case "$1" in
+		--no-stuff) no_stuff=1; shift
+			;;
 		-f|--force) force=1; shift
 			;;
 		-u|--update) update=1; shift
@@ -142,8 +146,8 @@ Verbose "created APT configuration file \`$APT_CONFIG'"
 
 target_config="./etc/apt/sources.list"
 cat >"$target_config" <<__EOF__
+${no_stuff:+#}rpm file:$workdir/repo $target hasher
 $(grep '^[^#]' "$sl_value")
-rpm file:$workdir/repo $target hasher
 __EOF__
 Verbose "created APT source list file \`$target_config'"
 

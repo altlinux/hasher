@@ -34,6 +34,7 @@ mkchroot comes with ABSOLUTELY NO WARRANTY, see license for details.
 Usage: $PROG [options] <path-to-workdir> <package>...
 
 Valid options are:
+--no-stuff                      do not use built packages;
 --target=ARCH                   target architecture;
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
@@ -47,15 +48,18 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l target:,number:,hasher-priv-dir:,nprocs:,build-args:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l no-stuff,target:,number:,hasher-priv-dir:,nprocs:,build-args:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
+no_stuff=
 nprocs=
 rpmargs=
 contents_index_all=
 contents_index_bin=
 while :; do
 	case "$1" in
+		--no-stuff) no_stuff=1; shift
+			;;
 		--target) shift; target="$1"; shift
 			;;
 		--build-args) shift; rpmargs="$1"; shift
@@ -108,6 +112,7 @@ for f in "$@"; do
 	rm -rf aptbox
 	$hasher_dir/mkaptbox "$workdir" -u \
 			${verbose:+$verbose} \
+			${no_stuff:+--no-stuff} \
 			#
 	[ ! -d chroot ] ||
 		$hasher_dir/rmchroot "$workdir" \
