@@ -186,7 +186,7 @@ fi
 cat >"$entry" <<__EOF__
 $entry_header
 
-mkdir $verbose -m700 -- \"\$TMPDIR\"
+mkdir $verbose -m700 -- "\$TMPDIR"
 rpminit $verbose
 cat >>/usr/src/.rpmmacros <<\EOF
 %packager Automated package hasher <hasher@localhost>

@@ -155,7 +155,7 @@ fi
 cat >"$entry" <<__EOF__
 $entry_header
 
-mkdir -p $verbose -m700 -- \"\$TMPDIR\"
+mkdir -p $verbose -m700 -- "\$TMPDIR"
 cat >>/usr/src/.rpmmacros <<\EOF
 %packager $packager
 EOF
