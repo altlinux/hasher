@@ -66,8 +66,6 @@ init_list='setup filesystem rpm fakeroot>=0:0.7.3'
 build_list='basesystem rpm-build>=0:4.0.4-alt21 kernel-headers-common>=0:1.1.4-alt1 sisyphus_check>=0:0.7.3 time'
 nprocs=
 install_langs=all
-contents_index_all=
-contents_index_bin=
 repackage_source=
 while :; do
 	case "$1" in
@@ -90,10 +88,6 @@ while :; do
 			;;
 		--hasher-priv-dir) shift; hasher_priv_dir="$1"
 			;;
-		--contents-index-all) shift; contents_index_all="$1"
-			;;
-		--contents-index-bin) shift; contents_index_bin="$1"
-			;;
 		--pkg-init-list) shift; init_list="$1"
 			;;
 		--pkg-build-list) shift; build_list="$1"
@@ -103,6 +97,8 @@ while :; do
 		-v|--verbose) verbose=-v
 			;;
 		-h|--help) Usage 0
+			;;
+		--contents-index-all|--contents-index-bin) shift # obsolete
 			;;
 		--) shift; break
 			;;

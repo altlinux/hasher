@@ -83,8 +83,6 @@ rpmargs=
 prog_rebuild=
 install_langs=
 known_mountpoints=
-contents_index_all=
-contents_index_bin=
 init_list=
 build_list=
 repackage_source=
@@ -133,10 +131,6 @@ while :; do
 			;;
 		--hasher-priv-dir) shift; hasher_priv_dir="$1"
 			;;
-		--contents-index-all) shift; contents_index_all="$1"
-			;;
-		--contents-index-bin) shift; contents_index_bin="$1"
-			;;
 		--pkg-init-list) shift; init_list="$1"
 			;;
 		--pkg-build-list) shift; build_list="$1"
@@ -154,6 +148,8 @@ while :; do
 		-V|--version) print_version hsh
 			;;
 		-h|--help) Usage 0
+			;;
+		--contents-index-all|--contents-index-bin) shift # obsolete
 			;;
 		--) shift; break
 			;;
