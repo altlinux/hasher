@@ -54,6 +54,8 @@ $Id$
   rpm-build > 0:4.0.4-alt20 (required for proper package contents
                              indeces support).
 
+  Only local source methods (i.e. file and copy) are supported.
+
 4. Bug reporting.
 
   In case of usage problems, write to
