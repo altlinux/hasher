@@ -95,7 +95,7 @@ Verbose "installed .host programs."
 cat >.host/entry <<\__EOF__
 #!/.host/sh
 chmod -Rf u+rwX -- /* 2>/dev/null
-/.host/find / -delete 2>/dev/null
+/.host/find / -delete >/dev/null 2>&1
 exit 0
 __EOF__
 chmod 755 .host/entry
