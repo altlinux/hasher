@@ -24,7 +24,8 @@
 
 Usage()
 {
-	cat >&2 <<EOF
+	[ "$1" = 0 ] || exec >&2
+	cat <<EOF
 rebuild - rebuilds source packages.
 
 This program is free software, covered by the GNU General Public License.
