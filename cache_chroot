@@ -44,7 +44,7 @@ archive_chroot_cache()
 	cat >"$entry" <<__EOF__
 $entry_fakeroot_header
 
-list="$(/.host/find $list)"
+list="\$(/.host/find $list)"
 printf %s "\$list" |
 	/.host/cpio --create --quiet --format=newc
 __EOF__
