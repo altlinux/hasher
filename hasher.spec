@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.8.2
+Version: 0.8.3
 Release: alt1
 BuildArch: noarch
 
@@ -31,6 +31,10 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Mon Oct 06 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8.3-alt1
+- install: call ldconfig after install.
+- initroot: be more verbose about filelist generation errors.
+
 * Sun Oct 05 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8.2-alt1
 - Added -q/--quiet option.
 - install,cache_chroot: be more verbose by default.
