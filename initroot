@@ -35,6 +35,7 @@ Usage: $PROG [options] <path-to-workdir>
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
+--no-cache                      do not use cache;
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
 --nprocs=NUMBER                 number of CPUs to use;
@@ -47,15 +48,18 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l no-cache,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
+no_cache=
 nprocs=
 install_langs=dummy
 contents_index_all=
 contents_index_bin=
 while :; do
 	case "$1" in
+		--no-cache) no_cache=1; shift
+			;;
 		--number)
 			shift
 			number="${1##-}"
@@ -100,6 +104,11 @@ shift
 [ -d "$aptbox" ] || Fatal "$aptbox: cannot access aptbox."
 [ -r "$APT_CONFIG" ] || Fatal "$APT_CONFIG: cannot access APT configuration."
 
+if [ -z "$no_cache" ]; then
+	mkdir -p -m700 $verbose cache
+	mkdir -p -m700 $verbose cache/"$PROG"/{list,package}{,.new}
+fi
+
 check_helpers
 
 ugid2="$("$getugid2" $number)" ||
@@ -110,22 +119,94 @@ gid2="$(echo "$ugid2" |cut -d: -f2)"
 [ -n "$nprocs" ] ||
 	nprocs="$(N=`egrep -cs ^cpu[0-9]+ /proc/stat ||:`; [ "$N" -gt 0 ] 2>/dev/null && echo -n "$N" || echo 1)"
 
-filelist="$(print_uris setup filesystem rpm 'fakeroot>=0:0.7.3')" ||
+check_tty
+
+initlist="$(print_uris setup filesystem rpm 'fakeroot>=0:0.7.3')" ||
 	Fatal "failed to generate initial package file list."
-[ -n "$filelist" ] &&
+[ -n "$initlist" ] &&
 	Verbose "generated initial package file list." ||
 	Fatal "failed to generate initial package file list."
 
 # reorder to get setup and filesystem first.
-filelist="$(echo "$filelist" |fgrep /setup-)
-$(echo "$filelist" |fgrep /filesystem-)
-$(echo "$filelist" |egrep -v '/(setup|filesystem)-')"
+initlist="$(echo "$initlist" |fgrep /setup-)
+$(echo "$initlist" |fgrep /filesystem-)
+$(echo "$initlist" |egrep -v '/(setup|filesystem)-')"
+
+[ -n "$no_cache" ] || echo "$initlist" >"cache/$PROG/list.new/init"
+
+buildlist="$(print_uris basesystem 'rpm-build>=0:4.0.4-alt21' 'kernel-headers-common>=1.1.4-alt1' time)" ||
+	Fatal "failed to generate build package file list."
+buildlist="$(
+	echo "$buildlist" |while read bp; do
+		echo "$initlist" |grep -qs "^$bp\$" || echo "$bp"
+	done
+)"
+[ -n "$buildlist" ] &&
+	Verbose "generated build package file list." ||
+	Fatal "failed to generate build package file list."
+
+[ -n "$no_cache" ] || echo "$buildlist" >"cache/$PROG/list.new/build"
+
+rebuild_cache=
+if [ -z "$no_cache" ]; then
+
+cat cache/"$PROG"/list.new/{init,build} |
+	while read f; do
+		touch -r "$f" "cache/$PROG/package.new/${f##*/}"
+	done
+
+while :; do
+	for f in cache/"$PROG"/{rpmdb.tar,chroot.cpio}; do
+		if [ ! -s "$f" ]; then
+			Verbose "missing $f archive, invalidating cache"
+			rebuild_cache=1
+			break 2
+		fi
+	done
+	if ! cmp -s cache/"$PROG"/list{.new,}/init; then
+		Verbose "init list mismatch, invalidating cache"
+		rebuild_cache=1
+		break
+	fi
+	if ! cmp -s cache/"$PROG"/list{.new,}/build; then
+		Verbose "build list mismatch, invalidating cache"
+		rebuild_cache=1
+		break
+	fi
+	bad="cache/$PROG/list.new/bad"
+	rm -f "$bad"
+	cat cache/"$PROG"/list.new/{init,build} |
+		while read f; do
+			n="${f##*/}"
+			if [ "cache/$PROG/package.new/$n" -nt "cache/$PROG/package/$n" -o \
+			     "cache/$PROG/package.new/$n" -ot "cache/$PROG/package/$n" ]; then
+				Verbose "package $n mismatch, invalidating cache"
+				echo "$n" >"$bad"
+				break
+			fi
+		done
+	if [ -f "$bad" ]; then
+		rebuild_cache=1
+		break
+	fi
+	break
+done
+
+# Regenerate data for later cache validation.
+mv -f $verbose cache/"$PROG"/list{.new,}/init
+mv -f $verbose cache/"$PROG"/list{.new,}/build
+rm -f cache/"$PROG"/package/*
+mv -f cache/"$PROG"/package.new/* cache/"$PROG"/package/
+
+fi # !no_cache
+
+if [ -n "$no_cache" -o -n "$rebuild_cache" ]; then
 
 purge_chroot_in
 purge_chroot_out
-for f in $filelist; do
+for f in $initlist; do
 	copy_chroot_incoming "$f"
-	rpm2cpio "$f" |"$chrootuid1" $number "$chroot" /.host/cpio --extract --make-directories --quiet &&
+	rpm2cpio "$f" |"$chrootuid1" $number "$chroot" /.host/cpio --extract --make-directories --sparse --quiet &&
 		Verbose "unpacked ${f##*/}" ||
 		Fatal "unpack of ${f##*/} failed."
 done
@@ -155,7 +236,7 @@ cat >"$entry" <<__EOF__
 $entry_fakeroot_header
 
 export DURING_INSTALL=1
-rpmi -i $verbose --justdb --nodeps $(for f in $filelist; do echo -n "\"$(quote_arg "${f##*/}")\" "; done)
+rpmi -i $verbose --justdb --nodeps $(for f in $initlist; do echo -n "\"$(quote_arg "${f##*/}")\" "; done)
 __EOF__
 
 "$chrootuid1" $number "$chroot" /.host/entry &&
@@ -163,7 +244,7 @@ __EOF__
 	Fatal "failed to install initial package list."
 
 purge_chroot_in
-update_RPM_database --nodeps
+update_RPM_database --nodeps $initlist
 
 for f in /etc/host.conf /etc/hosts /etc/resolv.conf; do
 	if [ -r "$f" -a -s "$f" ]; then
@@ -182,25 +263,17 @@ done
 
 # At this stage, RPM inside chroot is fully functional.
 
-filelist="$(print_uris basesystem 'rpm-build>=0:4.0.4-alt21' 'kernel-headers-common>=1.1.4-alt1' time)" ||
-	Fatal "failed to generate build package file list."
-[ -n "$filelist" ] &&
-	Verbose "generated build package file list." ||
-	Fatal "failed to generate build package file list."
-
 purge_chroot_in
 purge_chroot_out
-copy_chroot_incoming $filelist
-
-check_tty
+copy_chroot_incoming $buildlist
 
 cat >"$entry" <<__EOF__
 $entry_fakeroot_header
 
 export DURING_INSTALL=1
 # FIXME: dev shouldn't be installed
-rpmi -i $verbose --nodeps $hash $(for f in $filelist; do f="${f##*/}"; [ -z "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
-rpmi -i $verbose --nodeps --justdb $(for f in $filelist; do f="${f##*/}"; [ -n "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
+rpmi -i $verbose --nodeps $hash $(for f in $buildlist; do f="${f##*/}"; [ -z "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
+rpmi -i $verbose --nodeps --justdb $(for f in $buildlist; do f="${f##*/}"; [ -n "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
 # /FIXME
 __EOF__
 
@@ -209,7 +282,7 @@ __EOF__
 	Fatal "failed to install build package list."
 
 purge_chroot_in
-update_RPM_database
+update_RPM_database $buildlist
 
 # First time scripts.
 
@@ -226,6 +299,38 @@ __EOF__
 "$chrootuid1" $number "$chroot" /.host/entry &&
 	Verbose "first time initialization complete." ||
 	Fatal "first time initialization failed."
+
+if [ -n "$rebuild_cache" ]; then
+	# archive rpmdb
+	f="cache/$PROG/rpmdb.tar"
+	tar -cf "$f" -C aptbox/var/lib/rpm/ . &&
+		Verbose "archived RPM database" ||
+		Fatal "archiving of RPM database failed."
+		
+	# archive chroot
+	f="cache/$PROG/chroot.list"
+	"$chrootuid1" $number "$chroot" /.host/find $(cd chroot && /bin/ls -1 |grep -v ^dev) >"$f" &&
+		Verbose "generated chroot filelist" ||
+		Fatal "generation of chroot filelist failed."
+	"$chrootuid1" $number "$chroot" /.host/cpio --create --quiet <"$f" >"cache/$PROG/chroot.cpio" &&
+		Verbose "archived chroot" ||
+		Fatal "archiving of chroot failed."
+fi # rebuild_cache
+
+else # !no_cache && !rebuild_cache
+	# restore rpmdb
+	f="cache/$PROG/rpmdb.tar"
+	rm -f aptbox/var/lib/rpm/*
+	tar -xf "$f" -C aptbox/var/lib/rpm/ &&
+		Verbose "unpacked $f" ||
+		Fatal "unpack of $f failed."
+		
+	# restore chroot
+	f="cache/$PROG/chroot.cpio"
+	cat "$f" |"$chrootuid1" $number "$chroot" /.host/cpio --extract --make-directories --sparse --quiet &&
+		Verbose "unpacked $f" ||
+		Fatal "unpack of $f failed."
+fi # !no_cache && !rebuild_cache
 
 # Create /dev/log.
 /usr/bin/mksock -m666 "$chroot/dev/log" ||
@@ -256,6 +361,7 @@ cat >>/usr/src/.rpmmacros <<\EOF
 ${contents_index_bin:+%_pkg_contents_index_bin /.host/contents_index_bin}
 EOF
 __EOF__
+chmod 755 "$entry"
 
 "$chrootuid2" $number "$chroot" /.host/entry &&
 	Verbose "created RPM build directory tree." ||

@@ -159,10 +159,10 @@ update_repo()
 		Fatal "failed to update hasher repository indices."
 }
 
-# assumed: defined variables: hash, filelist
+# assumed: defined variables: hash
 update_RPM_database()
 {
-	rpmi -i $verbose $hash --dbpath "$aptbox/var/lib/rpm" --ignoresize --noorder --noscripts --notriggers --justdb "$@" $filelist
+	rpmi -i $verbose $hash --dbpath "$aptbox/var/lib/rpm" --ignoresize --noorder --noscripts --notriggers --justdb "$@"
 		Verbose "RPM database updated." ||
 		Fatal "RPM database update failed."
 }

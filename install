@@ -107,5 +107,5 @@ chmod 755 "$entry"
 	Fatal "packages installation failed."
 
 purge_chroot_in
-update_RPM_database
+update_RPM_database $filelist
 

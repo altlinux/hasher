@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.7
+Version: 0.7.1
 Release: alt1
 BuildArch: noarch
 
@@ -31,6 +31,9 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Sat Sep 13 2003 Dmitry V. Levin <ldv@altlinux.org> 0.7.1-alt1
+- Initial initroot caching support.
+
 * Thu Sep 11 2003 Dmitry V. Levin <ldv@altlinux.org> 0.7-alt1
 - Enhanced --no-stuff support.
 - Fixed --number support.
