@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.10
+Version: 1.0.11
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -42,6 +42,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Tue Mar 15 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.11-alt1
+- hsh: handle traps in more portable way.
+- rmchroot: chgrp chroot directory itself, too.
+- functions/{get_apt_config,read_apt_config}: new functions.
+- mkaptbox: use them.
+
 * Tue Jan 25 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.10-alt1
 - functions: removed no longer needed "am I root?" sanity check
   (fixes #5869).
