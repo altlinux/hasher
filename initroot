@@ -184,7 +184,7 @@ $entry_header
 
 rpminit $verbose
 cat >>/usr/src/.rpmmacros <<\EOF
-%packager Automated package hasher <hasher@altlinux.org>
+%packager Automated package hasher <hasher@localhost>
 %buildhost ${USER:-`id -nu`}.hasher.altlinux.org
 %__BTE hasher
 %__nprocs $nprocs
