@@ -45,6 +45,7 @@ Valid options are:
   --no-sisyphus-check[=LIST]        do not run sisyphus_check tests [specified in LIST];
   --no-sisyphus-check-in[=LIST]     do not run sisyphus_check input tests [specified in LIST];
   --no-sisyphus-check-out[=LIST]    do not run sisyphus_check output tests [specified in LIST];
+  --rebuild-prog=PROG               program to run for rebuild instead of builtin script;
   --target=ARCH                     target architecture;
   --args=ARGS                       extra arguments for rpmbuild;
   --nodeps                          ignore package dependencies (dangerous);
@@ -57,11 +58,12 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,target:,args:,nodeps,number:,hasher-priv-dir:,quiet,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,rebuild-prog:,target:,args:,nodeps,number:,hasher-priv-dir:,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 nodeps=
 rpmargs=
+prog_rebuild=
 while :; do
 	case "$1" in
 		--no-stuff) no_stuff=1
@@ -74,6 +76,8 @@ while :; do
 			;;
 		--no-sisyphus-check-out) shift
 			[ -n "$1" ] && no_sisyphus_check_out="$1" || no_sisyphus_check_out=all
+			;;
+		--rebuild-prog) shift; prog_rebuild="$1"
 			;;
 		--target) shift; target="$1"
 			;;
@@ -149,6 +153,17 @@ if [ "$no_sisyphus_check_in" != all ]; then
 		Fatal "$source: sisyphus_check failed."
 fi
 
+if [ -n "$prog_rebuild" ]; then
+	install -p -m755 $verbose "$prog_rebuild" chroot/.host/rebuild
+else
+	cat >"chroot/.host/rebuild" <<__EOF__
+#!/bin/sh -e
+exec nice time rpmbuild --rebuild $nodeps --target="$(quote_arg "${target:-$def_target}")" $rpmargs "\$@"
+	__EOF__
+	chmod 755 "chroot/.host/rebuild"
+	Verbose "created rebuild script."
+fi
+
 cat >"$entry" <<__EOF__
 $entry_header
 
@@ -157,8 +172,7 @@ cat >>/usr/src/.rpmmacros <<\EOF
 %packager $packager
 EOF
 
-f="$(quote_arg "$sname")"
-nice time rpmbuild --rebuild $nodeps --target="$(quote_arg "${target:-$def_target}")" $rpmargs "\$f"
+/.host/rebuild "$(quote_arg "$sname")"
 find /usr/src/RPM/SRPMS/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
 	xargs -r0 mv --reply=yes $verbose --target-directory=/.out/ --
 find /usr/src/RPM/RPMS/ -mindepth 2 -maxdepth 2 -type f -name \*.rpm -print0 |
