@@ -84,7 +84,12 @@ install -pD -m755 $verbose /usr/bin/find.static .host/find
 Verbose "installed .host programs."
 
 if [ ! -c "dev/null" ]; then
-	mkdir -m755 $verbose dev
+	ugid1="$("$getugid1" $number)" ||
+		Fatal "getugid1 failed."
+	gid1="$(echo "$ugid1" |cut -d: -f2)"
+
+	mkdir -p -m755 $verbose dev
+	chgrp "$gid1" $verbose dev
 	"$makedev" $number "$chroot" ||
 		Fatal "failed to make devices."
 	Verbose "created devices in \`$chroot/dev/'"
