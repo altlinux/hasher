@@ -73,7 +73,7 @@ while :; do
 		--apt-prefix) shift; apt_prefix="$1"; shift
 			[ -d "$apt_prefix" ] || Fatal "$apt_prefix: directory not available."
 			;;
-		--no-update) update=0; shift
+		--no-update) update=; shift
 			;;
 		-u|--update) update=1; shift
 			;;
@@ -85,7 +85,7 @@ while :; do
 			;;
 		-h|--help) Usage 0
 			;;
-		--version) echo 'mkaptbox version @VERSION@'; exit 0;
+		--version) echo 'mkaptbox version @VERSION@'; exit 0
 			;;
 		--) shift; break
 			;;
