@@ -154,17 +154,17 @@ for f in "$@"; do
 		$hasher_dir/rmchroot "$workdir" \
 			--hasher-priv-dir="$hasher_priv_dir" \
 			${verbose:+$verbose} \
-			${number:+$number} \
+			${number:+--number=$number} \
 			#
 	$hasher_dir/mkchroot "$workdir" \
 			--hasher-priv-dir="$hasher_priv_dir" \
 			${verbose:+$verbose} \
-			${number:+$number} \
+			${number:+--number=$number} \
 			#
 	$hasher_dir/initroot "$workdir" \
 			--hasher-priv-dir="$hasher_priv_dir" \
 			${verbose:+$verbose} \
-			${number:+$number} \
+			${number:+--number=$number} \
 			${nprocs:+--nprocs=$nprocs} \
 			${install_langs:+--install-langs="$install_langs"} \
 			${contents_index_all:+--contents-index-all=$contents_index_all} \
@@ -175,7 +175,7 @@ for f in "$@"; do
 			--hasher-priv-dir="$hasher_priv_dir" \
 			${verbose:+$verbose} \
 			${no_stuff:+--no-stuff} \
-			${number:+$number} \
+			${number:+--number=$number} \
 			${rpmargs:+--args="$rpmargs"} \
 			"$f"
 done
