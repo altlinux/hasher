@@ -57,10 +57,6 @@ EOF
 	exit
 }
 
-# root, go away.
-[ "$EUID" -gt 0 ] 2>/dev/null ||
-	Fatal "please run me as unprivileged user."
-
 # safe umask.
 umask 022
 
