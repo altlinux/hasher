@@ -122,7 +122,13 @@ get_apt_config "$sl_name" sl_value
 [ -n "$sl_value" ] || Fatal "apt-config: undefined $sl_name"
 if [ -n "${sl_value##/*}" ]; then
 	get_apt_config "Dir::Etc" dir_etc
-	sl_value="$dir_etc/$sl_value"
+	if [ -n "${dir_etc##/*}" ]; then
+		get_apt_config "Dir" dir
+		dir_etc="$dir$dir_etc"
+		unset dir
+	fi
+	sl_value="$dir_etc$sl_value"
+	unset dir_etc
 fi
 
 [ -s "$sl_value" -a -r "$sl_value" ] || Fatal "broken $sl_name: $sl_value"
