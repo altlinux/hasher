@@ -40,6 +40,7 @@ This package provides package hasher utilities.
 
 %changelog
 * Tue Feb 03 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9-alt1
+- hsh,rebuild: implemented --rebuild-prog option.
 - Added: FAQ, QUICKSTART.
 
 * Sat Jan 31 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.8-alt1
