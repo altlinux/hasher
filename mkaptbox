@@ -20,7 +20,11 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 
-. /usr/share/hasher/functions
+if [ "$0" = ./mkaptbox ]; then
+	. ./functions
+else
+	. /usr/share/hasher/functions
+fi
 
 Usage()
 {
@@ -36,20 +40,21 @@ Usage: $PROG [options] <path-to-workdir>
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
---no-stuff              do not install built packages;
---target=ARCH           target architecture;
---apt-config=FILE       path to custom apt.conf file;
---apt-prefix=DIRECTORY  path to apt directory prefix (e.g. /usr);
--f, --force             force aptbox creation;
--u, --update            run "apt-get update" after creation;
--q, --quiet             try to be more quiet;
--v, --verbose           print a message for each action;
--h, --help              show this text.
+    --no-stuff              do not install built packages;
+    --target=ARCH           target architecture;
+    --apt-config=FILE       path to custom apt.conf file;
+    --apt-prefix=DIRECTORY  path to apt directory prefix (e.g. /usr);
+    -f, --force             force aptbox creation;
+    -u, --update            run "apt-get update" after creation;
+    -q, --quiet             try to be more quiet;
+    -v, --verbose           print a message for each action;
+    --version               print program version and exit;
+    -h, --help              show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,q,v,h -l no-stuff,target:,apt-config:,apt-prefix:,force,update,quiet,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o f,u,q,v,h -l no-stuff,target:,apt-config:,apt-prefix:,force,update,quiet,verbose,help,version -- "$@"` || Usage
 eval set -- "$TEMP"
 
 force=
@@ -76,6 +81,8 @@ while :; do
 		-v|--verbose) verbose=-v; shift
 			;;
 		-h|--help) Usage 0
+			;;
+		--version) echo 'mkaptbox version @VERSION@'; exit 0;
 			;;
 		--) shift; break
 			;;
