@@ -36,21 +36,23 @@ Usage: $PROG [options] <path-to-workdir> <source-package>
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
---no-stuff              do not generate apt hash files;
---no-sisyphus-check     do not run sisyphus_check tests;
---target=ARCH           target architecture;
---args=ARGS             extra arguments for rpmbuild;
---nodeps                ignore package dependencies (dangerous);
---number=NUMBER         subconfig identifier;
---hasher-priv-dir=DIR   hasher-priv directory;
--q, --quiet             try to be more quiet;
--v, --verbose           print a message for each action;
--h, --help              show this text.
+--no-stuff                      do not generate apt hash files;
+--no-sisyphus-check[=LIST]      do not run sisyphus_check tests [specified in LIST];
+--no-sisyphus-check-in[=LIST]   do not run sisyphus_check input tests [specified in LIST];
+--no-sisyphus-check-out[=LIST]  do not run sisyphus_check output tests [specified in LIST];
+--target=ARCH                   target architecture;
+--args=ARGS                     extra arguments for rpmbuild;
+--nodeps                        ignore package dependencies (dangerous);
+--number=NUMBER                 subconfig identifier;
+--hasher-priv-dir=DIR           hasher-priv directory;
+-q, --quiet                     try to be more quiet;
+-v, --verbose                   print a message for each action;
+-h, --help                      show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-sisyphus-check,target:,args:,nodeps,number:,hasher-priv-dir:,quiet,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,target:,args:,nodeps,number:,hasher-priv-dir:,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 nodeps=
@@ -59,7 +61,20 @@ while :; do
 	case "$1" in
 		--no-stuff) no_stuff=1; shift
 			;;
-		--no-sisyphus-check) no_sisyphus_check=1; shift
+		--no-sisyphus-check)
+			shift
+			[ -n "$1" ] && no_sisyphus_check="$1" || no_sisyphus_check=all
+			shift
+			;;
+		--no-sisyphus-check-in)
+			shift
+			[ -n "$1" ] && no_sisyphus_check_in="$1" || no_sisyphus_check_in=all
+			shift
+			;;
+		--no-sisyphus-check-out)
+			shift
+			[ -n "$1" ] && no_sisyphus_check_out="$1" || no_sisyphus_check_out=all
+			shift
 			;;
 		--target) shift; target="$1"; shift
 			;;
@@ -127,8 +142,12 @@ purge_chroot_in
 purge_chroot_out
 copy_chroot_incoming "$source"
 
-if [ -z "$no_sisyphus_check" ]; then
-	sisyphus_check --no-check-gpg -- chroot/.in &&
+[ -n "$no_sisyphus_check_in" ] ||
+	no_sisyphus_check_in="$no_sisyphus_check"
+if [ "$no_sisyphus_check_in" != all ]; then
+	[ -n "$no_sisyphus_check_in" ] ||
+		no_sisyphus_check_in=gpg
+	sisyphus_check --no-check="$no_sisyphus_check_in" -- chroot/.in &&
 		Verbose "$source: sisyphus_check passed." ||
 		Fatal "$source: sisyphus_check failed."
 fi
@@ -155,8 +174,13 @@ chmod 755 "$entry"
 
 make_repo
 
-if [ -z "$no_sisyphus_check" ]; then
-	sisyphus_check --no-check-gpg -- chroot/.out &&
+[ -n "$no_sisyphus_check_out" ] ||
+	no_sisyphus_check_out="$no_sisyphus_check"
+if [ "$no_sisyphus_check_out" != all ]; then
+	[ -n "$no_sisyphus_check_out" ] &&
+		no_sisyphus_check_out="$no_sisyphus_check_out,gpg" ||
+		no_sisyphus_check_out=gpg
+	sisyphus_check --no-check="$no_sisyphus_check_out" -- chroot/.out &&
 		Verbose "$source: sisyphus_check passed." ||
 		Fatal "$source: sisyphus_check failed."
 fi

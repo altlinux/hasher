@@ -23,15 +23,15 @@
 unset CDPATH ||:
 PROG="${0##*/}"
 
+Info()
+{
+	echo "${0##*/}: $*" >&2
+}
+
 Fatal()
 {
 	echo "${0##*/}: $*" >&2
 	exit 1
-}
-
-Info()
-{
-	echo "${0##*/}: $*" >&2
 }
 
 quiet=
@@ -73,6 +73,8 @@ entry=
 no_stuff=
 APT_CONFIG=
 no_sisyphus_check=
+no_sisyphus_check_in=
+no_sisyphus_check_out=
 
 set_workdir()
 {
