@@ -76,6 +76,8 @@ set_workdir()
 	if echo "$workdir" |grep -qs '["\]'; then
 		Fatal "$workdir: illegal symbols in pathname."
 	fi
+	[ -w . ] || Fatal "unwritable working directory."
+
 	Verbose "changed working directory to \`$workdir'"
 	aptbox="$workdir/aptbox"
 	chroot="$workdir/chroot"
