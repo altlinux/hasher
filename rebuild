@@ -159,7 +159,7 @@ else
 	cat >"chroot/.host/rebuild" <<__EOF__
 #!/bin/sh -e
 exec nice time rpmbuild --rebuild $nodeps --target="$(quote_arg "${target:-$def_target}")" $rpmargs "\$@"
-	__EOF__
+__EOF__
 	chmod 755 "chroot/.host/rebuild"
 	Verbose "created rebuild script."
 fi
