@@ -16,6 +16,9 @@ $Id$
 
   Working directory ("workdir" in example above) MUST exist.
 
+  Working directory shouldn't contain self-made files or directories
+  with names "aptbox" and "chroot".
+
   During the work hasher creates auto repository, workdir/repo.
   Result of successful build will be placed into this repository.
 
