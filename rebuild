@@ -147,6 +147,7 @@ if [ "$no_sisyphus_check_in" != all ]; then
 	cat >"$entry" <<__EOF__
 $entry_header
 
+mkdir -p $verbose -m700 -- "\$TMPDIR"
 sisyphus_check --no-check="$(quote_arg "$no_sisyphus_check_in")" /.in
 __EOF__
 	chmod 755 "$entry"
@@ -216,7 +217,6 @@ $entry_header
 
 sisyphus_check --no-check="$(quote_arg "$no_sisyphus_check_out")" /.out
 __EOF__
-	chmod 755 "$entry"
 
 	"$chrootuid2" $number "$chroot" /.host/entry &&
 		Verbose "$sname: sisyphus_check passed." ||
