@@ -134,7 +134,7 @@ initlist="$(print_uris setup filesystem rpm 'fakeroot>=0:0.7.3')" ||
 	Fatal "failed to generate initial package file list."
 [ -n "$initlist" ] &&
 	Verbose "generated initial package file list." ||
-	Fatal "failed to generate initial package file list."
+	Fatal "failed to generate non-empty initial package file list; check your sources.list"
 
 # reorder to get setup and filesystem first.
 initlist="$(echo "$initlist" |fgrep /setup-)
@@ -152,7 +152,7 @@ buildlist="$(
 )"
 [ -n "$buildlist" ] &&
 	Verbose "generated build package file list." ||
-	Fatal "failed to generate build package file list."
+	Fatal "failed to generate non-empty build package file list; check your sources.list"
 
 [ -n "$no_cache" ] || echo "$buildlist" >"cache/chroot/list.new/build"
 
