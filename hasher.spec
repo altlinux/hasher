@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0
+Version: 1.0.1
 Release: alt1
 BuildArch: noarch
 
@@ -39,6 +39,15 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Mon Jul 19 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.1-alt1
+- initroot:
+  + removed --no-build option, use --pkg-build-list= instead.
+- hsh, initroot:
+  + handle comma as package name delimiter in values of the
+    --pkg-init-list and --pkg-build-list options.
+- hsh:
+  + new option: --initroot-only.
+
 * Thu Jul 15 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0-alt1
 - Added hasher(7) manpage.
 - Added more docs to hsh(1) manpage.
