@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.6
+Version: 0.7
 Release: alt1
 BuildArch: noarch
 
@@ -31,6 +31,10 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Thu Sep 11 2003 Dmitry V. Levin <ldv@altlinux.org> 0.7-alt1
+- Enhanced --no-stuff support.
+- Fixed --number support.
+
 * Mon Sep 08 2003 Dmitry V. Levin <ldv@altlinux.org> 0.6-alt1
 - hsh:
   + implemented locking.
