@@ -158,7 +158,7 @@ if [ -z "$no_sisyphus_check" ]; then
 		Fatal "$source: sisyphus_check failed."
 fi
 
-case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |wc -l` in
+case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |grep -c '\.src\.rpm$'` in
 	0)
 		find chroot/.in/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
 			xargs -r0 mv --reply=yes $verbose --target-directory=repo/SRPMS.hasher/ --
