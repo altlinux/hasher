@@ -38,7 +38,8 @@ Usage: $PROG [options] <path-to-workdir> <package>...
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
-  --no-stuff                        do not install built packages;
+  --with-stuff                      allow use of built packages;
+  --without-stuff                   do not use built packages;
   --no-cache                        do not use initroot cache;
   --no-contents-indices             do not use content indices;
   --no-sisyphus-check[=LIST]        do not run sisyphus_check tests
@@ -72,7 +73,7 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l no-stuff,no-cache,no-contents-indices,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,rebuild-prog:,repackage-source,target:,number:,nprocs:,mountpoints:,hasher-priv-dir:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,pkg-init-list:,pkg-build-list:,apt-config:,apt-prefix:,quiet,verbose,help,version -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,V,h -l with-stuff,without-stuff,no-stuff,no-cache,no-contents-indices,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,rebuild-prog:,repackage-source,target:,number:,nprocs:,mountpoints:,hasher-priv-dir:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,pkg-init-list:,pkg-build-list:,apt-config:,apt-prefix:,quiet,verbose,help,version -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
@@ -90,7 +91,9 @@ repackage_source=
 apt_config=
 while :; do
 	case "$1" in
-		--no-stuff) no_stuff=1
+		--with-stuff) no_stuff=
+			;;
+		--without-stuff|--no-stuff) no_stuff=1
 			;;
 		--no-cache) no_cache=1
 			;;
