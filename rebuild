@@ -34,6 +34,7 @@ Usage: $PROG [options] <path-to-workdir> <source-package>
 
 Valid options are:
 --target=ARCH                   target architecture;
+--args=ARGS                     extra arguments for rpmbuild;
 --nodeps                        ignore package dependencies (dangerous);
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
@@ -43,13 +44,16 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l target:,nodeps,number:,hasher-priv-dir:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l target:,args:,nodeps,number:,hasher-priv-dir:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 nodeps=
+rpmargs=
 while :; do
 	case "$1" in
 		--target) shift; target="$1"; shift
+			;;
+		--args) shift; rpmargs="$1"; shift
 			;;
 		--nodeps) nodeps=--nodeps; shift
 			;;
@@ -113,7 +117,7 @@ if [ -z "\$p" ]; then
 	echo "\$f: undefined packager" >&2
 	exit 1
 fi
-nice time rpmbuild --rebuild $nodeps --target="$(quote_arg "$target")" --define "packager \$p" "\$f"
+nice time rpmbuild --rebuild $nodeps --target="$(quote_arg "$target")" --define "packager \$p" $rpmargs "\$f"
 find /usr/src/RPM/RPMS/ -mindepth 2 -maxdepth 2 -type f -print0 |
 	xargs -r0 mv --reply=yes $verbose --target-directory=/.out/ --
 __EOF__

@@ -38,6 +38,7 @@ Valid options are:
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
 --nprocs=NUMBER                 number of processors to use;
+--build-args=ARGS               extra arguments for rpmbuild;
 --contents-index-bin=INDEX      pkg contents binary index;
 --contents-index-all=INDEX      pkg contents complete index;
 -v, --verbose                   print a message for each action;
@@ -46,15 +47,18 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l target:,number:,hasher-priv-dir:,nprocs:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l target:,number:,hasher-priv-dir:,nprocs:,build-args:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 nprocs=
+rpmargs=
 contents_index_all=
 contents_index_bin=
 while :; do
 	case "$1" in
 		--target) shift; target="$1"; shift
+			;;
+		--build-args) shift; rpmargs="$1"; shift
 			;;
 		--number)
 			shift
@@ -129,5 +133,6 @@ for f in "$@"; do
 			${number:+$number} \
 			--hasher-priv-dir="$hasher_priv_dir" \
 			--target="$target" \
+			${rpmargs:+--args="$rpmargs"} \
 			"$f"
 done
