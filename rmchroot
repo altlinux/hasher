@@ -87,6 +87,7 @@ done
 cat >.host/entry <<\__EOF__
 #!/.host/sh
 chmod -Rf u+rwX -- /* 2>/dev/null
+/.host/rm -rf -- /var/tmp/ /usr/src/ 2>/dev/null
 /.host/rm -rf -- /*/ 2>/dev/null
 exit 0
 __EOF__
