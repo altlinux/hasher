@@ -199,8 +199,8 @@ CONTENTS
    Yes, it is.
 
    You should understand that building packages and running shell are
-   incompatible tasks.  Hasher is devoted for first one, however you
-   can use it for second one, too.
+   incompatible tasks.  Hasher is devoted for the first one, however
+   you can use it for the second one, too.
 
    For example, this command
    $ use_pty=yes /usr/lib/hasher-priv/chrootuid2.sh /path/to/workdir/chroot /bin/runas -bash bash
