@@ -170,8 +170,10 @@ CONTENTS
 	allowed_mountpoints=/proc
 
    Second, the package you are going to build should include /proc
-   in build dependencies, e.g.
+   in its build dependencies, e.g.
 	BuildPreReq: /proc
+   Alternatively, at least one of packages installed to build environment
+   should include /proc in its dependencies.
  
    Third, hsh should be run with parameter --mountpoints=/proc.
 
@@ -187,8 +189,10 @@ CONTENTS
 	allowed_mountpoints=/dev/pts
 
    Second, the package you are going to build should include /dev/pts
-   in build dependencies, e.g.
+   in its build dependencies, e.g.
 	BuildPreReq: /dev/pts
+   Alternatively, at least one of packages installed to build environment
+   should include /dev/pts in its dependencies.
  
    Third, hsh should be run with parameter --mountpoints=/dev/pts.
 
