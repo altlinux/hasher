@@ -103,7 +103,7 @@ gid2="$(echo "$ugid2" |cut -d: -f2)"
 [ -n "$nprocs" ] ||
 	nprocs="$(N=`egrep -cs ^cpu[0-9]+ /proc/stat`; [ "$N" -gt 0 ] 2>/dev/null && echo -n "$N" || echo 1)"
 
-filelist="$(print_uris setup filesystem rpm fakeroot)"
+filelist="$(print_uris setup filesystem rpm 'fakeroot>=0:0.7.3')"
 filelist="$(echo "$filelist" |fgrep /setup-)
 $(echo "$filelist" |fgrep /filesystem-)
 $(echo "$filelist" |egrep -v '/(setup|filesystem)-')"
@@ -169,7 +169,7 @@ done
 
 # At this stage, RPM inside chroot is fully functional.
 
-filelist="$(print_uris basesystem rpm-build kernel-headers-common time)"
+filelist="$(print_uris basesystem 'rpm-build>0:4.0.4-alt20' kernel-headers-common time)"
 purge_chroot_in
 purge_chroot_out
 copy_chroot_incoming $filelist
