@@ -158,6 +158,9 @@ export DURING_INSTALL=1
 # WORKAROUND: mtab is missing in setup-2.2.2-alt1
 touch /etc/mtab
 # /WORKAROUND
+# WORKAROUND: filesystem < 2.1.7-alt1 doesn't provide /sys
+mkdir -p /sys
+# /WORKAROUND
 rm -f /etc/rpm/macros.db1
 # WORKAROUND: glibc-locales is too large
 echo '%_install_langs $install_langs' >>/etc/rpm/macros
