@@ -77,55 +77,53 @@ DoS\-attacks.
 In general, the way of source package in hasher during build looks
 as follows:
 .TP
-1.
+1. Generate aptbox.
 User
 .I C
 generates environment (aptbox) for apt.
 .TP
-2.
-Build environment probably left by previous builds should be completely
-removed.  The removal is done sequential: inside build chroot by user
+2. Remove build environment probably left by previous builds.
+The removal is done sequential: inside build chroot by user
 .IR U ,
 inside build chroot by user
 .I R
 and finally outside chroot by user
 .IR C .
 .TP
-3.
+3. Generate new build chroot framework.
 User
 .I C
-generates new build chroot framework, which consists of helper directories
-and helper statically linked programs:
+generates the framework, which consists of helper directories
+and statically linked helper programs:
 .BR ash (1),
 .BR find (1)
 and
 .BR cpio (1).
 Basic device files are also created at this point with help of 
 .BR hasher\-priv (8).
-These devices are necessary for build environment and safe for host
+These devices are necessary for build environment and secure for host
 system.
 .TP
-4.
-Basic install environment should be generated; this environment contains
-everything necessary for regular package installs.
+4. Generate basic install environment.
+This environment contains everything necessary for regular package
+installs.
 User
 .I C
-using apt determines set of packages requires to generate install environment.
+using apt determines set of packages requires to generate install
+environment.
 User
 .I R
 using static helper programs unpacks these packages.
 .TP
-5.
-Basic build environment should be generated; this environment contains
-tools required for every package build.
+5. Generate basic build environment.
+This environment contains tools required for every package build.
 User
 .I C
 using apt determines set of packages, user
 .I R
 installs them.
 .TP
-6.
-Build environment for this particular package should be generated.
+6. Generate build environment for this particular package.
 User
 .I U
 fetches package build dependencies, user
@@ -134,10 +132,10 @@ using apt determines set of packages to install, and user
 .I R
 installs them.
 .TP
-7.
+7. Build the package.
 User
 .I U
-executes the package build.
+executes the build.
 .PP
 These scheme designed to eliminate attacks of form
 .IR U "->" R ,
