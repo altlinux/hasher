@@ -67,6 +67,8 @@ while :; do
 		--no-stuff) no_stuff=1
 			;;
 		--target) shift; target="$1"
+			[ -z "${target##[A-Za-z]*}" ] ||
+				Fatal "--target: $target: invalid architecture."
 			;;
 		--apt-config) shift; apt_config="$1"
 			[ -r "$apt_config" ] || Fatal "$apt_config: file not available."

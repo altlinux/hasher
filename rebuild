@@ -83,6 +83,8 @@ while :; do
 		--rebuild-prog) shift; prog_rebuild="$1"
 			;;
 		--target) shift; target="$1"
+			[ -z "${target##[A-Za-z]*}" ] ||
+				Fatal "--target: $target: invalid architecture."
 			;;
 		--args) shift; rpmargs="$1"
 			;;

@@ -110,6 +110,8 @@ while :; do
 		--repackage-source) repackage_source=1
 			;;
 		--target) shift; target="$1"
+			[ -z "${target##[A-Za-z]*}" ] ||
+				Fatal "--target: $target: invalid architecture."
 			;;
 		--build-args) shift; rpmargs="$1"
 			;;
