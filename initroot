@@ -142,7 +142,7 @@ check_tty
 . "$hasher_dir/cache_chroot"
 . "$hasher_dir/cache_contents"
 
-init_list=`printf %s "$init_list" |tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//`
+init_list=`printf %s "$init_list" |tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//'`
 [ -n "$init_list" ] ||
 	Fatal "initial package file list is empty, cannot setup chroot."
 
@@ -163,7 +163,7 @@ if [ -z "$no_cache" ]; then
 	[ ! -s cache/chroot/list.new/init ] || echo >>cache/chroot/list.new/init
 fi
 
-build_list=`printf %s "$build_list" |tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//`
+build_list=`printf %s "$build_list" |tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//'`
 if [ -n "$build_list" ]; then
 	buildlist="$(print_uris $build_list)" ||
 		Fatal "failed to generate build package file list."
