@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.9.6
+Version: 0.9.9.7
 Release: alt1
 BuildArch: noarch
 
@@ -12,7 +12,7 @@ Group: Development/Other
 Source: %name-%version.tar.bz2
 
 Requires: getopt, ash-static, cpio-static, find-static
-Requires: hasher-priv, apt >= 0.5.5cnc4.1-alt7
+Requires: hasher-priv >= 0.9, apt >= 0.5.5cnc4.1-alt7
 Requires: sisyphus >= 0.5.3-alt1
 
 Obsoletes: pkg-build-utils, libbte
@@ -38,6 +38,9 @@ This package provides package hasher utilities.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Sat Jul 10 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.7-alt1
+- Implemented mount/umount support.
+
 * Wed Jul 07 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.6-alt1
 - rebuild:
   + execute sisyphus_check for source package
