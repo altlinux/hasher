@@ -182,6 +182,7 @@ rpminit $verbose
 cat >>/usr/src/.rpmmacros <<\EOF
 %packager Automated package hasher <hasher@altlinux.org>
 %buildhost ${USER:-`id -nu`}.hasher.altlinux.org
+%__hasher 1
 %__nprocs $nprocs
 ${contents_index_bin:+%_pkg_contents_index_bin /.host/contents_index_bin}
 EOF
