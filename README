@@ -31,12 +31,6 @@ $Id$
     Number of CPUs to use.
     By default, number of CPUs is calculated using /proc/stat data.
 
-    --contents-index-all=INDEX
-    Path to file with complete package contents index, e.g.
-    path/to/Sisyphus/i586/base/contents_index; necessary for proper
-    binary package dependencies calculation.
-    By default, no package contents indices will be used.
-
     -v, --verbose
     Print a message for each action.  Useful for tracing and/or
     getting detailed progress information.
