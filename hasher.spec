@@ -36,11 +36,11 @@ This package provides package hasher utilities.
 %_bindir/*
 %_datadir/%name
 %_mandir/man?/*
-%doc FAQ README
+%doc FAQ QUICKSTART README
 
 %changelog
 * Tue Feb 03 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9-alt1
-- Added FAQ.
+- Added: FAQ, QUICKSTART.
 
 * Sat Jan 31 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.8-alt1
 - mkaptbox:
