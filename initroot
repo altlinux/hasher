@@ -109,11 +109,16 @@ gid2="$(echo "$ugid2" |cut -d: -f2)"
 [ -n "$nprocs" ] ||
 	nprocs="$(N=`egrep -cs ^cpu[0-9]+ /proc/stat`; [ "$N" -gt 0 ] 2>/dev/null && echo -n "$N" || echo 1)"
 
-filelist="$(print_uris setup filesystem rpm 'fakeroot>=0:0.7.3')"
+filelist="$(print_uris setup filesystem rpm 'fakeroot>=0:0.7.3')" ||
+	Fatal "failed to generate initial package file list."
+[ -n "$filelist" ] &&
+	Verbose "generated initial package file list." ||
+	Fatal "failed to generate initial package file list."
+
+# reorder to get setup and filesystem first.
 filelist="$(echo "$filelist" |fgrep /setup-)
 $(echo "$filelist" |fgrep /filesystem-)
 $(echo "$filelist" |egrep -v '/(setup|filesystem)-')"
-Verbose "generated initial filelist."
 
 purge_chroot_in
 purge_chroot_out
@@ -139,6 +144,7 @@ echo '%_install_langs $install_langs' >>/etc/rpm/macros
 rpmdb --initdb
 __EOF__
 chmod 755 "$entry"
+Verbose "created entry point: $entry"
 
 "$chrootuid1" $number "$chroot" /.host/entry &&
 	Verbose "created RPM database." ||
@@ -175,7 +181,12 @@ done
 
 # At this stage, RPM inside chroot is fully functional.
 
-filelist="$(print_uris basesystem 'rpm-build>0:4.0.4-alt20' kernel-headers-common time)"
+filelist="$(print_uris basesystem 'rpm-build>0:4.0.4-alt20' kernel-headers-common time)" ||
+	Fatal "failed to generate build package file list."
+[ -n "$filelist" ] &&
+	Verbose "generated build package file list." ||
+	Fatal "failed to generate build package file list."
+
 purge_chroot_in
 purge_chroot_out
 copy_chroot_incoming $filelist
