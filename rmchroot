@@ -96,7 +96,7 @@ if [ ! -c "dev/null" ]; then
 	gid1="$(printf %s "$ugid1" |cut -d: -f2)"
 
 	mkdir -p -m755 $verbose dev
-	chgrp "$gid1" $verbose dev
+	chgrp "$gid1" $verbose . dev
 	"$makedev" $number "$chroot" ||
 		Fatal "failed to make devices."
 	Verbose "created devices in \`$chroot/dev/'"
