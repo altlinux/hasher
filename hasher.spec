@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.0.1
+Version: 0.0.2
 Release: alt1
 BuildArch: noarch
 
@@ -28,5 +28,5 @@ This package provides package hasher utilities.
 %_datadir/*
 
 %changelog
-* Mon Jun 30 2003 Dmitry V. Levin <ldv@altlinux.org> 0.0.1-alt1
+* Mon Jun 30 2003 Dmitry V. Levin <ldv@altlinux.org> 0.0.2-alt1
 - Initial revision.
