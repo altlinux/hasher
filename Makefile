@@ -46,9 +46,9 @@ TOUCH_R = touch -r
 
 all: $(TARGETS)
 
-$(MAN1PAGES): functions Makefile
+$(MAN1PAGES): functions
 
-$(MAN7PAGES): Makefile
+$(MAN7PAGES):
 
 %: %.in
 	sed -e 's/@VERSION@/$(VERSION)/g' <$< >$@
