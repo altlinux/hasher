@@ -42,6 +42,7 @@ Valid options are:
 --no-sisyphus-check[=LIST]      do not run sisyphus_check tests [specified in LIST];
 --no-sisyphus-check-in[=LIST]   do not run sisyphus_check input tests [specified in LIST];
 --no-sisyphus-check-out[=LIST]  do not run sisyphus_check output tests [specified in LIST];
+--repackage-source              package source as well as binaries;
 --target=ARCH                   target architecture;
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
@@ -58,7 +59,7 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-cache,no-contents-indices,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,quiet,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-cache,no-contents-indices,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,repackage-source,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
@@ -68,6 +69,7 @@ rpmargs=
 install_langs=
 contents_index_all=
 contents_index_bin=
+repackage_source=
 apt_config=
 while :; do
 	case "$1" in
@@ -91,6 +93,8 @@ while :; do
 			shift
 			[ -n "$1" ] && no_sisyphus_check_out="$1" || no_sisyphus_check_out=all
 			shift
+			;;
+		--repackage-source) repackage_source=1; shift
 			;;
 		--target) shift; target="$1"; shift
 			;;
@@ -200,6 +204,7 @@ for f in "$@"; do
 			${verbose:+$verbose} \
 			${no_cache:+--no-cache} \
 			${no_contents_indices:+--no-contents-indices} \
+			${repackage_source:+--repackage-source} \
 			${number:+--number=$number} \
 			${nprocs:+--nprocs=$nprocs} \
 			${install_langs:+--install-langs="$install_langs"} \
