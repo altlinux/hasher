@@ -189,14 +189,43 @@ set_workdir()
 # assumed: defined APT_CONFIG, prog_apt_config
 get_apt_config()
 {
-	local temp name value
-	name="$1"
+	local get_eval get_name get_value
+	get_name="$1"
 	shift || return 1
-	value="$1"
+	get_value="$1"
 	shift || return 1
 
-	temp="$("$prog_apt_config" shell "$value" "$name")" || return 1
-	eval "$temp"
+	get_eval="$("$prog_apt_config" shell "$get_value" "$get_name")" || return 1
+	eval "$get_eval"
+}
+
+# assumes: working get_apt_config()
+read_apt_config()
+{
+	local name orig_name res_value dir_name value dir_value
+	orig_name="$1"
+	shift || return 1
+	res_value="$1"
+	shift || return 1
+
+	name="$orig_name"
+	get_apt_config "$name" value
+	[ -n "$value" ] || Fatal "apt-config: undefined: $name"
+
+	while [ -n "${value##/*}" ]; do
+		dir_name="${name%::*}"
+		[ "$dir_name" != "$name" ] || break
+		get_apt_config "$dir_name" dir_value
+		[ -n "$dir_value" ] || Fatal "apt-config: undefined: $dir_name"
+		name="$dir_name"
+		value="$dir_value$value"
+	done
+
+	[ -z "${value##/*}" ] &&
+		[ -s "$value" -a -r "$value" ] ||
+		Fatal "apt-config: broken $orig_name: $value"
+
+	eval "$res_value=$(quote_arg "$value")"
 }
 	
 hash=
