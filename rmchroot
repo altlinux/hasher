@@ -102,12 +102,12 @@ if [ ! -c "dev/null" ]; then
 	Verbose "created devices in \`$chroot/dev/'"
 fi
 
-cat >.host/entry <<\__EOF__
+cat >.host/entry <<__EOF__
 #!/.host/sh
-chmod -Rf u+rwX -- /* /.out 2>/dev/null
-${verbose:+echo "chmod -Rf u+rwX complete"}
+chmod -Rf u+rwX -- /\* /.out 2>/dev/null
+${verbose:+echo "rmchroot: chmod -Rf u+rwX complete"}
 /.host/find / -delete >/dev/null 2>&1
-${verbose:+echo "find -delete complete"}
+${verbose:+echo "rmchroot: find -delete complete"}
 exit 0
 __EOF__
 chmod 755 .host/entry
