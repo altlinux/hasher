@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.7
+Version: 1.0.8
 Release: alt1
 
 Summary: Modern safe package build technology
@@ -38,6 +38,9 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Thu Nov 11 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.8-alt1
+- hsh: enhanced early diagnostics for invalid source files.
+
 * Tue Nov 09 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.7-alt1
 - cache_contents: fixed find warning.
 - mkaptbox: create wrapper for genbasedir.
