@@ -91,7 +91,7 @@ ugid2="$("$getugid2" $number)" ||
 uid2="$(echo "$ugid2" |cut -d: -f1)"
 gid2="$(echo "$ugid2" |cut -d: -f2)"
 
-filelist="$(print_uris setup filesystem rpm fakeroot coreutils findutils)"
+filelist="$(print_uris setup filesystem rpm fakeroot)"
 filelist="$(echo "$filelist" |fgrep /setup-)
 $(echo "$filelist" |fgrep /filesystem-)
 $(echo "$filelist" |egrep -v '/(setup|filesystem)-')"
@@ -110,6 +110,7 @@ Verbose "unpacked initial package list."
 cat >"$entry" <<__EOF__
 $entry_header
 
+export DURING_INSTALL=1
 # FIXME: mtab is missing in setup-2.2.2-alt1
 touch /etc/mtab
 # /FIXME
@@ -128,6 +129,7 @@ chmod 755 "$entry"
 cat >"$entry" <<__EOF__
 $entry_fakeroot_header
 
+export DURING_INSTALL=1
 rpmi -i $verbose --justdb --nodeps $(for f in $filelist; do echo -n "\"$(quote_arg "${f##*/}")\" "; done)
 __EOF__
 
@@ -155,7 +157,7 @@ done
 
 # At this stage, RPM inside chroot is fully functional.
 
-filelist="$(print_uris basesystem rpm-build time kernel-headers-common)"
+filelist="$(print_uris basesystem rpm-build kernel-headers-common time)"
 purge_chroot_in
 purge_chroot_out
 copy_chroot_incoming $filelist
@@ -165,6 +167,7 @@ check_tty
 cat >"$entry" <<__EOF__
 $entry_fakeroot_header
 
+export DURING_INSTALL=1
 # FIXME: dev shouldn't be installed
 rpmi -i $verbose --nodeps $hash $(for f in $filelist; do f="${f##*/}"; [ -z "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
 rpmi -i $verbose --nodeps --justdb $(for f in $filelist; do f="${f##*/}"; [ -n "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
