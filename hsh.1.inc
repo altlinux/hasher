@@ -1,27 +1,23 @@
-$Id$
+.\" $Id$
+.\" Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
+.\" 
+.\" Additional documentation for the hsh command.
+.\"
+.\" This file is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+.\" GNU General Public License for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-/show this text and exit/
-.SS "Working directory contents:"
-.TP
-aptbox
-\- created automatically by 
-.BR mkaptbox (1),
-required for apt.
-.TP
-cache
-\- build environment and rpm database cache, created automatically
-by initroot.
-.TP
-chroot
-\- build environment, created automatically by mkchroot.
-.TP
-lockdir
-\- lock directory, handled internally by
-.BR hsh .
-.TP
-repo
-\- package repository, contains build results.
-.SH OPTIONS
+[OPTIONS]
 .TP
 .BR \-\-with\-stuff " / " \-\-without\-stuff
 Controls whether to use results of previous builds stored in
@@ -47,6 +43,28 @@ to this list will be mounted.  If some mount point is not explicitly
 allowed in
 .BR hasher\-useradd.conf (5),
 build will fail.
+
+[FILES]
+Working directory contents:
+.TP
+.B aptbox
+\- created automatically by 
+.BR mkaptbox (1),
+required for apt.
+.TP
+.B cache
+\- build environment and rpm database cache, created automatically
+by initroot.
+.TP
+.B chroot
+\- build environment, created automatically by mkchroot.
+.TP
+.B lockdir
+\- lock directory, handled internally by
+.BR hsh .
+.TP
+.B repo
+\- package repository, contains build results.
 
 [SEE ALSO]
 .BR mkaptbox (1),
