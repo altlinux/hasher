@@ -131,9 +131,9 @@ while :; do
 			;;
 		--hasher-priv-dir) shift; hasher_priv_dir="$1"
 			;;
-		--pkg-init-list) shift; init_list="$1"
+		--pkg-init-list) shift; init_list="$1 "
 			;;
-		--pkg-build-list) shift; build_list="$1"
+		--pkg-build-list) shift; build_list="$1 "
 			;;
 		--apt-config) shift; apt_config="$1"
 			[ -r "$apt_config" ] || Fatal "$apt_config: file not available."
