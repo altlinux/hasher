@@ -24,12 +24,14 @@ VERSION = $(shell grep ^Version: hasher.spec |head -1 |awk '{print $$2}')
 HELPERS = functions cache_chroot cache_contents hsh initroot install mkaptbox mkchroot rebuild rmchroot
 PROGRAMS = hsh mkaptbox
 MAN1PAGES = $(PROGRAMS:=.1)
-TARGETS = functions $(MAN1PAGES)
+MAN7PAGES = $(PROJECT).7
+TARGETS = functions $(MAN1PAGES) $(MAN7PAGES)
 
 bindir = /usr/bin
 libexecdir = /usr/share
 mandir = /usr/share/man
 man1dir = $(mandir)/man1
+man7dir = $(mandir)/man7
 helperdir = $(libexecdir)/$(PROJECT)
 binreldir = $(shell relative $(helperdir) $(bindir)/)
 DESTDIR =
@@ -44,7 +46,9 @@ TOUCH_R = touch -r
 
 all: $(TARGETS)
 
-$(MAN1PAGES): functions
+$(MAN1PAGES): functions Makefile
+
+$(MAN7PAGES): Makefile
 
 %: %.in
 	sed -e 's/@VERSION@/$(VERSION)/g' <$< >$@
@@ -59,6 +63,8 @@ install: all
 	$(INSTALL) -p -m755 $(HELPERS) $(DESTDIR)$(helperdir)/
 	$(MKDIR_P) -m755 $(DESTDIR)$(man1dir)
 	$(INSTALL) -p -m644 $(MAN1PAGES) $(DESTDIR)$(man1dir)/
+	$(MKDIR_P) -m755 $(DESTDIR)$(man7dir)
+	$(INSTALL) -p -m644 $(MAN7PAGES) $(DESTDIR)$(man7dir)/
 	$(MKDIR_P) -m755 $(DESTDIR)$(bindir)
 	$(LN_S) $(PROGRAMS:%=$(binreldir)/%) $(DESTDIR)$(bindir)/
 

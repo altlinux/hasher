@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.9.7
+Version: 0.9.9.8
 Release: alt1
 BuildArch: noarch
 
@@ -38,6 +38,9 @@ This package provides package hasher utilities.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Wed Jul 14 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.8-alt1
+- Added hasher(7) manpage.
+
 * Sat Jul 10 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.7-alt1
 - Implemented mount/umount support.
 

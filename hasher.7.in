@@ -1,0 +1,165 @@
+.\" $Id$
+.\" Copyright (C) 2004  Dmitry V. Levin <ldv@altlinux.org>
+.\" 
+.\" Documentation for the hasher project.
+.\"
+.\" This file is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+.\" GNU General Public License for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+.\" 
+.TH HASHER "7" "July 2004" "hasher version @VERSION@" "ALT Linux"
+.SH NAME
+hasher \- modern safe package build technology
+.SH SYNOPSIS
+.B hsh
+.IR "" [ options ]
+.I <path-to-workdir>
+.IR <package> ...
+.SH RATIONALE
+Long ago, when instrumental OS distributions made by few developers was
+small enough to be placed on single CD with sources, there were no real
+package build technology.  Developers built their packages in host system
+created by installing whole OS distribution.
+
+Nowadays instrumental OS distributions are made by dozens of developers.
+They are too large to be installed wholly.  As result, traditional
+package build scheme in host system no longer fits the requirements:
+it is insecure, unsafe and awkward.
+.SH REQUIREMENTS
+Modern package build technology should:
+.TP
+1.
+not lower host system security;
+.TP
+2.
+protect itself from attacks installed by packages;
+.TP
+3.
+protect package builds from attacks installed by other packages;
+.TP
+4.
+ensure reliability of build results;
+.TP
+5.
+provide reasonable performance.
+.SH ARCHITECTURE
+The
+.B hasher
+architecture is based on triple\-user model: caller user
+.IR "" ( C )
+and two unprivileged pseudousers; first one
+.IR "" ( R )
+emulates root in generated build environment, second one
+.IR "" ( U )
+emulates regular user who builds software.
+
+User switch between caller user and helper users is handled by special
+privileged program
+.BR hasher\-priv (8),
+executed by
+.BR sudo (8)
+utility.  It is written with extreme caution to defend from attacks
+installed by unprivileged users.  This helper is also used to purge
+processes left after pseudousers, to create device files, and to
+control resources allocated for unprivileged processes to defend from
+DoS\-attacks.
+
+In general, the way of source package in hasher during build looks
+as follows:
+.TP
+1.
+User
+.I C
+generates environment (aptbox) for apt.
+.TP
+2.
+Build environment probably left by previous builds should be completely
+removed.  The removal is done sequential: inside build chroot by user
+.IR U ,
+inside build chroot by user
+.I R
+and finally outside chroot by user
+.IR C .
+.TP
+3.
+User
+.I C
+generates new build chroot framework, which consists of helper directories
+and helper statically linked programs:
+.BR ash (1),
+.BR find (1)
+and
+.BR cpio (1).
+Basic device files are also created at this point with help of 
+.BR hasher\-priv (8).
+These devices are necessary for build environment and safe for host
+system.
+.TP
+4.
+Basic install environment should be generated; this environment contains
+everything necessary for regular package installs.
+User
+.I C
+using apt determines set of packages requires to generate install environment.
+User
+.I R
+using static helper programs unpacks these packages.
+.TP
+5.
+Basic build environment should be generated; this environment contains
+tools required for every package build.
+User
+.I C
+using apt determines set of packages, user
+.I R
+installs them.
+.TP
+6.
+Build environment for this particular package should be generated.
+User
+.I U
+fetches package build dependencies, user
+.I C
+using apt determines set of packages to install, and user
+.I R
+installs them.
+.TP
+7.
+User
+.I U
+executes the package build.
+.PP
+These scheme designed to eliminate attacks of form
+.IR U "->" R ,
+.IR U "->" C ,
+.IR R "->" C ,
+and all attacks targeted to root.
+
+To increase performance essential when building a lot of packages,
+.B hasher
+does caching of the basic build environment.  It allows to skip steps 4 and 5.
+.SH AUTHOR
+Written by Dmitry V. Levin <ldv@altlinux.org>
+.SH "REPORTING BUGS"
+Report bugs to http://bugs.altlinux.ru/
+.SH COPYRIGHT
+Copyright \(co 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+.BR hsh (1),
+.BR hasher\-priv.conf (5),
+.BR hasher\-priv (8),
+.BR hasher\-useradd (8),
+.BR /usr/share/doc/hasher\-@VERSION@/QUICKSTART .
