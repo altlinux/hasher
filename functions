@@ -227,7 +227,7 @@ print_uris()
 		Fatal "failed to filter package file list."
 	fi
 	local uris
-	if ! uris="$(printf %s "$all_uris" |sed -ne "s/^$pattern1/\\2/pg")"; then
+	if ! uris="$(printf %s "$out" |sed -ne "s/^$pattern1/\\2/pg")"; then
 		printf %s\\n "$out" >&2
 		Fatal "failed to filter package file list."
 	fi
