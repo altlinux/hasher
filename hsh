@@ -233,5 +233,5 @@ for f in "$@"; do
 		${prog_rebuild:+--rebuild-prog="$prog_rebuild"} \
 		${number:+--number=$number} \
 		${rpmargs:+--args="$rpmargs"} \
-		"$f"
+		-- "$f"
 done
