@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.8.1
+Version: 0.8.2
 Release: alt1
 BuildArch: noarch
 
@@ -12,7 +12,7 @@ Group: Development/Other
 Source: %name-%version.tar.gz
 
 Requires: getopt, ash-static, cpio-static, find-static
-Requires: hasher-priv, apt >= 0.5.5cnc4.1-alt5
+Requires: hasher-priv, apt >= 0.5.5cnc4.1-alt7
 
 Obsoletes: pkg-build-utils, libbte
 
@@ -31,6 +31,10 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Sun Oct 05 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8.2-alt1
+- Added -q/--quiet option.
+- install,cache_chroot: be more verbose by default.
+
 * Mon Sep 22 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8.1-alt1
 - initroot: manifest hasher via defining __BTE macro
   to "hasher" (#3008).
