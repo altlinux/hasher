@@ -93,8 +93,8 @@ if [ -z "$nodeps" ]; then
 	Verbose "$sname: calculated dependencies: $deps"
 
 	/usr/share/hasher/install \
-		${number:+$number} \
 		${verbose:+$verbose} \
+		${number:+$number} \
 		--pkg-build-priv-dir="$pkg_build_priv_dir" \
 		"$workdir" $deps
 fi

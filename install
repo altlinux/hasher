@@ -44,8 +44,6 @@ EOF
 TEMP=`getopt -n $PROG -o v,h -l number:,pkg-build-priv-dir:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
-number=
-pkg_build_priv_dir=/usr/lib/pkg-build-priv
 while :; do
 	case "$1" in
 		--number)
