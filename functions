@@ -222,7 +222,7 @@ print_uris()
 	local pattern1="'\\(file\\|copy\\):\\([^']\\+\\)' .*"
 
 	local all_uris
-	if ! all_uris="$(printf %s "$out" |sed -ne "s/^$pattern0/&/pg")"; then
+	if ! all_uris="$(printf %s "$out" |sed -ne "s/^$pattern0/\\2/pg")"; then
 		printf %s\\n "$out" >&2
 		Fatal "failed to filter package file list."
 	fi
