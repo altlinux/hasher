@@ -198,8 +198,7 @@ __EOF__
 if [ -n "$contents_index_bin" ]; then
 	install -p -m644 $verbose -- "$contents_index_bin" chroot/.host/contents_index_bin
 elif [ -n "$contents_index_all" ]; then
-	if fgrep -v openmosix "$contents_index_all" |
-	   egrep '^(/usr(/X11R6)?)?/s?bin/' >chroot/.host/contents_index_bin; then
+	if egrep '^(/usr(/X11R6)?)?/s?bin/' "$contents_index_all" >chroot/.host/contents_index_bin; then
 		chmod 644 chroot/.host/contents_index_bin
 		Verbose "created contents_index_bin from $contents_index_all"
 		contents_index_bin="$chroot/.host/contents_index_bin"
