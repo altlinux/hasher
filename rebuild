@@ -151,6 +151,7 @@ sisyphus_check --no-check="$(quote_arg "$no_sisyphus_check_in")" /.in
 __EOF__
 	chmod 755 "$entry"
 
+	wlimit_time_elapsed=300 wlimit_time_idle=300 wlimit_bytes_written=65536 \
 	"$chrootuid2" $number "$chroot" /.host/entry &&
 		Verbose "$sname: sisyphus_check passed." ||
 		Fatal "$sname: sisyphus_check failed."
@@ -165,7 +166,8 @@ rpmquery -pR -- "$(quote_arg "$sname")"
 __EOF__
 	chmod 755 "$entry"
 
-	deps="$("$chrootuid2" $number "$chroot" /.host/entry)" &&
+	deps="$(wlimit_time_elapsed=60 wlimit_time_idle=60 wlimit_bytes_written=65536 \
+		"$chrootuid2" $number "$chroot" /.host/entry)" &&
 		Verbose "$sname: fetched build dependencies." ||
 		Fatal "$sname: failed to fetch build dependencies."
 	deps="$(printf %s "$deps" |grep -v '^rpmlib(' |LC_ALL=C tr -d [[:blank:]])"
@@ -223,6 +225,7 @@ $entry_header
 sisyphus_check --no-check="$(quote_arg "$no_sisyphus_check_out")" /.out
 __EOF__
 
+	wlimit_time_elapsed=300 wlimit_time_idle=300 wlimit_bytes_written=65536 \
 	"$chrootuid2" $number "$chroot" /.host/entry &&
 		Verbose "$sname: sisyphus_check passed." ||
 		Fatal "$sname: sisyphus_check failed."

@@ -46,6 +46,8 @@ This package provides package hasher utilities.
   + execute query for packager inside chroot.
 - initroot: added sisyphus_check>=0:0.7.3 to build list.
 - README: described this change.
+- cache_chroot,initroot,rebuild,rmchroot:
+  + Added wlimit hints for each chrootuid call.
 
 * Sat Jul 03 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.5-alt1
 - cache_chroot: recognize dev_* as dev-*, too.
