@@ -7,8 +7,9 @@ Release: alt1
 Summary: Modern safe package build technology
 License: GPL
 Group: Development/Other
+Url: ftp://ftp.altlinux.org/pub/people/ldv/hasher
 
-Source: %name-%version.tar.bz2
+Source: %url/%name-%version.tar.bz2
 
 Requires: getopt, ash-static, cpio-static, find-static
 Requires: hasher-priv >= 1.0, apt >= 0.5.5cnc4.1-alt7
