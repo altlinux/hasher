@@ -11,7 +11,8 @@ Group: Development/Other
 
 Source: %name-%version.tar.gz
 
-Requires: getopt
+Requires: getopt, ash-static, cpio-static, rm-static
+Requires: pkg-build-priv >= 0.2.1
 
 %description
 This package provides package hasher utilities.
