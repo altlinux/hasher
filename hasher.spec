@@ -9,7 +9,7 @@ Summary: An automated package hasher
 License: GPL
 Group: Development/Other
 
-Source: %name-%version.tar.gz
+Source: %name-%version.tar.bz2
 
 Requires: getopt, ash-static, cpio-static, find-static
 Requires: hasher-priv, apt >= 0.5.5cnc4.1-alt7
