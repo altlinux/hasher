@@ -79,25 +79,25 @@ update=1
 apt_config=
 while :; do
 	case "$1" in
-		--no-stuff) no_stuff=1; shift
+		--no-stuff) no_stuff=1
 			;;
-		--target) shift; target="$1"; shift
+		--target) shift; target="$1"
 			;;
-		--apt-config) shift; apt_config="$1"; shift
+		--apt-config) shift; apt_config="$1"
 			[ -r "$apt_config" ] || Fatal "$apt_config: file not available."
 			;;
-		--apt-prefix) shift; apt_prefix="$1"; shift
+		--apt-prefix) shift; apt_prefix="$1"
 			[ -d "$apt_prefix" ] || Fatal "$apt_prefix: directory not available."
 			;;
-		--no-update) update=; shift
+		--no-update) update=
 			;;
-		-u|--update) update=1; shift
+		-u|--update) update=1
 			;;
-		-f|--force) force=1; shift
+		-f|--force) force=1
 			;;
-		-q|--quiet) quiet=-q; shift
+		-q|--quiet) quiet=-q
 			;;
-		-v|--verbose) verbose=-v; shift
+		-v|--verbose) verbose=-v
 			;;
 		-h|--help) Usage 0
 			;;
@@ -108,6 +108,7 @@ while :; do
 		*) Fatal "unrecognized option: $1"
 			;;
 	esac
+	shift
 done
 
 # Exactly one argument, please.
