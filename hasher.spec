@@ -17,6 +17,9 @@ Requires: sisyphus >= 0.5.3-alt1
 
 Obsoletes: pkg-build-utils, libbte
 
+# Automatically added by buildreq on Fri May 02 2003
+BuildRequires: help2man
+
 %description
 This package provides package hasher utilities.
 
@@ -29,6 +32,7 @@ This package provides package hasher utilities.
 %files
 %_bindir/*
 %_datadir/*
+%_mandir/man?/*
 %doc README
 
 %changelog
@@ -38,6 +42,7 @@ This package provides package hasher utilities.
 - functions,initroot,install,rebuild:
   define and export TMPDIR="$HOME/tmp" inside build chroot,
   to ease tracking of illegal /tmp use issues.
+- Added hsh(1) manpage.
 
 * Thu Dec 04 2003 Dmitry V. Levin <ldv@altlinux.org> 0.9.5-alt1
 - mkchroot:
