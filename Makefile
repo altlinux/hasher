@@ -20,7 +20,7 @@
 #
 
 PROJECT = hasher
-HELPERS = functions initroot install mkaptbox mkchroot rebuild rmchroot
+HELPERS = functions cache_chroot cache_contents initroot install mkaptbox mkchroot rebuild rmchroot
 PROGRAMS = hsh
 
 bindir = /usr/bin

@@ -1,0 +1,224 @@
+#!/bin/sh -e
+#
+# $Id$
+# Copyright (C) 2003  Dmitry V. Levin <ldv@altlinux.org>
+# 
+# The chroot cache functions for the initroot
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+rebuild_chroot_cache=
+
+archive_chroot_cache()
+{
+	[ -n "$rebuild_chroot_cache" ] || return 0
+
+	# rpmdb
+	local rpmdb="cache/chroot/rpmdb.tar"
+	tar -cf "$rpmdb" -C aptbox/var/lib/rpm/ . &&
+		Verbose "archived RPM database" ||
+		Fatal "archiving of RPM database failed."
+		
+	# chroot
+	local list="cache/chroot/chroot.list"
+	"$chrootuid1" $number "$chroot" /.host/find $(cd chroot && /bin/ls -1 |grep -v ^dev) >"$list" &&
+		[ -s "$list" ] &&
+		Verbose "generated chroot filelist" ||
+		Fatal "generation of chroot filelist failed."
+	"$chrootuid1" $number "$chroot" /.host/cpio --create --quiet --format=newc <"$list" >"cache/chroot/chroot.cpio" &&
+		Verbose "archived chroot" ||
+		Fatal "archiving of chroot failed."
+	rm -f "$list"
+} # archive_chroot_cache
+
+check_chroot_cache()
+{
+	[ -z "$no_cache" ] || return 0
+
+	local f
+	cat cache/chroot/list.new/{init,build} |
+		while read f; do
+			touch -r "$f" "cache/chroot/package.new/${f##*/}"
+		done
+
+	while :; do
+		for f in cache/chroot/{rpmdb.tar,chroot.cpio}; do
+			if [ ! -s "$f" ]; then
+				Verbose "missing $f archive, invalidating chroot cache"
+				rebuild_chroot_cache=1
+				break 2
+			fi
+		done
+
+		if ! cmp -s cache/chroot/list{.new,}/init; then
+			Verbose "init list changed, invalidating chroot cache"
+			rebuild_chroot_cache=1
+			break
+		fi
+
+		if ! cmp -s cache/chroot/list{.new,}/build; then
+			Verbose "build list changed, invalidating chroot cache"
+			rebuild_chroot_cache=1
+			break
+		fi
+
+		local bad="cache/chroot/list.new/bad"
+		rm -f "$bad"
+		cat cache/chroot/list.new/{init,build} |
+			while read f; do
+				local n
+				n="${f##*/}"
+				if [ "cache/chroot/package.new/$n" -nt "cache/chroot/package/$n" -o \
+				     "cache/chroot/package.new/$n" -ot "cache/chroot/package/$n" ]; then
+					Verbose "package $n changed, invalidating chroot cache"
+					echo "$n" >"$bad"
+					break
+				fi
+			done
+		if [ -f "$bad" ]; then
+			rebuild_chroot_cache=1
+			break
+		fi
+		break
+	done
+
+	# Regenerate data for later cache validation.
+	mv -f $verbose cache/chroot/list{.new,}/init
+	mv -f $verbose cache/chroot/list{.new,}/build
+	rm -f cache/chroot/package/*
+	mv -f cache/chroot/package.new/* cache/chroot/package/
+} # check_chroot_cache
+
+unpack_chroot_cache()
+{
+	# rpmdb
+	local f="cache/chroot/rpmdb.tar"
+	rm -f aptbox/var/lib/rpm/*
+	tar -xf "$f" -C aptbox/var/lib/rpm/ &&
+		Verbose "unpacked $f" ||
+		Fatal "unpack of $f failed."
+		
+	# chroot
+	local f="cache/chroot/chroot.cpio"
+	cat "$f" |"$chrootuid1" $number "$chroot" /.host/cpio --extract --make-directories --sparse --quiet &&
+		Verbose "unpacked $f" ||
+		Fatal "unpack of $f failed."
+} # unpack_chroot_cache
+
+create_chroot()
+{
+	purge_chroot_in
+	purge_chroot_out
+
+	local f
+	for f in $initlist; do
+		copy_chroot_incoming "$f"
+		rpm2cpio "$f" |"$chrootuid1" $number "$chroot" /.host/cpio --extract --make-directories --sparse --quiet &&
+			Verbose "unpacked ${f##*/}" ||
+			Fatal "unpack of ${f##*/} failed."
+	done
+	Verbose "unpacked initial package list."
+
+	cat >"$entry" <<__EOF__
+$entry_header
+
+export DURING_INSTALL=1
+# FIXME: mtab is missing in setup-2.2.2-alt1
+touch /etc/mtab
+# /FIXME
+rm -f /etc/rpm/macros.db1
+# FIXME: glibc-locales is too large
+echo '%_install_langs $install_langs' >>/etc/rpm/macros
+# /FIXME
+rpmdb --initdb
+__EOF__
+	chmod 755 "$entry"
+	Verbose "created entry point: $entry"
+
+	"$chrootuid1" $number "$chroot" /.host/entry &&
+		Verbose "created RPM database." ||
+		Fatal "failed to create RPM database."
+
+	cat >"$entry" <<__EOF__
+$entry_fakeroot_header
+
+export DURING_INSTALL=1
+rpmi -i $verbose --justdb --nodeps $(for f in $initlist; do echo -n "\"$(quote_arg "${f##*/}")\" "; done)
+__EOF__
+
+	"$chrootuid1" $number "$chroot" /.host/entry &&
+		Verbose "installed initial package list." ||
+		Fatal "failed to install initial package list."
+
+	purge_chroot_in
+	update_RPM_database --nodeps $initlist
+
+	for f in /etc/host.conf /etc/hosts /etc/resolv.conf; do
+		if [ -r "$f" -a -s "$f" ]; then
+			cat >"$entry" <<__EOF__
+$entry_header
+
+# Too simple to call fakeroot here.
+cat >$f
+__EOF__
+
+			cat $f |"$chrootuid1" $number "$chroot" /.host/entry &&
+				Verbose "installed $f file." ||
+				Fatal "failed to install $f file."
+		fi
+	done
+
+	# At this stage, RPM inside chroot is fully functional.
+
+	purge_chroot_in
+	purge_chroot_out
+	copy_chroot_incoming $buildlist
+
+	cat >"$entry" <<__EOF__
+$entry_fakeroot_header
+
+export DURING_INSTALL=1
+# FIXME: dev shouldn't be installed
+rpmi -i $verbose --nodeps $hash $(for f in $buildlist; do f="${f##*/}"; [ -z "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
+rpmi -i $verbose --nodeps --justdb $(for f in $buildlist; do f="${f##*/}"; [ -n "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
+# /FIXME
+__EOF__
+
+	"$chrootuid1" $number "$chroot" /.host/entry &&
+		Verbose "installed build package list." ||
+		Fatal "failed to install build package list."
+
+	purge_chroot_in
+	update_RPM_database $buildlist
+
+	# First time scripts.
+
+	cat >"$entry" <<__EOF__
+$entry_fakeroot_header
+
+ldconfig
+adjust_kernel_headers
+groupadd -g $gid2 builder
+useradd -M -u $uid2 -g $gid2 -d /usr/src builder
+chmod 1777 /usr/src
+__EOF__
+
+	"$chrootuid1" $number "$chroot" /.host/entry &&
+		Verbose "first time initialization complete." ||
+		Fatal "first time initialization failed."
+
+	archive_chroot_cache
+} # create_chroot
