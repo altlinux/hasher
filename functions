@@ -39,8 +39,11 @@ Verbose()
 [ "$EUID" -gt 0 ] 2>/dev/null ||
 	Fatal "please run me as unprivileged user."
 
-# safe umask
+# safe umask.
 umask 077
+
+# save current work directory.
+saved_cwd="$(/bin/pwd)"
 
 # subconfig identifier.
 number=
