@@ -228,7 +228,7 @@ __EOF__
 	Fatal "first time initialization failed."
 
 # Create /dev/log.
-mksock -m666 "$chroot/dev/log" ||
+/usr/bin/mksock -m666 "$chroot/dev/log" ||
 	Fatal "failed to create \`$chroot/dev/log' socket."
 
 # Install contents indeces.
