@@ -45,6 +45,9 @@ umask 077
 # save current work directory.
 saved_cwd="$(/bin/pwd)"
 
+# hasher directory.
+hasher_dir=/usr/share/hasher
+
 # subconfig identifier.
 number=
 
@@ -52,7 +55,7 @@ number=
 target=i586
 
 # hasher-priv directory.
-hasher_priv_dir=/usr/lib/pkg-build-priv
+hasher_priv_dir=/usr/lib/hasher-priv
 
 # working directory.
 workdir=
