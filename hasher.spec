@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.5.1
+Version: 0.6
 Release: alt1
 BuildArch: noarch
 
@@ -31,7 +31,7 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
-* Sun Sep 07 2003 Dmitry V. Levin <ldv@altlinux.org> 0.5.1-alt1
+* Mon Sep 08 2003 Dmitry V. Levin <ldv@altlinux.org> 0.6-alt1
 - hsh:
   + implemented locking.
 - mkaptbox:
