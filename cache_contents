@@ -153,6 +153,7 @@ prepare_contents()
 	grep '^/sbin/' "$index" || [ $? -eq 1 ]
 	grep '^/usr/sbin/' "$index" || [ $? -eq 1 ]
 	grep '^/usr/X11R6/bin/' "$index" || [ $? -eq 1 ]
+	grep '^/etc/' "$index" || [ $? -eq 1 ]
 }
 
 create_contents()
