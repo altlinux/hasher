@@ -58,7 +58,9 @@ while :; do
 				Fatal "--number: $number: invalid number."
 			number="-$number"
 			;;
-		--hasher-priv-dir) shift; hasher_priv_dir="$1"
+		--hasher-priv-dir)
+			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
+			shift
 			;;
 		-q|--quiet) quiet=-q
 			;;

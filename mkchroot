@@ -1,7 +1,7 @@
 #!/bin/sh -e
 #
 # $Id$
-# Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The mkchroot utility for the hasher project
 #
@@ -58,7 +58,9 @@ while :; do
 				Fatal "--number: $number: invalid number."
 			number="-$number"
 			;;
-		--hasher-priv-dir) shift; hasher_priv_dir="$1"
+		--hasher-priv-dir)
+			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
+			shift
 			;;
 		-q|--quiet) quiet=-q
 			;;

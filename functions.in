@@ -1,7 +1,7 @@
 #!/bin/sh -e
 #
 # $Id$
-# Copyright (C) 2003, 2004, 2005  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # This file defines functions used by hasher scripts.
 #
@@ -120,6 +120,24 @@ chroot=
 
 # program to execute while entering chroot, $chroot/.host/entry
 entry=
+
+opt_check_read()
+{
+	local value
+	value="$(readlink -ev "$2")" &&
+		[ -r "$value" ] ||
+		Fatal "$1: $2: file not available."
+	printf %s "$value"
+}
+
+opt_check_dir()
+{
+	local value
+	value="$(readlink -ev "$2")" &&
+		[ -d "$value" -a -x "$value" ] ||
+		Fatal "$1: $2: directory not available."
+	printf %s "$value"
+}
 
 set_apt_vars()
 {

@@ -1,7 +1,7 @@
 #!/bin/sh -e
 #
 # $Id$
-# Copyright (C) 2003, 2004, 2005  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The initroot utility for the hasher project
 #
@@ -85,7 +85,9 @@ while :; do
 			;;
 		--install-langs) shift; install_langs="$1"
 			;;
-		--hasher-priv-dir) shift; hasher_priv_dir="$1"
+		--hasher-priv-dir)
+			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
+			shift
 			;;
 		--pkg-init-list) shift; init_list="$1"
 			;;
