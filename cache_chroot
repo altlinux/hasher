@@ -132,12 +132,10 @@ unpack_chroot_cache()
 
 create_chroot()
 {
-	purge_chroot_in
-	purge_chroot_out
+	copy_chroot_incoming $initlist
 
 	local f
 	for f in $initlist; do
-		copy_chroot_incoming "$f"
 		rpm2cpio "$f" |"$chrootuid1" $number "$chroot" /.host/cpio --extract --make-directories --sparse --quiet &&
 			Verbose "unpacked ${f##*/}" ||
 			Fatal "unpack of ${f##*/} failed."
@@ -196,8 +194,6 @@ __EOF__
 	# At this stage, RPM inside chroot is fully functional.
 
 	if [ "$buildlist" ]; then
-		purge_chroot_in
-		purge_chroot_out
 		copy_chroot_incoming $buildlist
 
 		cat >"$entry" <<__EOF__

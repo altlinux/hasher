@@ -94,11 +94,7 @@ if [ -z "$filelist" ]; then
 	exit 0
 fi
 
-purge_chroot_in
-purge_chroot_out
-for f in $filelist; do
-	install -p -m644 $verbose -- "$f" chroot/.in/
-done
+copy_chroot_incoming $filelist
 
 check_tty
 

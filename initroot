@@ -218,3 +218,6 @@ __EOF__
 		Verbose "created RPM build directory tree." ||
 		Fatal "failed to create RPM build directory tree."
 fi # $no_build
+
+purge_chroot_in
+purge_chroot_out

@@ -211,12 +211,6 @@ check_helpers()
 }
 
 # assumed: cwd == workdir
-copy_chroot_incoming()
-{
-	install -p -m644 $verbose -- "$@" chroot/.in/
-}
-
-# assumed: cwd == workdir
 purge_chroot_in()
 {
 	find chroot/.in/ -mindepth 1 -delete
@@ -226,6 +220,14 @@ purge_chroot_in()
 purge_chroot_out()
 {
 	find chroot/.out/ -mindepth 1 -delete
+}
+
+# assumed: cwd == workdir
+copy_chroot_incoming()
+{
+	purge_chroot_in
+	install -p -m644 $verbose -- "$@" chroot/.in/ ||
+		Fatal "failed to copy files."
 }
 
 # assumed: cwd == workdir
