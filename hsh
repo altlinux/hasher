@@ -128,14 +128,14 @@ exit_handler()
 	exit $rc
 }
 
-trap exit_handler SIGHUP SIGPIPE SIGINT SIGQUIT SIGTERM EXIT
-
 pidfile="lockdir/pid"
 if ! mkdir -m700 $verbose -- lockdir; then
 	[ ! -s "$pidfile" ] ||
 		Info "working directory \`$workdir' is locked, pid=`cat "$pidfile"`"
 	Fatal "unable to create lock directory"
 fi
+
+trap exit_handler SIGHUP SIGPIPE SIGINT SIGQUIT SIGTERM EXIT
 
 echo $$ >"$pidfile"
 
