@@ -33,8 +33,8 @@ This package provides package hasher utilities.
 %changelog
 * Wed Sep 17 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8-alt1
 - Implemented initial chroot caching.
-- Implemented contents indeces caching.
-- Implemented support of several contents indeces.
+- Implemented contents indices caching.
+- Implemented support of several contents indices.
 
 * Tue Sep 16 2003 Dmitry V. Levin <ldv@altlinux.org> 0.7.2-alt1
 - Enhanced initroot caching support.

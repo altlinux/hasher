@@ -36,7 +36,7 @@ Usage: $PROG [options] <path-to-workdir>
 
 Valid options are:
 --no-cache                      do not use cache;
---no-contents-indeces           do not use content indeces;
+--no-contents-indices           do not use content indices;
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
 --nprocs=NUMBER                 number of CPUs to use;
@@ -49,11 +49,11 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l no-cache,no-contents-indeces,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l no-cache,no-contents-indices,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
-no_contents_indeces=
+no_contents_indices=
 nprocs=
 install_langs=dummy
 contents_index_all=
@@ -62,7 +62,7 @@ while :; do
 	case "$1" in
 		--no-cache) no_cache=1; shift
 			;;
-		--no-contents-indeces) no_contents_indeces=1; shift
+		--no-contents-indices) no_contents_indices=1; shift
 			;;
 		--number)
 			shift

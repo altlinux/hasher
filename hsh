@@ -37,7 +37,7 @@ Usage: $PROG [options] <path-to-workdir> <package>...
 Valid options are:
 --no-stuff                      do not install built packages;
 --no-cache                      do not use initroot cache;
---no-contents-indeces           do not use content indeces;
+--no-contents-indices           do not use content indices;
 --target=ARCH                   target architecture;
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
@@ -53,11 +53,11 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l no-stuff,no-cache,no-contents-indeces,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l no-stuff,no-cache,no-contents-indices,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
-no_contents_indeces=
+no_contents_indices=
 nprocs=
 rpmargs=
 install_langs=
@@ -70,7 +70,7 @@ while :; do
 			;;
 		--no-cache) no_cache=1; shift
 			;;
-		--no-contents-indeces) no_contents_indeces=1; shift
+		--no-contents-indices) no_contents_indices=1; shift
 			;;
 		--target) shift; target="$1"; shift
 			;;
@@ -173,7 +173,7 @@ for f in "$@"; do
 			--hasher-priv-dir="$hasher_priv_dir" \
 			${verbose:+$verbose} \
 			${no_cache:+--no-cache} \
-			${no_contents_indeces:+--no-contents-indeces} \
+			${no_contents_indices:+--no-contents-indices} \
 			${number:+--number=$number} \
 			${nprocs:+--nprocs=$nprocs} \
 			${install_langs:+--install-langs="$install_langs"} \

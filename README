@@ -35,7 +35,7 @@ $Id$
     Path to file with complete package contents index, e.g.
     path/to/Sisyphus/i586/base/contents_index; necessary for proper
     binary package dependencies calculation.
-    By default, no package contents indeces will be used.
+    By default, no package contents indices will be used.
 
     -v, --verbose
     Print a message for each action.  Useful for tracing and/or
@@ -53,7 +53,7 @@ $Id$
   fakeroot >= 0:0.7.3
     (required for proper TCB support);
   rpm-build >= 0:4.0.4-alt21
-    (required for proper package contents indeces support);
+    (required for proper package contents indices support);
   kernel-headers-common >= 1.1.4-alt1
     (required for "adjust_kernel_headers --first" support).
 

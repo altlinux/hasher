@@ -26,7 +26,7 @@ contents_index_bin=chroot/.host/contents_index_bin
 
 archive_contents_cache()
 {
-	[ -z "$no_contents_indeces" -a -n "$rebuild_contents_cache" ] || return 0
+	[ -z "$no_contents_indices" -a -n "$rebuild_contents_cache" ] || return 0
 
 	install -p -m644 $verbose -- "$contents_index_bin" \
 		cache/contents/contents_index_bin &&
@@ -36,7 +36,7 @@ archive_contents_cache()
 
 unpack_contents_cache()
 {
-	[ -z "$no_contents_indeces" ] || return 0
+	[ -z "$no_contents_indices" ] || return 0
 
 	local f=cache/contents/contents_index_bin
 	install -p -m644 $verbose -- "$f" \
@@ -47,7 +47,7 @@ unpack_contents_cache()
 
 make_contents_index_list()
 {
-	[ -z "$no_contents_indeces" ] || return 0
+	[ -z "$no_contents_indices" ] || return 0
 
 	contents_index_list="$(
 	local f
@@ -65,7 +65,7 @@ make_contents_index_list()
 
 check_contents_cache()
 {
-	[ -z "$no_contents_indeces" ] || return 0
+	[ -z "$no_contents_indices" ] || return 0
 
 	make_contents_index_list &&
 		Verbose "created contents index list" ||
