@@ -79,18 +79,23 @@ check_helpers
 cd chroot
 Verbose "changed working directory to \`$chroot'"
 
-for n in .host/{sh,rm} dev/null; do
-	[ -e "$n" ] ||
-		Fatal "invalid chroot $chroot: cannot find $n file."
-done
+[ -d ".host" ] ||
+	Fatal "invalid chroot $chroot: cannot find .host directory."
+
+if [ ! -c "./dev/null" ]; then
+	"$makedev" $number "$chroot" ||
+		Fatal "failed to make devices."
+	Verbose "created devices in \`$chroot/dev/'"
+fi
+
+install -p -m755 $verbose /usr/bin/find.static .host/find
+install -p -m755 $verbose /bin/ash.static .host/sh
+Verbose "installed .host programs."
 
 cat >.host/entry <<\__EOF__
 #!/.host/sh
 chmod -Rf u+rwX -- /* 2>/dev/null
-/.host/rm -rf -- /usr/src/* /usr/src/.[^.]* /usr/src/..?* 2>/dev/null
-/.host/rm -rf -- /var/lib/texmf/* /var/lib/texmf/.[^.]* /var/lib/texmf/..?* 2>/dev/null
-/.host/rm -rf -- /var/tmp/* /var/tmp/.[^.]* /var/tmp/..?* 2>/dev/null
-/.host/rm -rf -- /*/* /*/.[^.]* /*/..?* /* 2>/dev/null
+/.host/find / -delete 2>/dev/null
 exit 0
 __EOF__
 chmod 755 .host/entry
