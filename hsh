@@ -149,6 +149,8 @@ done
 set_workdir "$1"
 shift
 
+set_apt_vars
+
 for f in "$@"; do
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
 	[ -r "$f" ] ||
@@ -185,7 +187,6 @@ for f in "$@"; do
 			--update \
 			--target="$target" \
 			${apt_config:+--apt-config="$apt_config"} \
-			${apt_prefix:+--apt-prefix="$apt_prefix"} \
 			${quiet:+$quiet} \
 			${verbose:+$verbose} \
 			${no_stuff:+--no-stuff} \
