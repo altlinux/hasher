@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.9
+Version: 1.0.10
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -42,6 +42,11 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Tue Jan 25 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.10-alt1
+- functions: removed no longer needed "am I root?" sanity check
+  (fixes #5869).
+- hsh(1), rebuild: implemented --query-req-prog option.
+
 * Mon Jan 03 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.9-alt1
 - Changed hasher-priv helper directory to %helperdir,
   updated package dependencies.
