@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.5
+Version: 1.0.6
 Release: alt1
 
 Summary: Modern safe package build technology
@@ -38,6 +38,9 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Thu Aug 26 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.6-alt1
+- rebuild: enhanced --mountpoints implementation.
+
 * Wed Aug 25 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.5-alt1
 - rmchroot: fixed bug introduced in previous release.
 
