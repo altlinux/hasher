@@ -213,7 +213,12 @@ for n in cache config get; do
 	cat >"apt-$n" <<__EOF__
 #!/bin/sh -e
 
-APT_CONFIG="$APT_CONFIG" exec $(eval echo \$prog_apt_$n) "\$@"
+if [ -n "$LD_LIBRARY_PATH" ]; then
+	LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+	export LD_LIBRARY_PATH
+fi
+APT_CONFIG="$APT_CONFIG" \
+exec $(eval echo \$prog_apt_$n) "\$@"
 __EOF__
 Verbose "created apt-$n wrapper"
 done
