@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.4
+Version: 0.5
 Release: alt1
 BuildArch: noarch
 
@@ -31,6 +31,12 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Wed Aug 20 2003 Dmitry V. Levin <ldv@altlinux.org> 0.5-alt1
+- functions:
+  + relaxed umask: 077 -> 022.
+- initroot:
+  + fixed nprocs initialization (#0002861, imz).
+
 * Mon Aug 11 2003 Dmitry V. Levin <ldv@altlinux.org> 0.4-alt1
 - rmchroot:
   + install .host programs if required;
