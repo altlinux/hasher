@@ -184,7 +184,9 @@ __EOF__
 	for file_deps in `printf %s "$deps" |LC_ALL=C grep '^/'`; do
 		for mpoint in $known_mountpoints; do
 			if [ "$mpoint" = "$file_deps" ]; then
-				required_mountpoints="$required_mountpoints,$mpoint"
+				[ -z "$required_mountpoints" ] &&
+					required_mountpoints="$mpoint" ||
+					required_mountpoints="$required_mountpoints,$mpoint"
 				break
 			fi
 		done
