@@ -5,7 +5,7 @@ Version: 0.9.9.8
 Release: alt1
 BuildArch: noarch
 
-Summary: An automated package hasher
+Summary: Modern safe package build technology
 License: GPL
 Group: Development/Other
 
@@ -20,7 +20,8 @@ Obsoletes: pkg-build-utils, libbte
 BuildPreReq: help2man
 
 %description
-This package provides package hasher utilities.
+This package contains package hasher user utilities.
+See %_docdir/%name-%version/QUICKSTART for details.
 
 %prep
 %setup -q
