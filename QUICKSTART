@@ -1,0 +1,15 @@
+$Id$
+
+This short description should help those impatient users who never read docs.
+To prepare hasher for user joe, you need to
+
+# apt-get install hasher
+# useradd joe
+# hasher_useradd joe
+
+<joe logged in>
+
+joe$ mkdir workdir
+joe$ hsh workdir path/to/foobar-1.0.src.rpm
+
+If you have questions, please read README and FAQ.
