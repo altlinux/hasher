@@ -59,10 +59,12 @@ hasher_dir=/usr/share/hasher
 number=
 
 # target architecture.
-target=i586
+def_target=i586
+target=
 
 # hasher-priv directory.
-hasher_priv_dir=/usr/lib/hasher-priv
+def_hasher_priv_dir=/usr/lib/hasher-priv
+hasher_priv_dir=
 
 # working directory.
 workdir=
@@ -158,26 +160,26 @@ check_tty()
 
 check_helpers()
 {
-	[ -d "$hasher_priv_dir" ] ||
+	[ -d "${hasher_priv_dir:-$def_hasher_priv_dir}" ] ||
 		Fatal "cannot access hasher-priv helper directory."
 
-	getugid1="$hasher_priv_dir/getugid1.sh"
+	getugid1="${hasher_priv_dir:-$def_hasher_priv_dir}/getugid1.sh"
 	[ -x "$getugid1" ] ||
 		Fatal "cannot access getugid1 helper."
 
-	getugid2="$hasher_priv_dir/getugid2.sh"
+	getugid2="${hasher_priv_dir:-$def_hasher_priv_dir}/getugid2.sh"
 	[ -x "$getugid2" ] ||
 		Fatal "cannot access getugid2 helper."
 
-	chrootuid1="$hasher_priv_dir/chrootuid1.sh"
+	chrootuid1="${hasher_priv_dir:-$def_hasher_priv_dir}/chrootuid1.sh"
 	[ -x "$chrootuid1" ] ||
 		Fatal "cannot access chrootuid1 helper."
 
-	chrootuid2="$hasher_priv_dir/chrootuid2.sh"
+	chrootuid2="${hasher_priv_dir:-$def_hasher_priv_dir}/chrootuid2.sh"
 	[ -x "$chrootuid2" ] ||
 		Fatal "cannot access chrootuid2 helper."
 
-	makedev="$hasher_priv_dir/makedev.sh"
+	makedev="${hasher_priv_dir:-$def_hasher_priv_dir}/makedev.sh"
 	[ -x "$makedev" ] ||
 		Fatal "cannot access makedev helper."
 }
@@ -203,14 +205,14 @@ purge_chroot_out()
 # assumed: cwd == workdir
 make_repo()
 {
-	mkdir -p $verbose -- repo/{{SRPMS,$target/RPMS}.hasher,$target/base}
+	mkdir -p $verbose -- repo/{{SRPMS,${target:-$def_target}/RPMS}.hasher,${target:-$def_target}/base}
 }
 
 # assumed: cwd == workdir, defined prog_genbasedir
 update_repo()
 {
 	[ -z "$no_stuff" ] || return 0
-	"$prog_genbasedir" --topdir=repo --no-oldhashfile --bz2only --mapi $target hasher &&
+	"$prog_genbasedir" --topdir=repo --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher &&
 		Verbose "updated hasher repository indices." ||
 		Fatal "failed to update hasher repository indices."
 }

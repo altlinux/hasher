@@ -192,47 +192,45 @@ for f in "$@"; do
 
 	rm -rf aptbox
 	$hasher_dir/mkaptbox "$workdir" \
-			--update \
-			--target="$target" \
-			${apt_config:+--apt-config="$apt_config"} \
-			${quiet:+$quiet} \
-			${verbose:+$verbose} \
-			${no_stuff:+--no-stuff} \
-			#
-	[ ! -d chroot ] ||
-		$hasher_dir/rmchroot "$workdir" \
-			--hasher-priv-dir="$hasher_priv_dir" \
-			${quiet:+$quiet} \
-			${verbose:+$verbose} \
-			${number:+--number=$number} \
-			#
+		${target:+--target="$target"} \
+		${apt_config:+--apt-config="$apt_config"} \
+		${quiet:+$quiet} \
+		${verbose:+$verbose} \
+		${no_stuff:+--no-stuff} \
+		#
+	[ ! -d chroot ] || $hasher_dir/rmchroot "$workdir" \
+		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
+		${quiet:+$quiet} \
+		${verbose:+$verbose} \
+		${number:+--number=$number} \
+		#
 	$hasher_dir/mkchroot "$workdir" \
-			--hasher-priv-dir="$hasher_priv_dir" \
-			${quiet:+$quiet} \
-			${verbose:+$verbose} \
-			${number:+--number=$number} \
-			#
+		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
+		${quiet:+$quiet} \
+		${verbose:+$verbose} \
+		${number:+--number=$number} \
+		#
 	$hasher_dir/initroot "$workdir" \
-			--hasher-priv-dir="$hasher_priv_dir" \
-			${quiet:+$quiet} \
-			${verbose:+$verbose} \
-			${no_cache:+--no-cache} \
-			${no_contents_indices:+--no-contents-indices} \
-			${repackage_source:+--repackage-source} \
-			${number:+--number=$number} \
-			${nprocs:+--nprocs=$nprocs} \
-			${install_langs:+--install-langs="$install_langs"} \
-			#
+		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
+		${quiet:+$quiet} \
+		${verbose:+$verbose} \
+		${no_cache:+--no-cache} \
+		${no_contents_indices:+--no-contents-indices} \
+		${repackage_source:+--repackage-source} \
+		${number:+--number=$number} \
+		${nprocs:+--nprocs=$nprocs} \
+		${install_langs:+--install-langs="$install_langs"} \
+		#
 	$hasher_dir/rebuild "$workdir" \
-			--target="$target" \
-			--hasher-priv-dir="$hasher_priv_dir" \
-			${quiet:+$quiet} \
-			${verbose:+$verbose} \
-			${no_stuff:+--no-stuff} \
-			${no_sisyphus_check:+--no-sisyphus-check="$no_sisyphus_check"} \
-			${no_sisyphus_check_in:+--no-sisyphus-check-in="$no_sisyphus_check_in"} \
-			${no_sisyphus_check_out:+--no-sisyphus-check-out="$no_sisyphus_check_out"} \
-			${number:+--number=$number} \
-			${rpmargs:+--args="$rpmargs"} \
-			"$f"
+		${target:+--target="$target"} \
+		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
+		${quiet:+$quiet} \
+		${verbose:+$verbose} \
+		${no_stuff:+--no-stuff} \
+		${no_sisyphus_check:+--no-sisyphus-check="$no_sisyphus_check"} \
+		${no_sisyphus_check_in:+--no-sisyphus-check-in="$no_sisyphus_check_in"} \
+		${no_sisyphus_check_out:+--no-sisyphus-check-out="$no_sisyphus_check_out"} \
+		${number:+--number=$number} \
+		${rpmargs:+--args="$rpmargs"} \
+		"$f"
 done

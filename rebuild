@@ -134,7 +134,7 @@ if [ -z "$nodeps" ]; then
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
 		${number:+--number=$number} \
-		--hasher-priv-dir="$hasher_priv_dir" \
+		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		"$workdir" $deps
 fi
 
@@ -161,7 +161,7 @@ cat >>/usr/src/.rpmmacros <<\EOF
 EOF
 
 f="$(quote_arg "$sname")"
-nice time rpmbuild --rebuild $nodeps --target="$(quote_arg "$target")" $rpmargs "\$f"
+nice time rpmbuild --rebuild $nodeps --target="$(quote_arg "${target:-$def_target}")" $rpmargs "\$f"
 find /usr/src/RPM/SRPMS/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
 	xargs -r0 mv --reply=yes $verbose --target-directory=/.out/ --
 find /usr/src/RPM/RPMS/ -mindepth 2 -maxdepth 2 -type f -name \*.rpm -print0 |
@@ -200,7 +200,7 @@ case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |grep -
 		;;
 esac
 find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.rpm -print0 |
-	xargs -r0 mv --reply=yes $verbose --target-directory=repo/"$target"/RPMS.hasher/ --
+	xargs -r0 mv --reply=yes $verbose --target-directory=repo/"${target:-$def_target}"/RPMS.hasher/ --
 
 purge_chroot_in
 purge_chroot_out

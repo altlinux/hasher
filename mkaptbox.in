@@ -182,7 +182,7 @@ Verbose "created APT configuration file \`$APT_CONFIG'"
 
 target_config="./etc/apt/sources.list"
 cat >"$target_config" <<__EOF__
-${no_stuff:+#}rpm file:$workdir/repo $target hasher
+${no_stuff:+#}rpm file:$workdir/repo ${target:-$def_target} hasher
 $(grep '^[^#]' "$sl_value")
 __EOF__
 Verbose "created APT source list file \`$target_config'"
