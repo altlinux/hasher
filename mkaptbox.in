@@ -40,7 +40,7 @@ Usage: $PROG [options] <path-to-workdir>
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
-    --no-stuff              do not configure the work repository;
+    --no-stuff              do not configure sources.list for the work repository;
     --target=ARCH           target architecture of the work repository;
     --apt-config=FILE       path to custom apt.conf file;
     --apt-prefix=DIRECTORY  path to apt directory prefix (e.g. /usr);
