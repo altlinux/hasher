@@ -30,7 +30,7 @@ Usage()
 {
 	[ "$1" = 0 ] || exec >&2
 	cat <<EOF
-mkaptbox - creates initial aptbox.
+mkaptbox - creates initial aptbox in specified working directory.
 
 This program is free software, covered by the GNU General Public License.
 mkaptbox comes with ABSOLUTELY NO WARRANTY, see license for details.
@@ -40,8 +40,8 @@ Usage: $PROG [options] <path-to-workdir>
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
-    --no-stuff              do not install built packages;
-    --target=ARCH           target architecture;
+    --no-stuff              do not configure the work repository;
+    --target=ARCH           target architecture of the work repository;
     --apt-config=FILE       path to custom apt.conf file;
     --apt-prefix=DIRECTORY  path to apt directory prefix (e.g. /usr);
     -f, --force             force aptbox creation;
