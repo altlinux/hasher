@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9
+Version: 0.9.1
 Release: alt1
 BuildArch: noarch
 
@@ -32,6 +32,9 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Thu Oct 23 2003 Dmitry V. Levin <ldv@altlinux.org> 0.9.1-alt1
+- Include files inside /etc/ in content index.
+
 * Fri Oct 17 2003 Dmitry V. Levin <ldv@altlinux.org> 0.9-alt1
 - Fixed Usage() in all scripts.
 - Added sisyphus_check support and enabled it by default.
