@@ -196,7 +196,7 @@ else
 fi
 
 # Prepare /proc and /sys for potential mount.
-rmdir $verbose chroot/proc chroot/sys &&
+rmdir $verbose chroot/proc chroot/sys ||:
 mkdir -m755 $verbose chroot/proc chroot/sys &&
 chgrp "$gid1" $verbose chroot/proc chroot/sys &&
 	Verbose "prepared mount points." ||
