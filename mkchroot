@@ -99,8 +99,8 @@ cd chroot
 Verbose "changed working directory to \`$chroot'"
 
 mkdir -m711 $verbose .host
-mkdir -m755 $verbose .in dev
-chgrp "$gid1" $verbose . dev
+mkdir -m755 $verbose .in dev dev/pts
+chgrp "$gid1" $verbose . dev dev/pts
 mkdir -m1770 $verbose .out
 chgrp "$gid2" $verbose .out
 Verbose "created directory tree."
