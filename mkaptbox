@@ -98,15 +98,44 @@ mkdir -p $verbose -- \
 	./var/lib/apt/lists/partial \
 	./var/lib/rpm
 
-ln -s $verbose /etc/apt/sources.list ./etc/apt/sources.list.d/0-system
+get_apt_config()
+{
+	local temp name value
+	name="$1"
+	shift || return 1
+	value="$1"
+	shift || return 1
+
+	temp="$(apt-config shell "$value" "$name")" || return 1
+	eval $temp
+}
+	
+sp_name="Dir::Etc::SourceParts"
+get_apt_config "$sp_name" sp_value
+
+[ "$sp_value" = "sources.list.d" ] ||
+	Fatal "apt-config: non-standard $sp_name value: $sp_value"
+
+sl_name="Dir::Etc::SourceList"
+get_apt_config "$sl_name" sl_value
+
+[ -n "$sl_value" ] || Fatal "apt-config: undefined $sl_name"
+if [ -n "${sl_value##/*}" ]; then
+	get_apt_config "Dir::Etc" dir_etc
+	sl_value="$dir_etc/$sl_value"
+fi
+
+[ -s "$sl_value" -a -r "$sl_value" ] || Fatal "broken $sl_name: $sl_value"
+
+ln -s $verbose "$sl_value" ./etc/apt/sources.list.d/0-system
 
 # apt.conf file.
 export APT_CONFIG="$aptbox/etc/apt/apt.conf"
 cat >"$APT_CONFIG" <<__EOF__
 Dir::State "$aptbox/var/lib/apt/";
 Dir::Cache "$aptbox/var/cache/apt/";
-Dir::Etc::SourceList "/var/empty/missing";
-Dir::Etc::SourceParts "$aptbox/etc/apt/sources.list.d";
+$sl_name "/var/empty/missing";
+$sp_name "$aptbox/etc/apt/sources.list.d";
 RPM::RootDir "$aptbox";
 APT::Install::Virtual "true";
 APT::Install::VirtualVersion "true";
