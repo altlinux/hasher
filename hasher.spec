@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.8.4
+Version: 0.9
 Release: alt1
 BuildArch: noarch
 
@@ -13,6 +13,7 @@ Source: %name-%version.tar.gz
 
 Requires: getopt, ash-static, cpio-static, find-static
 Requires: hasher-priv, apt >= 0.5.5cnc4.1-alt7
+Requires: sisyphus >= 0.5.1-alt1
 
 Obsoletes: pkg-build-utils, libbte
 
@@ -31,6 +32,10 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Fri Oct 17 2003 Dmitry V. Levin <ldv@altlinux.org> 0.9-alt1
+- Fixed Usage() in all scripts.
+- Added sisyphus_check support and enabled it by default.
+
 * Wed Oct 15 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8.4-alt1
 - initroot: install all locales by default.
 

@@ -72,6 +72,7 @@ chroot=
 entry=
 no_stuff=
 APT_CONFIG=
+no_sisyphus_check=
 
 set_workdir()
 {

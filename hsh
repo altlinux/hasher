@@ -39,6 +39,7 @@ Valid options are:
 --no-stuff                      do not install built packages;
 --no-cache                      do not use initroot cache;
 --no-contents-indices           do not use content indices;
+--no-sisyphus-check             do not run sisyphus_check tests;
 --target=ARCH                   target architecture;
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
@@ -55,7 +56,7 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-cache,no-contents-indices,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,quiet,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-cache,no-contents-indices,no-sisyphus-check,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
@@ -73,6 +74,8 @@ while :; do
 		--no-cache) no_cache=1; shift
 			;;
 		--no-contents-indices) no_contents_indices=1; shift
+			;;
+		--no-sisyphus-check) no_sisyphus_check=1; shift
 			;;
 		--target) shift; target="$1"; shift
 			;;
@@ -194,6 +197,7 @@ for f in "$@"; do
 			${quiet:+$quiet} \
 			${verbose:+$verbose} \
 			${no_stuff:+--no-stuff} \
+			${no_sisyphus_check:+--no-sisyphus-check} \
 			${number:+--number=$number} \
 			${rpmargs:+--args="$rpmargs"} \
 			"$f"

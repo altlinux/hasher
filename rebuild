@@ -37,6 +37,7 @@ Usage: $PROG [options] <path-to-workdir> <source-package>
 
 Valid options are:
 --no-stuff              do not generate apt hash files;
+--no-sisyphus-check     do not run sisyphus_check tests;
 --target=ARCH           target architecture;
 --args=ARGS             extra arguments for rpmbuild;
 --nodeps                ignore package dependencies (dangerous);
@@ -49,7 +50,7 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,target:,args:,nodeps,number:,hasher-priv-dir:,quiet,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-sisyphus-check,target:,args:,nodeps,number:,hasher-priv-dir:,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 nodeps=
@@ -57,6 +58,8 @@ rpmargs=
 while :; do
 	case "$1" in
 		--no-stuff) no_stuff=1; shift
+			;;
+		--no-sisyphus-check) no_sisyphus_check=1; shift
 			;;
 		--target) shift; target="$1"; shift
 			;;
@@ -119,6 +122,12 @@ purge_chroot_in
 purge_chroot_out
 copy_chroot_incoming "$source"
 
+if [ -z "$no_sisyphus_check" ]; then
+	sisyphus_check --no-check-gpg -- chroot/.in &&
+		Verbose "$source: sisyphus_check passed." ||
+		Fatal "$source: sisyphus_check failed."
+fi
+
 cat >"$entry" <<__EOF__
 $entry_header
 
@@ -130,7 +139,9 @@ if [ -z "\$p" ]; then
 	exit 1
 fi
 nice time rpmbuild --rebuild $nodeps --target="$(quote_arg "$target")" --define "packager \$p" $rpmargs "\$f"
-find /usr/src/RPM/RPMS/ -mindepth 2 -maxdepth 2 -type f -print0 |
+find /usr/src/RPM/SRPMS/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
+	xargs -r0 mv --reply=yes $verbose --target-directory=/.out/ --
+find /usr/src/RPM/RPMS/ -mindepth 2 -maxdepth 2 -type f -name \*.rpm -print0 |
 	xargs -r0 mv --reply=yes $verbose --target-directory=/.out/ --
 __EOF__
 chmod 755 "$entry"
@@ -141,10 +152,27 @@ chmod 755 "$entry"
 
 make_repo
 
-find chroot/.in/ -mindepth 1 -maxdepth 1 -type f -print0 |
-	xargs -r0 mv --reply=yes $verbose --target-directory=repo/SRPMS.hasher/ --
-find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -print0 |
-	xargs -r0 mv --reply=yes $verbose --target-directory=repo/$target/RPMS.hasher/ --
+if [ -z "$no_sisyphus_check" ]; then
+	sisyphus_check --no-check-gpg -- chroot/.out &&
+		Verbose "$source: sisyphus_check passed." ||
+		Fatal "$source: sisyphus_check failed."
+fi
+
+case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |wc -l` in
+	0)
+		find chroot/.in/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
+			xargs -r0 mv --reply=yes $verbose --target-directory=repo/SRPMS.hasher/ --
+		;;
+	1)
+		find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
+			xargs -r0 mv --reply=yes $verbose --target-directory=repo/SRPMS.hasher/ --
+		;;
+	*)
+		Fatal "too many src.rpm files written."
+		;;
+esac
+find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.rpm -print0 |
+	xargs -r0 mv --reply=yes $verbose --target-directory=repo/"$target"/RPMS.hasher/ --
 
 purge_chroot_in
 purge_chroot_out
