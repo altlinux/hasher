@@ -49,6 +49,8 @@ Valid options are:
   --hasher-priv-dir=DIR         hasher-priv directory;
   --nprocs=NUMBER               number of CPUs to use;
   --install-langs=LANGLIST      list of languages to install;
+  --pkg-init-list=LIST          override default initial package file list;
+  --pkg-build-list=LIST         override default build package file list;
   -q, --quiet                   try to be more quiet;
   -v, --verbose                 print a message for each action;
   -h, --help                    show this text.
@@ -56,12 +58,14 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,h -l no-cache,no-contents-indices,no-build,repackage-source,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,h -l no-cache,no-contents-indices,no-build,repackage-source,pkg-init-list:,pkg-build-list:,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
 no_contents_indices=
 no_build=
+init_list='setup filesystem rpm fakeroot>=0:0.7.3'
+build_list='basesystem rpm-build>=0:4.0.4-alt21 kernel-headers-common>=1.1.4-alt1 time'
 nprocs=
 install_langs=all
 contents_index_all=
@@ -93,6 +97,10 @@ while :; do
 		--contents-index-all) shift; contents_index_all="$1"
 			;;
 		--contents-index-bin) shift; contents_index_bin="$1"
+			;;
+		--pkg-init-list) shift; init_list="$1"
+			;;
+		--pkg-build-list) shift; build_list="$1"
 			;;
 		-q|--quiet) quiet=-q
 			;;
@@ -137,7 +145,7 @@ check_tty
 . "$hasher_dir/cache_chroot"
 . "$hasher_dir/cache_contents"
 
-initlist="$(print_uris setup filesystem rpm 'fakeroot>=0:0.7.3')" ||
+initlist="$(print_uris "$init_list")" ||
 	Fatal "failed to generate initial package file list."
 [ -n "$initlist" ] &&
 	Verbose "generated initial package file list." ||
@@ -151,7 +159,7 @@ $(echo "$initlist" |egrep -v '/(setup|filesystem)-')"
 [ -n "$no_cache" ] || echo "$initlist" >"cache/chroot/list.new/init"
 
 if [ -z "$no_build" ]; then
-	buildlist="$(print_uris basesystem 'rpm-build>=0:4.0.4-alt21' 'kernel-headers-common>=1.1.4-alt1' time)" ||
+	buildlist="$(print_uris "$build_list")" ||
 		Fatal "failed to generate build package file list."
 	buildlist="$(
 		echo "$buildlist" |while read bp; do
