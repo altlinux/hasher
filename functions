@@ -29,6 +29,11 @@ Fatal()
 	exit 1
 }
 
+Info()
+{
+	echo "${0##*/}: $*" >&2
+}
+
 verbose=
 Verbose()
 {
