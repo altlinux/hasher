@@ -135,7 +135,7 @@ check_contents_cache()
 	# Regenerate data for later cache validation.
 	mv -f $verbose cache/contents/list{.new,}/index
 	rm -f cache/contents/index/*
-	find cache/contents/index.new/ -type f -maxdepth 1 -print0 |
+	find cache/contents/index.new/ -maxdepth 1 -type f -print0 |
 		xargs -r0 mv -f --target-directory=cache/contents/index/ --
 	[ -z "$rebuild_contents_cache" ] || rm -f cache/contents/contents_index_bin
 } # check_contents_cache
