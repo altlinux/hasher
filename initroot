@@ -92,6 +92,7 @@ done
 
 # exactly one argument, please.
 [ "$#" -eq 1 ] || Usage
+
 set_workdir "$1"
 shift
 
@@ -225,6 +226,10 @@ __EOF__
 "$chrootuid1" $number "$chroot" /.host/entry &&
 	Verbose "first time initialization complete." ||
 	Fatal "first time initialization failed."
+
+# Create /dev/log.
+mksock -m666 "$chroot/dev/log" ||
+	Fatal "failed to create \`$chroot/dev/log' socket."
 
 # Install contents indeces.
 if [ -n "$contents_index_bin" ]; then

@@ -36,6 +36,8 @@ This package provides package hasher utilities.
   + implemented locking.
 - mkaptbox:
   + implemented more rigorous apt-config error checking.
+- initroot:
+  + create /dev/log socket.
 
 * Wed Aug 20 2003 Dmitry V. Levin <ldv@altlinux.org> 0.5-alt1
 - functions:
