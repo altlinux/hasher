@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.5
+Version: 0.9.6
 Release: alt1
 BuildArch: noarch
 
@@ -32,6 +32,13 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Thu Jan 08 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.6-alt1
+- functions/print_uris: enhanced error diagnostics.
+- functions,mkaptbox,hsh: implemented apt_prefix support.
+- functions,initroot,install,rebuild:
+  define and export TMPDIR="$HOME/tmp" inside build chroot,
+  to ease tracking of illegal /tmp use issues.
+
 * Thu Dec 04 2003 Dmitry V. Levin <ldv@altlinux.org> 0.9.5-alt1
 - mkchroot:
   + install postin program ($HOME/.hasher/install/post
