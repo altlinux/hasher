@@ -66,9 +66,10 @@ make_contents_index_list()
 }' <aptbox/etc/apt/sources.list |
 		cut -d: -f2- |while read f; do
 			[ -r "$f" ] || continue
-			echo "$f"
+			printf %s\\n "$f"
 		done
 	)"
+	contents_index_list="$(printf %s "$contents_index_list" |grep -v '^$')"
 }
 
 check_contents_cache()
@@ -81,16 +82,22 @@ check_contents_cache()
 
 	[ -z "$no_cache" ] || return 0
 
-	echo -n "$contents_index_list" >cache/contents/list.new/index
+	printf %s "$contents_index_list" >cache/contents/list.new/index
 	[ ! -s cache/contents/list.new/index ] || echo >>cache/contents/list.new/index
 
-	local f
+	local f n
+	local bad="cache/contents/list.new/bad"
 	cat cache/contents/list.new/index |
 		while read f; do
+			[ -n "$f" ] || continue
 			local n
-			n="$(echo "$f" |sed -e s,/,_,g)"
-			touch -r "$f" "cache/contents/index.new/$n"
+			n="$(printf %s "$f" |sed -e s,/,_,g)"
+			if ! touch -r "$f" "cache/contents/index.new/$n"; then
+				printf %s\\n "$n" >"$bad"
+				break
+			fi
 		done
+	[ ! -f "$bad" ] || Fatal "failed to check contents cache."
 
 	while :; do
 		if [ ! -s cache/contents/contents_index_bin ]; then
@@ -105,16 +112,15 @@ check_contents_cache()
 			break
 		fi
 
-		local bad="cache/contents/list.new/bad"
 		rm -f "$bad"
 		cat cache/contents/list.new/index |
 			while read f; do
-				local n
-				n="$(echo "$f" |sed -e s,/,_,g)"
+				[ -n "$f" ] || continue
+				n="$(printf %s "$f" |sed -e s,/,_,g)"
 				if [ "cache/contents/index.new/$n" -nt "cache/contents/index/$n" -o \
 				     "cache/contents/index.new/$n" -ot "cache/contents/index/$n" ]; then
 					Verbose "index $n changed, invalidating contents cache"
-					echo "$n" >"$bad"
+					printf %s\\n "$n" >"$bad"
 					break
 				fi
 			done
@@ -181,7 +187,7 @@ create_contents()
 		while read f; do
 			if ! egrep '^/((usr/)?bin|(usr/)?sbin|usr/X11R6/bin|etc)/' "$f"; then
 				Verbose "failed to process contents index $f"
-				echo "$f" >"$bad"
+				printf %s\\n "$f" >"$bad"
 				break
 			fi
 		done >"$contents"

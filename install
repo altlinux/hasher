@@ -56,7 +56,7 @@ eval set -- "$TEMP"
 while :; do
 	case "$1" in
 		--number) shift; number="${1##-}"
-			[ -z "$(echo -E "$number" |tr -d [0-9])" ] ||
+			[ -z "$(printf %s "$number" |tr -d [0-9])" ] ||
 				Fatal "--number: $number: invalid number."
 			number="-$number"
 			;;
@@ -101,7 +101,7 @@ check_tty
 cat >"$entry" <<__EOF__
 $entry_fakeroot_header
 
-rpmi -i $rpm_verbose $hash $exclude_docs $(for f in $filelist; do echo -n "\"$(quote_arg "${f##*/}")\" "; done)
+rpmi -i $rpm_verbose $hash $exclude_docs $(for f in $filelist; do printf %s "\"$(quote_arg "${f##*/}")\" "; done)
 ldconfig
 if [ -x /usr/sbin/adjust_kernel_headers ]; then
 	/usr/sbin/adjust_kernel_headers --first

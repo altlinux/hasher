@@ -82,12 +82,12 @@ while :; do
 		--repackage-source) repackage_source=1
 			;;
 		--number) shift; number="${1##-}"
-			[ -z "$(echo -E "$number" |tr -d [0-9])" ] ||
+			[ -z "$(printf %s "$number" |tr -d [0-9])" ] ||
 				Fatal "--number: $number: invalid number."
 			number="-$number"
 			;;
 		--nprocs) shift; nprocs="$1"
-			[ -z "$(echo -E "$nprocs" |tr -d [0-9])" ] ||
+			[ -z "$(printf %s "$nprocs" |tr -d [0-9])" ] ||
 				Fatal "--nprocs: $nprocs: invalid number."
 			;;
 		--install-langs) shift; install_langs="$1"
@@ -134,11 +134,11 @@ check_helpers
 
 ugid2="$("$getugid2" $number)" ||
 	Fatal "getugid2 failed."
-uid2="$(echo "$ugid2" |cut -d: -f1)"
-gid2="$(echo "$ugid2" |cut -d: -f2)"
+uid2="$(printf %s "$ugid2" |cut -d: -f1)"
+gid2="$(printf %s "$ugid2" |cut -d: -f2)"
 
 [ -n "$nprocs" ] ||
-	nprocs="$(N=`egrep -cs ^cpu[0-9]+ /proc/stat ||:`; [ "$N" -gt 0 ] 2>/dev/null && echo -n "$N" || echo 1)"
+	nprocs="$(N=`egrep -cs ^cpu[0-9]+ /proc/stat ||:`; [ "$N" -gt 0 ] 2>/dev/null && printf %s "$N" || echo 1)"
 
 check_tty
 
@@ -152,20 +152,26 @@ initlist="$(print_uris $init_list)" ||
 	Fatal "failed to generate non-empty initial package file list; check your sources.list"
 
 # reorder to get setup and filesystem first.
-initlist="$(echo "$initlist" |fgrep /setup-)
-$(echo "$initlist" |fgrep /filesystem-)
-$(echo "$initlist" |egrep -v '/(setup|filesystem)-')"
+initlist="$(printf %s "$initlist" |grep '/setup[-_]')
+$(printf %s "$initlist" |grep '/filesystem[-_]')
+$(printf %s "$initlist" |egrep -v '/(setup|filesystem)[-_]')"
+initlist="$(printf %s "$initlist" |grep -v '^$')"
 
-[ -n "$no_cache" ] || echo "$initlist" >"cache/chroot/list.new/init"
+if [ -z "$no_cache" ]; then
+	printf %s "$initlist" >cache/chroot/list.new/init
+	[ ! -s cache/chroot/list.new/init ] || echo >>cache/chroot/list.new/init
+fi
 
 if [ -z "$no_build" ]; then
 	buildlist="$(print_uris $build_list)" ||
 		Fatal "failed to generate build package file list."
 	buildlist="$(
-		echo "$buildlist" |while read bp; do
-			echo "$initlist" |grep -qs "^$bp\$" || echo "$bp"
+		printf %s\\n "$buildlist" |while read bp; do
+			[ -n "$bp" ] || continue
+			printf %s "$initlist" |grep -qs "^$bp\$" || printf %s\\n "$bp"
 		done
 	)"
+	buildlist="$(printf %s "$buildlist" |grep -v '^$')"
 	[ -n "$buildlist" ] &&
 		Verbose "generated build package file list." ||
 		Fatal "failed to generate non-empty build package file list; check your sources.list"
@@ -173,7 +179,10 @@ else
 	buildlist=
 fi # $no_build
 
-[ -n "$no_cache" ] || echo "$buildlist" >"cache/chroot/list.new/build"
+if [ -z "$no_cache" ]; then
+	printf %s "$buildlist" >cache/chroot/list.new/build
+	[ ! -s cache/chroot/list.new/build ] || echo >>cache/chroot/list.new/build
+fi
 
 check_chroot_cache
 

@@ -56,7 +56,7 @@ eval set -- "$TEMP"
 while :; do
 	case "$1" in
 		--number) shift; number="${1##-}"
-			[ -z "$(echo -E "$number" |tr -d [0-9])" ] ||
+			[ -z "$(printf %s "$number" |tr -d [0-9])" ] ||
 				Fatal "--number: $number: invalid number."
 			number="-$number"
 			;;
@@ -93,7 +93,7 @@ Verbose "installed .host programs."
 if [ ! -c "dev/null" ]; then
 	ugid1="$("$getugid1" $number)" ||
 		Fatal "getugid1 failed."
-	gid1="$(echo "$ugid1" |cut -d: -f2)"
+	gid1="$(printf %s "$ugid1" |cut -d: -f2)"
 
 	mkdir -p -m755 $verbose dev
 	chgrp "$gid1" $verbose dev

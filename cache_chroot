@@ -60,11 +60,19 @@ check_chroot_cache()
 {
 	[ -z "$no_cache" ] || return 0
 
-	local f
+	local f n
+	local bad="cache/chroot/list.new/bad"
+	rm -f "$bad"
 	cat cache/chroot/list.new/{init,build} |
 		while read f; do
-			touch -r "$f" "cache/chroot/package.new/${f##*/}"
+			[ -n "$f" ] || continue
+			n="${f##*/}"
+			if ! touch -r "$f" "cache/chroot/package.new/$n"; then
+				printf %s\\n "$n" >"$bad"
+				break
+			fi
 		done
+	[ ! -f "$bad" ] || Fatal "failed to check chroot cache."
 
 	while :; do
 		for f in cache/chroot/{rpmdb.tar,chroot.cpio}; do
@@ -87,16 +95,14 @@ check_chroot_cache()
 			break
 		fi
 
-		local bad="cache/chroot/list.new/bad"
 		rm -f "$bad"
 		cat cache/chroot/list.new/{init,build} |
 			while read f; do
-				local n
 				n="${f##*/}"
 				if [ "cache/chroot/package.new/$n" -nt "cache/chroot/package/$n" -o \
 				     "cache/chroot/package.new/$n" -ot "cache/chroot/package/$n" ]; then
 					Verbose "package $n changed, invalidating chroot cache"
-					echo "$n" >"$bad"
+					printf %s\\n "$n" >"$bad"
 					break
 				fi
 			done
@@ -166,7 +172,7 @@ __EOF__
 $entry_fakeroot_header
 
 export DURING_INSTALL=1
-rpmi -i $verbose $exclude_docs --justdb --nodeps $(for f in $initlist; do echo -n "\"$(quote_arg "${f##*/}")\" "; done)
+rpmi -i $verbose $exclude_docs --justdb --nodeps $(for f in $initlist; do printf %s "\"$(quote_arg "${f##*/}")\" "; done)
 __EOF__
 
 	"$chrootuid1" $number "$chroot" /.host/entry &&
@@ -201,8 +207,8 @@ $entry_fakeroot_header
 
 export DURING_INSTALL=1
 # FIXME: dev shouldn't be installed
-rpmi -i $rpm_verbose $hash $exclude_docs --nodeps $(for f in $buildlist; do f="${f##*/}"; [ -z "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
-rpmi -i $verbose $exclude_docs --nodeps --justdb $(for f in $buildlist; do f="${f##*/}"; [ -n "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
+rpmi -i $rpm_verbose $hash $exclude_docs --nodeps $(for f in $buildlist; do f="${f##*/}"; [ -z "${f##dev-*}" ] || printf %s "\"$(quote_arg "$f")\" "; done)
+rpmi -i $verbose $exclude_docs --nodeps --justdb $(for f in $buildlist; do f="${f##*/}"; [ -n "${f##dev-*}" ] || printf %s "\"$(quote_arg "$f")\" "; done)
 # /FIXME
 __EOF__
 

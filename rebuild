@@ -86,7 +86,7 @@ while :; do
 		--nodeps) nodeps=--nodeps
 			;;
 		--number) shift; number="${1##-}"
-			[ -z "$(echo -E "$number" |tr -d [0-9])" ] ||
+			[ -z "$(printf %s "$number" |tr -d [0-9])" ] ||
 				Fatal "--number: $number: invalid number."
 			number="-$number"
 			;;
@@ -128,7 +128,7 @@ check_helpers
 
 if [ -z "$nodeps" ]; then
 	deps="$(rpmquery -pR -- "$source")"
-	deps="$(echo -E "$deps" |grep -v '^rpmlib(' |tr -d [[:blank:]])" ||:
+	deps="$(printf %s "$deps" |grep -v '^rpmlib(' |tr -d [[:blank:]])" ||:
 	Verbose "$sname: calculated dependencies: $deps"
 
 	[ -z "$deps" ] || /usr/share/hasher/install \

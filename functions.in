@@ -25,12 +25,12 @@ PROG="${0##*/}"
 
 Info()
 {
-	echo "${0##*/}: $*" >&2
+	printf %s\\n "${0##*/}: $*" >&2
 }
 
 Fatal()
 {
-	echo "${0##*/}: $*" >&2
+	printf %s\\n "${0##*/}: $*" >&2
 	exit 1
 }
 
@@ -39,7 +39,7 @@ verbose=
 Verbose()
 {
 	[ -n "$verbose" ] || return 0
-	echo "${0##*/}: $*" >&2
+	printf %s\\n "${0##*/}: $*" >&2
 }
 
 print_version()
