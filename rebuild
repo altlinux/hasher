@@ -57,7 +57,7 @@ while :; do
 			shift
 			number="$1"
 			[ -z "$(echo -E "$number" |tr -d [0-9])" ] ||
-				Fatal "$number: invalid number."
+				Fatal "--number: $number: invalid number."
 			number="-$number"
 			shift
 			;;
