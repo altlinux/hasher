@@ -26,6 +26,9 @@ This package provides package hasher utilities.
 %prep
 %setup -q
 
+%build
+%make_build
+
 %install
 %make_install install DESTDIR=$RPM_BUILD_ROOT
 
