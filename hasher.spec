@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.2
+Version: 0.3
 Release: alt1
 BuildArch: noarch
 
@@ -31,6 +31,9 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Wed Jul 30 2003 Dmitry V. Levin <ldv@altlinux.org> 0.3-alt1
+- Added "adjust_kernel_headers --first" support.
+
 * Fri Jul 04 2003 Dmitry V. Levin <ldv@altlinux.org> 0.2-alt1
 - functions: unset CDPATH.
 - rmchroot:

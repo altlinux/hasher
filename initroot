@@ -181,7 +181,7 @@ done
 
 # At this stage, RPM inside chroot is fully functional.
 
-filelist="$(print_uris basesystem 'rpm-build>=0:4.0.4-alt21' kernel-headers-common time)" ||
+filelist="$(print_uris basesystem 'rpm-build>=0:4.0.4-alt21' 'kernel-headers-common>=1.1.4-alt1' time)" ||
 	Fatal "failed to generate build package file list."
 [ -n "$filelist" ] &&
 	Verbose "generated build package file list." ||
@@ -216,7 +216,7 @@ cat >"$entry" <<__EOF__
 $entry_fakeroot_header
 
 ldconfig
-adjust_kernel_headers
+adjust_kernel_headers --first
 groupadd -g $gid2 builder
 useradd -M -u $uid2 -g $gid2 -d /usr/src builder
 chmod 1777 /usr/src
