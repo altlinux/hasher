@@ -1,6 +1,7 @@
 $Id$
 
-This short description should help those impatient users who never read docs.
+This short description should help those impatient users
+who never read docs.
 To prepare hasher for user joe, you need to
 
 # apt-get install hasher
