@@ -95,7 +95,7 @@ set_workdir()
 
 hash=
 rpm_verbose=
-exclude_docs='--excludedocs'
+exclude_docs=
 
 # set hash and rpm_verbose variables.
 check_tty()
