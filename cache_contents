@@ -69,7 +69,7 @@ make_contents_index_list()
 			printf %s\\n "$f"
 		done
 	)"
-	contents_index_list="$(printf %s "$contents_index_list" |grep -v '^$')"
+	contents_index_list="$(printf %s "$contents_index_list" |grep -v '^$' ||:)"
 }
 
 check_contents_cache()

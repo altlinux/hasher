@@ -152,10 +152,10 @@ initlist="$(print_uris $init_list)" ||
 	Fatal "failed to generate non-empty initial package file list; check your sources.list"
 
 # reorder to get setup and filesystem first.
-initlist="$(printf %s "$initlist" |grep '/setup[-_]')
-$(printf %s "$initlist" |grep '/filesystem[-_]')
-$(printf %s "$initlist" |egrep -v '/(setup|filesystem)[-_]')"
-initlist="$(printf %s "$initlist" |grep -v '^$')"
+initlist="$(printf %s "$initlist" |grep '/setup[-_]' ||:)
+$(printf %s "$initlist" |grep '/filesystem[-_]' ||:)
+$(printf %s "$initlist" |egrep -v '/(setup|filesystem)[-_]' ||:)"
+initlist="$(printf %s "$initlist" |grep -v '^$' ||:)"
 
 if [ -z "$no_cache" ]; then
 	printf %s "$initlist" >cache/chroot/list.new/init
@@ -171,7 +171,7 @@ if [ -z "$no_build" ]; then
 			printf %s "$initlist" |grep -qs "^$bp\$" || printf %s\\n "$bp"
 		done
 	)"
-	buildlist="$(printf %s "$buildlist" |grep -v '^$')"
+	buildlist="$(printf %s "$buildlist" |grep -v '^$' ||:)"
 	[ -n "$buildlist" ] &&
 		Verbose "generated build package file list." ||
 		Fatal "failed to generate non-empty build package file list; check your sources.list"
