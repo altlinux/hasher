@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.8
+Version: 0.8.1
 Release: alt1
 BuildArch: noarch
 
@@ -31,17 +31,15 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Mon Sep 22 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8.1-alt1
+- initroot: manifest hasher via defining __hasher macro (#3008).
+
 * Wed Sep 17 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8-alt1
 - Implemented initial chroot caching.
 - Implemented contents indices caching.
 - Implemented support of several contents indices.
-
-* Tue Sep 16 2003 Dmitry V. Levin <ldv@altlinux.org> 0.7.2-alt1
-- Enhanced initroot caching support.
-- Initial contents caching support.
-
-* Sat Sep 13 2003 Dmitry V. Levin <ldv@altlinux.org> 0.7.1-alt1
-- Initial initroot caching support.
+  Content indeces are enabled by default, use
+  --no-contents-indices option to disable this feature.
 
 * Thu Sep 11 2003 Dmitry V. Levin <ldv@altlinux.org> 0.7-alt1
 - Enhanced --no-stuff support.
