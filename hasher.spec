@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.4
+Version: 0.9.5
 Release: alt1
 BuildArch: noarch
 
@@ -32,6 +32,12 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Thu Dec 04 2003 Dmitry V. Levin <ldv@altlinux.org> 0.9.5-alt1
+- mkchroot:
+  + install postin program ($HOME/.hasher/install/post
+    if available) into /.host/;
+- install: execute /.host/postin if available.
+
 * Wed Nov 26 2003 Dmitry V. Levin <ldv@altlinux.org> 0.9.4-alt1
 - Make use of new rpm-build-4.0.4-alt28 features:
   + initroot: define %%_rpmbuild_clean to 0 in .rpmmacros.
