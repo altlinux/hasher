@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.8
+Version: 0.9.9
 Release: alt1
 BuildArch: noarch
 
@@ -36,9 +36,12 @@ This package provides package hasher utilities.
 %_bindir/*
 %_datadir/%name
 %_mandir/man?/*
-%doc README
+%doc FAQ README
 
 %changelog
+* Tue Feb 03 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9-alt1
+- Added FAQ.
+
 * Sat Jan 31 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.8-alt1
 - mkaptbox:
   + added --no-uptdate option;
