@@ -20,8 +20,10 @@
 #
 
 PROJECT = hasher
-SCRIPTS = functions initroot install mkaptbox mkchroot rebuild rmchroot
+HELPERS = functions initroot install mkaptbox mkchroot rebuild rmchroot
+PROGRAMS = hsh
 
+bindir = /usr/bin
 libexecdir = /usr/share
 helperdir = $(libexecdir)/$(PROJECT)
 DESTDIR =
@@ -34,8 +36,10 @@ INSTALL = install
 all:
 
 install: all
+	$(MKDIR_P) -m755 $(DESTDIR)$(bindir)
+	$(INSTALL) -p -m755 $(PROGRAMS) $(DESTDIR)$(bindir)/
 	$(MKDIR_P) -m755 $(DESTDIR)$(helperdir)
-	$(INSTALL) -p -m755 $(SCRIPTS) $(DESTDIR)$(helperdir)/
+	$(INSTALL) -p -m755 $(HELPERS) $(DESTDIR)$(helperdir)/
 
 clean:
 

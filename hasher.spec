@@ -24,6 +24,7 @@ This package provides package hasher utilities.
 %make_install install DESTDIR=$RPM_BUILD_ROOT
 
 %files
+%_bindir/*
 %_datadir/*
 
 %changelog
