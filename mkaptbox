@@ -145,7 +145,7 @@ cat >"$APT_CONFIG" <<__EOF__
 ${apt_config:+$(cat "$apt_config")}
 Dir::State "$aptbox/var/lib/apt/";
 Dir::Cache "$aptbox/var/cache/apt/";
-$sl_name "$aptbox/etc/apt/sources.list";
+Dir::Etc::SourceList "$aptbox/etc/apt/sources.list";
 RPM::RootDir "$aptbox";
 APT::Install::Virtual "true";
 APT::Install::VirtualVersion "true";
