@@ -11,6 +11,8 @@ Group: Development/Other
 
 Source: %name-%version.tar.gz
 
+Requires: getopt
+
 %description
 This package provides package hasher utilities.
 
