@@ -6,7 +6,7 @@ To prepare hasher for user joe, you need to
 
 # apt-get install hasher
 # useradd joe
-# hasher_useradd joe
+# hasher-useradd joe
 
 <joe logged in>
 
