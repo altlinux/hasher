@@ -197,8 +197,8 @@ rpmdb --initdb --dbpath "$aptbox/var/lib/rpm"
 Verbose "created RPM database in \`./var/lib/rpm/'"
 
 # create apt wrappers.
-for n in cache config get; do
-	cat >"apt-$n" <<__EOF__
+for n in apt-cache apt-config apt-get genbasedir; do
+	cat >"$n" <<__EOF__
 #!/bin/sh -e
 
 if [ -n "$LD_LIBRARY_PATH" ]; then
@@ -206,10 +206,10 @@ if [ -n "$LD_LIBRARY_PATH" ]; then
 	export LD_LIBRARY_PATH
 fi
 APT_CONFIG="$APT_CONFIG" \
-exec $(eval echo \$prog_apt_$n) "\$@"
+exec $(eval printf %s `printf '$prog_%s' "$n" |tr - _`) "\$@"
 __EOF__
-Verbose "created apt-$n wrapper"
-chmod $verbose a+x "apt-$n"
+Verbose "created $n wrapper"
+chmod $verbose a+x "$n"
 done
 
 [ -z "$update" ] || "$prog_apt_get" update $([ -n "$verbose" ] || echo -qq)
