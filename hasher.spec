@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.11
+Version: 1.0.12
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -42,6 +42,9 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Wed Mar 16 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.12-alt1
+- mkaptbox: fixed regression introduced by previous change.
+
 * Tue Mar 15 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.11-alt1
 - hsh: handle traps in more portable way.
 - rmchroot: chgrp chroot directory itself, too.
