@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.9.4
+Version: 0.9.9.5
 Release: alt1
 BuildArch: noarch
 
@@ -38,6 +38,9 @@ This package provides package hasher utilities.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Sat Jul 03 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.5-alt1
+- cache_chroot: recognize dev_* as dev-*.
+
 * Thu Jun 24 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.4-alt1
 - functions/print_uris, rebuild, hsh:
   + separate user-defined arguments from command options.
