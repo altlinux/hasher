@@ -9,7 +9,7 @@ $Id$
   This command creates two additional satellite users, USER_a and
   USER_b, and adds USER to groups: hashman, USER_a and USER_b.
 
-  See hasher-useradd(8) for details.
+  See hasher-useradd(8) manpage for details.
 
   Note that USER have to (re)login to gain new credentials.
 
@@ -42,7 +42,7 @@ $Id$
     Print a message for each action.  Useful for tracing and/or
     getting detailed progress information.
 
-  See "hsh --help" for detailed information about valid options.
+  See hsh(1) manpage for detailed information about valid options.
 
 3. Requirements.
 
