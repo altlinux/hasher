@@ -95,6 +95,8 @@ set_workdir()
 
 hash=
 rpm_verbose=
+exclude_docs='--excludedocs'
+
 # set hash and rpm_verbose variables.
 check_tty()
 {
@@ -172,7 +174,7 @@ update_repo()
 # assumed: defined variables: hash
 update_RPM_database()
 {
-	rpmi -i $verbose $hash --dbpath "$aptbox/var/lib/rpm" --ignoresize --noorder --noscripts --notriggers --justdb "$@"
+	rpmi -i $verbose $hash --dbpath "$aptbox/var/lib/rpm" $exclude_docs --ignoresize --noorder --noscripts --notriggers --justdb "$@"
 		Verbose "RPM database updated." ||
 		Fatal "RPM database update failed."
 }
