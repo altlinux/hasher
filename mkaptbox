@@ -111,12 +111,6 @@ get_apt_config()
 	eval $temp
 }
 	
-sp_name="Dir::Etc::SourceParts"
-get_apt_config "$sp_name" sp_value
-
-[ "$sp_value" = "sources.list.d" ] ||
-	Fatal "apt-config: non-standard $sp_name value: $sp_value"
-
 sl_name="Dir::Etc::SourceList"
 get_apt_config "$sl_name" sl_value
 
@@ -134,23 +128,21 @@ fi
 
 [ -s "$sl_value" -a -r "$sl_value" ] || Fatal "broken $sl_name: $sl_value"
 
-ln -s $verbose "$sl_value" ./etc/apt/sources.list.d/0-system
-
 # apt.conf file.
 export APT_CONFIG="$aptbox/etc/apt/apt.conf"
 cat >"$APT_CONFIG" <<__EOF__
 Dir::State "$aptbox/var/lib/apt/";
 Dir::Cache "$aptbox/var/cache/apt/";
-$sl_name "/var/empty/missing";
-$sp_name "$aptbox/etc/apt/sources.list.d";
+$sl_name "$aptbox/etc/apt/sources.list";
 RPM::RootDir "$aptbox";
 APT::Install::Virtual "true";
 APT::Install::VirtualVersion "true";
 __EOF__
 Verbose "created APT configuration file \`$APT_CONFIG'"
 
-target_config="./etc/apt/sources.list.d/1-$target.hasher"
+target_config="./etc/apt/sources.list"
 cat >"$target_config" <<__EOF__
+$(grep '^[^#]' "$sl_value")
 rpm file:$workdir/repo $target hasher
 __EOF__
 Verbose "created APT source list file \`$target_config'"
