@@ -84,7 +84,8 @@ check_helpers
 [ -d "$aptbox" ] || Fatal "$aptbox: cannot find aptbox."
 [ -r "$APT_CONFIG" ] || Fatal "$APT_CONFIG: cannot access APT configuration."
 
-filelist="$(print_uris "$@")"
+filelist="$(print_uris "$@")" ||
+	Fatal "failed to generate package file list."
 if [ -z "$filelist" ]; then
 	Verbose "nothing to install."
 	exit 0
