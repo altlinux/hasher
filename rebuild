@@ -92,7 +92,7 @@ if [ -z "$nodeps" ]; then
 	deps="$(echo -E "$deps" |grep -v '^rpmlib(' |tr -d [[:blank:]])" ||:
 	Verbose "$sname: calculated dependencies: $deps"
 
-	/usr/share/hasher/install \
+	[ -z "$deps" ] || /usr/share/hasher/install \
 		${verbose:+$verbose} \
 		${number:+$number} \
 		--pkg-build-priv-dir="$pkg_build_priv_dir" \
