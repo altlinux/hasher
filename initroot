@@ -36,6 +36,7 @@ Valid options are:
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
 --nprocs=NUMBER                 number of processors to use;
+--install-langs=LANGLIST        list of languages to install;
 --contents-index-bin=INDEX      pkg contents binary index;
 --contents-index-all=INDEX      pkg contents complete index;
 -v, --verbose                   print a message for each action;
@@ -44,10 +45,11 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l number:,hasher-priv-dir:,nprocs:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 nprocs=
+install_langs=dummy
 contents_index_all=
 contents_index_bin=
 while :; do
@@ -66,6 +68,8 @@ while :; do
 			[ -z "$(echo -E "$nprocs" |tr -d [0-9])" ] ||
 				Fatal "--nprocs: $nprocs: invalid number."
 			shift
+			;;
+		--install-langs) shift; install_langs="$1"; shift
 			;;
 		--hasher-priv-dir) shift; hasher_priv_dir="$1"; shift
 			;;
@@ -128,7 +132,7 @@ touch /etc/mtab
 # /FIXME
 rm -f /etc/rpm/macros.db1
 # FIXME: glibc-locales is too large
-echo '%_install_langs	dummy' >>/etc/rpm/macros
+echo '%_install_langs $install_langs' >>/etc/rpm/macros
 # /FIXME
 rpmdb --initdb
 __EOF__

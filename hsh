@@ -38,6 +38,7 @@ Valid options are:
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
 --nprocs=NUMBER                 number of processors to use;
+--install-langs=LANGLIST        list of languages to install;
 --build-args=ARGS               extra arguments for rpmbuild;
 --contents-index-bin=INDEX      pkg contents binary index;
 --contents-index-all=INDEX      pkg contents complete index;
@@ -47,12 +48,13 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l no-stuff,target:,number:,hasher-priv-dir:,nprocs:,build-args:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l no-stuff,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_stuff=
 nprocs=
 rpmargs=
+install_langs=
 contents_index_all=
 contents_index_bin=
 while :; do
@@ -77,6 +79,8 @@ while :; do
 			[ -z "$(echo -E "$nprocs" |tr -d [0-9])" ] ||
 				Fatal "--nprocs: $nprocs: invalid number."
 			shift
+			;;
+		--install-langs) shift; install_langs="$1"; shift
 			;;
 		--hasher-priv-dir) shift; hasher_priv_dir="$1"; shift
 			;;
@@ -112,34 +116,36 @@ for f in "$@"; do
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
 
 	rm -rf aptbox
-	$hasher_dir/mkaptbox "$workdir" -u \
+	$hasher_dir/mkaptbox "$workdir" \
+			--update \
 			${verbose:+$verbose} \
 			${no_stuff:+--no-stuff} \
 			#
 	[ ! -d chroot ] ||
 		$hasher_dir/rmchroot "$workdir" \
+			--hasher-priv-dir="$hasher_priv_dir" \
 			${verbose:+$verbose} \
 			${number:+$number} \
-			--hasher-priv-dir="$hasher_priv_dir" \
 			#
 	$hasher_dir/mkchroot "$workdir" \
+			--hasher-priv-dir="$hasher_priv_dir" \
 			${verbose:+$verbose} \
 			${number:+$number} \
-			--hasher-priv-dir="$hasher_priv_dir" \
 			#
 	$hasher_dir/initroot "$workdir" \
+			--hasher-priv-dir="$hasher_priv_dir" \
 			${verbose:+$verbose} \
 			${number:+$number} \
-			--hasher-priv-dir="$hasher_priv_dir" \
 			${nprocs:+--nprocs=$nprocs} \
+			${install_langs:+--install-langs="$install_langs"} \
 			${contents_index_all:+--contents-index-all=$contents_index_all} \
 			${contents_index_bin:+--contents-index-all=$contents_index_bin} \
 			#
 	$hasher_dir/rebuild "$workdir" \
+			--target="$target" \
+			--hasher-priv-dir="$hasher_priv_dir" \
 			${verbose:+$verbose} \
 			${number:+$number} \
-			--hasher-priv-dir="$hasher_priv_dir" \
-			--target="$target" \
 			${rpmargs:+--args="$rpmargs"} \
 			"$f"
 done
