@@ -121,33 +121,7 @@ shift
 
 check_helpers
 
-if [ -z "$nodeps" ]; then
-	deps="$(rpmquery -pR -- "$source")"
-	deps="$(printf %s "$deps" |grep -v '^rpmlib(' |tr -d [[:blank:]])" ||:
-	Verbose "$sname: calculated dependencies: $deps"
-
-	[ -z "$deps" ] || "$hasher_dir/install" \
-		${quiet:+$quiet} \
-		${verbose:+$verbose} \
-		${number:+--number=$number} \
-		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
-		-- \
-		"$workdir" $deps
-fi
-
-copy_chroot_incoming "$source"
-purge_chroot_out
-
-[ -n "$no_sisyphus_check_in" ] ||
-	no_sisyphus_check_in="$no_sisyphus_check"
-if [ "$no_sisyphus_check_in" != all ]; then
-	[ -n "$no_sisyphus_check_in" ] ||
-		no_sisyphus_check_in=gpg
-	sisyphus_check --no-check="$no_sisyphus_check_in" -- chroot/.in &&
-		Verbose "$source: sisyphus_check passed." ||
-		Fatal "$source: sisyphus_check failed."
-fi
-
+# Create rebuild script.
 if [ -n "$prog_rebuild" ]; then
 	install -p -m755 $verbose "$prog_rebuild" chroot/.host/rebuild
 else
@@ -159,6 +133,57 @@ __EOF__
 	Verbose "created rebuild script."
 fi
 
+# Copy source to chroot.
+copy_chroot_incoming "$source"
+purge_chroot_out
+
+# Execute sisyphus_check.
+[ -n "$no_sisyphus_check_in" ] ||
+	no_sisyphus_check_in="$no_sisyphus_check"
+if [ "$no_sisyphus_check_in" != all ]; then
+	[ -n "$no_sisyphus_check_in" ] ||
+		no_sisyphus_check_in=gpg
+
+	cat >"$entry" <<__EOF__
+$entry_header
+
+sisyphus_check --no-check="$(quote_arg "$no_sisyphus_check_in")" /.in
+__EOF__
+	chmod 755 "$entry"
+
+	"$chrootuid2" $number "$chroot" /.host/entry &&
+		Verbose "$sname: sisyphus_check passed." ||
+		Fatal "$sname: sisyphus_check failed."
+fi
+
+# Calculate, check and install build dependencies.
+if [ -z "$nodeps" ]; then
+	cat >"$entry" <<__EOF__
+$entry_header
+
+rpmquery -pR -- "$(quote_arg "$sname")"
+__EOF__
+	chmod 755 "$entry"
+
+	deps="$("$chrootuid2" $number "$chroot" /.host/entry)" &&
+		Verbose "$sname: fetched build dependencies." ||
+		Fatal "$sname: failed to fetch build dependencies."
+	deps="$(printf %s "$deps" |grep -v '^rpmlib(' |LC_ALL=C tr -d [[:blank:]])"
+	if bad_deps="$(printf %s "$deps" |LC_ALL=C grep -v '^[[:alnum:]_/]')"; then
+		Fatal "$sname: invalid build dependencies: $bad_deps"
+	fi
+	Verbose "$sname: calculated build dependencies: $deps"
+
+	[ -z "$deps" ] || "$hasher_dir/install" \
+		${quiet:+$quiet} \
+		${verbose:+$verbose} \
+		${number:+--number=$number} \
+		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
+		-- \
+		"$workdir" $deps
+fi
+
+# Build the package.
 cat >"$entry" <<__EOF__
 $entry_header
 
@@ -179,18 +204,27 @@ chmod 755 "$entry"
 	Verbose "rebuild of \`$sname' complete." ||
 	Fatal "rebuild of \`$sname' failed."
 
-make_repo
-
+# Execute sisyphus_check.
 [ -n "$no_sisyphus_check_out" ] ||
 	no_sisyphus_check_out="$no_sisyphus_check"
 if [ "$no_sisyphus_check_out" != all ]; then
 	[ -n "$no_sisyphus_check_out" ] &&
 		no_sisyphus_check_out="$no_sisyphus_check_out,gpg" ||
 		no_sisyphus_check_out=gpg
-	sisyphus_check --no-check="$no_sisyphus_check_out" -- chroot/.out &&
-		Verbose "$source: sisyphus_check passed." ||
-		Fatal "$source: sisyphus_check failed."
+	cat >"$entry" <<__EOF__
+$entry_header
+
+sisyphus_check --no-check="$(quote_arg "$no_sisyphus_check_out")" /.out
+__EOF__
+	chmod 755 "$entry"
+
+	"$chrootuid2" $number "$chroot" /.host/entry &&
+		Verbose "$sname: sisyphus_check passed." ||
+		Fatal "$sname: sisyphus_check failed."
 fi
+
+# Copy binaries from chroot.
+make_repo
 
 case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |grep -c '\.src\.rpm$'` in
 	0)
