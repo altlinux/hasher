@@ -41,7 +41,7 @@ Verbose()
 	Fatal "please run me as unprivileged user."
 
 # safe umask.
-umask 077
+umask 022
 
 # save current work directory.
 saved_cwd="$(/bin/pwd)"
