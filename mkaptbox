@@ -51,7 +51,6 @@ eval set -- "$TEMP"
 
 force=
 update=
-no_stuff=
 apt_config=
 while :; do
 	case "$1" in

@@ -54,7 +54,6 @@ EOF
 TEMP=`getopt -n $PROG -o v,h -l no-stuff,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
-no_stuff=
 nprocs=
 rpmargs=
 install_langs=
@@ -175,6 +174,7 @@ for f in "$@"; do
 			--target="$target" \
 			--hasher-priv-dir="$hasher_priv_dir" \
 			${verbose:+$verbose} \
+			${no_stuff:+--no-stuff} \
 			${number:+$number} \
 			${rpmargs:+--args="$rpmargs"} \
 			"$f"

@@ -35,24 +35,27 @@ Usage: $PROG [options] <path-to-workdir> <source-package>
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
---target=ARCH                   target architecture;
---args=ARGS                     extra arguments for rpmbuild;
---nodeps                        ignore package dependencies (dangerous);
---number=NUMBER                 subconfig identifier;
---hasher-priv-dir=DIR           hasher-priv directory;
--v, --verbose                   print a message for each action;
--h, --help                      show this text.
+--no-stuff              do not generate apt hash files;
+--target=ARCH           target architecture;
+--args=ARGS             extra arguments for rpmbuild;
+--nodeps                ignore package dependencies (dangerous);
+--number=NUMBER         subconfig identifier;
+--hasher-priv-dir=DIR   hasher-priv directory;
+-v, --verbose           print a message for each action;
+-h, --help              show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l target:,args:,nodeps,number:,hasher-priv-dir:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l no-stuff,target:,args:,nodeps,number:,hasher-priv-dir:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 nodeps=
 rpmargs=
 while :; do
 	case "$1" in
+		--no-stuff) no_stuff=1; shift
+			;;
 		--target) shift; target="$1"; shift
 			;;
 		--args) shift; rpmargs="$1"; shift

@@ -69,6 +69,7 @@ workdir=
 aptbox=
 chroot=
 entry=
+no_stuff=
 APT_CONFIG=
 
 set_workdir()
@@ -152,6 +153,7 @@ make_repo()
 # assumed: cwd == workdir
 update_repo()
 {
+	[ -z "$no_stuff" ] || return 0
 	genbasedir --topdir=repo --no-oldhashfile --bz2only --mapi $target hasher &&
 		Verbose "updated hasher repository indices." ||
 		Fatal "failed to update hasher repository indices."
