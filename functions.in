@@ -258,7 +258,7 @@ print_uris()
 {
 	[ -n "$APT_CONFIG" ] || Fatal "APT_CONFIG undefined."
 	local out
-	if ! out="$("$prog_apt_get" -q -y --print-uris install "$@" 2>&1)"; then
+	if ! out="$("$prog_apt_get" -q -y --print-uris install -- "$@" 2>&1)"; then
 		printf %s\\n "$out" >&2
 		Fatal "failed to calculate package file list."
 	fi
