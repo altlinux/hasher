@@ -43,6 +43,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
   + implemented --version parameter.
 - rebuild:
   + calculate required mountpoints from installed file dependencies.
+- Updated FAQ.
 
 * Tue Aug 03 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.2-alt1
 - rebuild: run rebuild script as login shell.
