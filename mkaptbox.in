@@ -196,7 +196,7 @@ for n in cache config get; do
 	cat >"apt-$n" <<__EOF__
 #!/bin/sh -e
 
-APT_CONFIG="$APT_CONFIG" exec apt-$n "\$@"
+APT_CONFIG="$APT_CONFIG" exec $(eval echo prog_apt_$n) "\$@"
 __EOF__
 done
 

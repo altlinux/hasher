@@ -76,9 +76,10 @@ no_sisyphus_check_in=
 no_sisyphus_check_out=
 
 [ -n "$prog_apt_get" ] || prog_apt_get="apt-get"
+[ -n "$prog_apt_cache" ] || prog_apt_cache="apt-cache"
 [ -n "$prog_apt_config" ] || prog_apt_config="apt-config"
 [ -n "$prog_genbasedir" ] || prog_genbasedir="genbasedir"
-export prog_apt_get prog_apt_config prog_genbasedir
+export prog_apt_get prog_apt_cache prog_apt_config prog_genbasedir
 
 set_apt_vars()
 {
@@ -94,6 +95,10 @@ set_apt_vars()
 	prog_apt_get="$apt_prefix/bin/apt-get"
 	[ -x "$prog_apt_get" ] ||
 		Fatal "$prog_apt_get: program not available."
+
+	prog_apt_cache="$apt_prefix/bin/apt-cache"
+	[ -x "$prog_apt_cache" ] ||
+		Fatal "$prog_apt_cache: program not available."
 
 	prog_apt_config="$apt_prefix/bin/apt-config"
 	[ -x "$prog_apt_config" ] ||
