@@ -30,7 +30,7 @@ $Id$
   Result of successful builds will be placed into this repository.
 
   Most useful options:
-    --no-stuff
+    --without-stuff
     Do not use packages from auto repository in build system.
     By default, auto repository will be used as well as system repository.
 
