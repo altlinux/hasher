@@ -28,10 +28,18 @@ archive_contents_cache()
 {
 	[ -z "$no_contents_indices" -a -n "$rebuild_contents_cache" ] || return 0
 
-	install -p -m644 $verbose -- "$contents_index_bin" \
-		cache/contents/contents_index_bin &&
-		Verbose "archived contents index" ||
+	local terminated=
+	trap 'terminated=1' HUP INT QUIT TERM
+
+	local contents_archive="cache/contents/contents_index_bin"
+	if install -p -m644 $verbose -- "$contents_index_bin" "$contents_archive" && [ -z "$terminated" ]; then
+		Verbose "archived contents index"
+	else
+		rm -f -- "$contents_archive"
 		Fatal "archiving of contents index failed."
+	fi
+
+	trap - HUP INT QUIT TERM
 } # archive_contents_cache
 
 unpack_contents_cache()
