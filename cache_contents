@@ -166,7 +166,7 @@ create_contents()
 
 	cat cache/contents/list/index |
 		while read f; do
-			if ! egrep '^(/usr(/X11R6)?)?/s?bin/' "$f"; then
+			if ! egrep '^/((usr/)?bin|(usr/)?sbin|usr/X11R6/bin|etc)/' "$f"; then
 				Verbose "failed to process contents index $f"
 				echo "$f" >"$bad"
 				break
