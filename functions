@@ -135,6 +135,14 @@ make_repo()
 	mkdir -p $verbose -- repo/{{SRPMS,$target/RPMS}.hasher,$target/base}
 }
 
+# assumed: cwd == workdir
+update_repo()
+{
+	genbasedir --topdir=repo --no-oldhashfile --bz2only --mapi $target hasher &&
+		Verbose "updated hasher repository indices." ||
+		Fatal "failed to update hasher repository indices."
+}
+
 # assumed: defined variables: hash, filelist
 update_RPM_database()
 {
