@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.9.8
+Version: 1.0
 Release: alt1
 BuildArch: noarch
 
@@ -39,7 +39,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
-* Wed Jul 14 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.8-alt1
+* Thu Jul 15 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0-alt1
 - Added hasher(7) manpage.
 - Added more docs to hsh(1) manpage.
 - Updated FAQ.
