@@ -43,7 +43,6 @@ Usage: $PROG [options] <path-to-workdir>
 Valid options are:
   --no-cache                    do not use cache;
   --no-contents-indices         do not use content indices;
-  --no-build                    do not prepare chroot for build;
   --repackage-source            package source as well as binaries;
   --number=NUMBER               subconfig identifier;
   --hasher-priv-dir=DIR         hasher-priv directory;
@@ -58,12 +57,11 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,h -l no-cache,no-contents-indices,no-build,repackage-source,pkg-init-list:,pkg-build-list:,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,h -l no-cache,no-contents-indices,repackage-source,pkg-init-list:,pkg-build-list:,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
 no_contents_indices=
-no_build=
 init_list='setup filesystem rpm fakeroot>=0:0.7.3'
 build_list='basesystem rpm-build>=0:4.0.4-alt21 kernel-headers-common>=0:1.1.4-alt1 sisyphus_check>=0:0.7.3 time'
 nprocs=
@@ -76,8 +74,6 @@ while :; do
 		--no-cache) no_cache=1
 			;;
 		--no-contents-indices) no_contents_indices=1
-			;;
-		--no-build) no_build=1
 			;;
 		--repackage-source) repackage_source=1
 			;;
@@ -167,7 +163,7 @@ if [ -z "$no_cache" ]; then
 	[ ! -s cache/chroot/list.new/init ] || echo >>cache/chroot/list.new/init
 fi
 
-if [ -z "$no_build" ]; then
+if [ -n "$build_list" ]; then
 	buildlist="$(print_uris $build_list)" ||
 		Fatal "failed to generate build package file list."
 	buildlist="$(
@@ -182,7 +178,7 @@ if [ -z "$no_build" ]; then
 		Fatal "failed to generate non-empty build package file list; check your sources.list"
 else
 	buildlist=
-fi # $no_build
+fi # $build_list
 
 if [ -z "$no_cache" ]; then
 	printf %s "$buildlist" >cache/chroot/list.new/build
@@ -212,7 +208,7 @@ else
 	unpack_contents_cache
 fi
 
-if [ -z "$no_build" ]; then
+if [ -n "$build_list" ]; then
 	# Create /dev/log.
 	/usr/bin/mksock -m666 "$chroot/dev/log" ||
 		Fatal "failed to create \`$chroot/dev/log' socket."
@@ -239,7 +235,7 @@ __EOF__
 	"$chrootuid2" $number "$chroot" /.host/entry &&
 		Verbose "created RPM build directory tree." ||
 		Fatal "failed to create RPM build directory tree."
-fi # $no_build
+fi # $build_list
 
 purge_chroot_in
 purge_chroot_out
