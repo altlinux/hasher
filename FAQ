@@ -1,5 +1,6 @@
 $Id$
 
+
                                  The hasher FAQ
 
                            Frequently Asked Questions
@@ -86,7 +87,7 @@ CONTENTS
    You have to re-login to gain new credentials.
 
 3.1.3 Well, I've logged in, now it reports:
-	usr/lib/hasher-priv/hasher-priv: /: bad perms: 757
+	/usr/lib/hasher-priv/hasher-priv: /: bad perms: 757
 	mkchroot: getugid1 failed.
 
    You filesystem permissions are broken, you really should repair your
@@ -95,7 +96,7 @@ CONTENTS
 3.2. Workdir prefix mismatch.
 
 3.2.1 When I run
-	hsh /path/to/workdir path/to/foobar-1.0.src.rpmrpm
+	hsh /path/to/workdir path/to/foobar-1.0.src.rpm
       hasher fails with:
 	/usr/lib/hasher-priv/hasher-priv: /path/to/workdir/chroot: prefix mismatch, working directory should start with $HOME
 	mkchroot: failed to make devices.
