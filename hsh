@@ -28,7 +28,7 @@ Usage()
 hsh - builds package using hasher utilities.
 
 This program is free software, covered by the GNU General Public License.
-mkchroot comes with ABSOLUTELY NO WARRANTY, see license for details.
+hsh comes with ABSOLUTELY NO WARRANTY, see license for details.
 
 Usage: $PROG [options] <path-to-workdir> <package>...
 
