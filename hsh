@@ -108,6 +108,7 @@ done
 
 # At least two arguments, please.
 [ "$#" -ge 2 ] || Usage
+
 set_workdir "$1"
 shift
 
@@ -118,6 +119,26 @@ for f in "$@"; do
 	[ -s "$f" ] ||
 		Fatal "${f##*/}: broken source"
 done
+
+exit_handler()
+{
+	local rc=$?
+	trap - EXIT
+	rm -rf -- lockdir
+	exit $rc
+}
+
+trap exit_handler SIGHUP SIGPIPE SIGINT SIGQUIT SIGTERM EXIT
+
+pidfile="lockdir/pid"
+if ! mkdir -m700 $verbose -- lockdir; then
+	[ ! -s "$pidfile" ] ||
+		Info "working directory \`$workdir' is locked, pid=`cat "$pidfile"`"
+	Fatal "unable to create lock directory"
+fi
+
+echo $$ >"$pidfile"
+
 
 for f in "$@"; do
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
