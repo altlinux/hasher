@@ -209,7 +209,7 @@ if ! mkdir -m700 $verbose -- lockdir; then
 	Fatal "unable to create lock directory"
 fi
 
-trap exit_handler SIGHUP SIGPIPE SIGINT SIGQUIT SIGTERM EXIT
+trap exit_handler HUP PIPE INT QUIT TERM EXIT
 
 echo $$ >"$pidfile"
 
