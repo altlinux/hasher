@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.1
+Version: 0.9.2
 Release: alt1
 BuildArch: noarch
 
@@ -32,6 +32,10 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Mon Oct 27 2003 Dmitry V. Levin <ldv@altlinux.org> 0.9.2-alt1
+- initroot: changed default packager to hasher@localhost.
+- rebuild: pass packager through .rpmmacros.
+
 * Thu Oct 23 2003 Dmitry V. Levin <ldv@altlinux.org> 0.9.1-alt1
 - Include files inside /etc/ in content index.
 
