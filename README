@@ -46,7 +46,7 @@ $Id$
 
 3. Requirements.
 
-  Filesystem where workdir is located should not be mounted with
+  File system where workdir is located should not be mounted with
   "noexec" or "nodev" options.
 
   Package repository used for creating build system must provide
