@@ -178,10 +178,12 @@ set_apt_vars
 
 for f in "$@"; do
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
+	[ -f "$f" ] ||
+		Fatal "$f: not a regular file"
 	[ -r "$f" ] ||
-		Fatal "${f##*/}: cannot access source"
+		Fatal "$f: cannot access source"
 	[ -s "$f" ] ||
-		Fatal "${f##*/}: broken source"
+		Fatal "$f: empty source file"
 done
 
 exit_handler()
