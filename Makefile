@@ -49,9 +49,8 @@ all: $(TARGETS)
 	$(TOUCH_R) $< $@
 	chmod a+x $@
 
-%.1: %
-	$(HELP2MAN1) ./$< > $@
-	$(TOUCH_R) $< $@
+%.1: % %.1.inc
+	$(HELP2MAN1) -i $@.inc ./$< >$@
 
 install: all
 	$(MKDIR_P) -m755 $(DESTDIR)$(helperdir)
