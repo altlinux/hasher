@@ -2,12 +2,14 @@ $Id$
 
 1. Prepare to work.
 
-  In order to prepare package hasher to use by USER, you must add pair
-  of special satellite users.  Run as root
-  # hasher-useradd USER
+  In order to prepare package hasher to use by USER, pair of special
+  satellite users must be added.  System administrator should run
+	# hasher-useradd USER
 
   This command creates two additional satellite users, USER_a and
   USER_b, and adds USER to groups: hashman, USER_a and USER_b.
+
+  See hasher-useradd(8) for details.
 
   Note that USER have to (re)login to gain new credentials.
 
