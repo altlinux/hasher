@@ -88,6 +88,7 @@ aptbox=
 chroot=
 entry=
 no_stuff=
+use_pty=
 mountpoints=
 no_sisyphus_check=
 no_sisyphus_check_in=
