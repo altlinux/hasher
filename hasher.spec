@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.8.3
+Version: 0.8.4
 Release: alt1
 BuildArch: noarch
 
@@ -31,6 +31,10 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Wed Oct 15 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8.4-alt1
+- initroot: install all locales by default.
+- install, cache_chroot: do not install documentation by default.
+
 * Mon Oct 06 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8.3-alt1
 - install: call ldconfig after install.
 - initroot: be more verbose about filelist generation errors.
