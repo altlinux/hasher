@@ -33,27 +33,42 @@ Usage()
 	cat <<EOF
 mkaptbox - creates initial aptbox in specified working directory.
 
-This program is free software, covered by the GNU General Public License.
-mkaptbox comes with ABSOLUTELY NO WARRANTY, see license for details.
-
 Usage: $PROG [options] <path-to-workdir>
 
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
-    --no-stuff              do not configure sources.list for the work repository;
-    --target=ARCH           target architecture of the work repository;
-    --apt-config=FILE       path to custom apt.conf file;
-    --apt-prefix=DIRECTORY  path to apt directory prefix (e.g. /usr);
-    --no-update             do not run "apt-get update" after creation;
-    -u, --update            run "apt-get update" after creation;
-    -f, --force             force aptbox creation;
-    -q, --quiet             try to be more quiet;
-    -v, --verbose           print a message for each action;
-    --version               print program version and exit;
-    -h, --help              show this text.
+  --no-stuff                do not configure sources.list for the work repository;
+  --target=ARCH             target architecture of the work repository;
+  --apt-config=FILE         path to custom apt.conf file;
+  --apt-prefix=DIRECTORY    path to apt directory prefix (e.g. /usr);
+  --no-update               do not run "apt-get update" after creation;
+  -u, --update              run "apt-get update" after creation;
+  -f, --force               force aptbox creation;
+  -q, --quiet               try to be more quiet;
+  -v, --verbose             print a message for each action;
+  --version                 print program version and exit;
+  -h, --help                show this text and exit.
+
+Report bugs to http://bugs.altlinux.ru/
+
 EOF
 	[ -n "$1" ] && exit "$1" || exit
+}
+
+print_version()
+{
+	cat <<EOF
+mkaptbox version @VERSION@
+
+Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
+
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Written by Dmitry V. Levin <ldv@altlinux.org>
+EOF
+	exit
 }
 
 TEMP=`getopt -n $PROG -o f,u,q,v,h -l no-stuff,target:,apt-config:,apt-prefix:,no-update,update,force,quiet,verbose,help,version -- "$@"` || Usage
@@ -86,7 +101,7 @@ while :; do
 			;;
 		-h|--help) Usage 0
 			;;
-		--version) echo 'mkaptbox version @VERSION@'; exit 0
+		--version) print_version
 			;;
 		--) shift; break
 			;;

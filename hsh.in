@@ -33,38 +33,50 @@ Usage()
 	cat <<EOF
 hsh - builds package using hasher utilities.
 
-This program is free software, covered by the GNU General Public License.
-hsh comes with ABSOLUTELY NO WARRANTY, see license for details.
-
 Usage: $PROG [options] <path-to-workdir> <package>...
 
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
-    --no-stuff                      do not install built packages;
-    --no-cache                      do not use initroot cache;
-    --no-contents-indices           do not use content indices;
-    --no-sisyphus-check[=LIST]      do not run sisyphus_check tests [specified in LIST];
-    --no-sisyphus-check-in[=LIST]   do not run sisyphus_check input tests [specified in LIST];
-    --no-sisyphus-check-out[=LIST]  do not run sisyphus_check output tests [specified in LIST];
-    --repackage-source              package source as well as binaries;
-    --target=ARCH                   target architecture;
-    --number=NUMBER                 subconfig identifier;
-    --hasher-priv-dir=DIR           hasher-priv directory;
-    --nprocs=NUMBER                 number of CPUs to use;
-    --install-langs=LANGLIST        list of languages to install;
-    --build-args=ARGS               extra arguments for rpmbuild;
-    --apt-config=FILE               path to custom apt.conf file;
-    --apt-prefix=DIRECTORY          path to apt directory prefix (e.g. /usr);
-    -q, --quiet                     try to be more quiet;
-    -v, --verbose                   print a message for each action;
-    --version                       print program version and exit;
-    -h, --help                      show this text and exit.
+  --no-stuff                        do not install built packages;
+  --no-cache                        do not use initroot cache;
+  --no-contents-indices             do not use content indices;
+  --no-sisyphus-check[=LIST]        do not run sisyphus_check tests [specified in LIST];
+  --no-sisyphus-check-in[=LIST]     do not run sisyphus_check input tests [specified in LIST];
+  --no-sisyphus-check-out[=LIST]    do not run sisyphus_check output tests [specified in LIST];
+  --repackage-source                package source as well as binaries;
+  --target=ARCH                     target architecture;
+  --number=NUMBER                   subconfig identifier;
+  --hasher-priv-dir=DIR             hasher-priv directory;
+  --nprocs=NUMBER                   number of CPUs to use;
+  --install-langs=LANGLIST          list of languages to install;
+  --build-args=ARGS                 extra arguments for rpmbuild;
+  --apt-config=FILE                 path to custom apt.conf file;
+  --apt-prefix=DIRECTORY            path to apt directory prefix (e.g. /usr);
+  -q, --quiet                       try to be more quiet;
+  -v, --verbose                     print a message for each action;
+  --version                         print program version and exit;
+  -h, --help                        show this text and exit.
     
 Report bugs to http://bugs.altlinux.ru/
 
 EOF
 	[ -n "$1" ] && exit "$1" || exit
+}
+
+print_version()
+{
+	cat <<EOF
+hsh version @VERSION@
+
+Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
+
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Written by Dmitry V. Levin <ldv@altlinux.org>
+EOF
+	exit
 }
 
 TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-cache,no-contents-indices,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,repackage-source,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,apt-prefix:,quiet,verbose,help,version -- "$@"` || Usage
@@ -143,7 +155,7 @@ while :; do
 			;;
 		-h|--help) Usage 0
 			;;
-		--version) echo 'hsh - package hasher version @VERSION@'; exit 0;
+		--version) print_version
 			;;
 		--) shift; break
 			;;
