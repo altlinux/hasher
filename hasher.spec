@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.6
+Version: 0.9.7
 Release: alt1
 BuildArch: noarch
 
@@ -39,6 +39,11 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Tue Jan 13 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.7-alt1
+- functions: fixed bug introduced by apt_prefix support.
+- create_contents: optimize --no-contents-indices case.
+- initroot,cache_chroot: implemented --no-build option.
+
 * Thu Jan 08 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.6-alt1
 - functions/print_uris: enhanced error diagnostics.
 - functions,mkaptbox,hsh: implemented apt_prefix support.
