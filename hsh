@@ -1,7 +1,7 @@
 #!/bin/sh -e
 #
 # $Id$
-# Copyright (C) 2003  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The hsh utility for the hasher project
 #
@@ -52,6 +52,7 @@ Valid options are:
 --contents-index-bin=INDEX      pkg contents binary index;
 --contents-index-all=INDEX      pkg contents complete index;
 --apt-config=FILE               path to custom apt.conf file;
+--apt-prefix=DIRECTORY          path to apt directory prefix (e.g. /usr);
 -q, --quiet                     try to be more quiet;
 -v, --verbose                   print a message for each action;
 -h, --help                      show this text.
@@ -59,7 +60,7 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-cache,no-contents-indices,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,repackage-source,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,quiet,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-cache,no-contents-indices,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,repackage-source,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,apt-prefix:,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
@@ -124,7 +125,10 @@ while :; do
 		--contents-index-bin) shift; contents_index_bin="$1"; shift
 			;;
 		--apt-config) shift; apt_config="$1"; shift
-			[ -r "$apt_config" ] || Fatal "$apt_config: cannot access."
+			[ -r "$apt_config" ] || Fatal "$apt_config: file not available."
+			;;
+		--apt-prefix) shift; apt_prefix="$1"; shift
+			[ -d "$apt_prefix" ] || Fatal "$apt_prefix: directory not available."
 			;;
 		-q|--quiet) quiet=-q; shift
 			;;
@@ -181,6 +185,7 @@ for f in "$@"; do
 			--update \
 			--target="$target" \
 			${apt_config:+--apt-config="$apt_config"} \
+			${apt_prefix:+--apt-prefix="$apt_prefix"} \
 			${quiet:+$quiet} \
 			${verbose:+$verbose} \
 			${no_stuff:+--no-stuff} \

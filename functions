@@ -1,7 +1,7 @@
 #!/bin/sh -e
 #
 # $Id$
-# Copyright (C) 2003  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # This files defines functions used by hasher scripts
 #
@@ -71,11 +71,38 @@ aptbox=
 chroot=
 entry=
 no_stuff=
-APT_CONFIG=
 no_sisyphus_check=
 no_sisyphus_check_in=
 no_sisyphus_check_out=
 
+apt_prefix=
+prog_apt_get=
+prog_apt_config=
+prog_genbasedir=
+set_apt_vars()
+{
+	if [ -n "$apt_prefix" ]; then
+		prog_apt_get="$apt_prefix/bin/apt-get"
+		[ -x "$prog_apt_get" ] || Fatal "$prog_apt_get: program not available."
+		prog_apt_config="$apt_prefix/bin/apt-config"
+		[ -x "$prog_apt_config" ] || Fatal "$prog_apt_config: program not available."
+		prog_genbasedir="$apt_prefix/bin/genbasedir"
+		[ -x "$prog_genbasedir" ] || Fatal "$prog_genbasedir: program not available."
+		local apt_libdir="$apt_prefix/lib"
+		[ -d "$apt_libdir" ] || Fatal "$apt_libdir: directory not available."
+		if [ -z "$LD_LIBRARY_PATH" ]; then
+			LD_LIBRARY_PATH="$apt_libdir"
+		else
+			LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$apt_libdir"
+		fi
+	else
+		prog_apt_get="apt-get"
+		prog_apt_config="apt-config"
+		prog_genbasedir="genbasedir"
+	fi
+}
+
+APT_CONFIG=
 set_workdir()
 {
 	workdir="$1"
@@ -165,11 +192,11 @@ make_repo()
 	mkdir -p $verbose -- repo/{{SRPMS,$target/RPMS}.hasher,$target/base}
 }
 
-# assumed: cwd == workdir
+# assumed: cwd == workdir, defined prog_genbasedir
 update_repo()
 {
 	[ -z "$no_stuff" ] || return 0
-	genbasedir --topdir=repo --no-oldhashfile --bz2only --mapi $target hasher &&
+	"$prog_genbasedir" --topdir=repo --no-oldhashfile --bz2only --mapi $target hasher &&
 		Verbose "updated hasher repository indices." ||
 		Fatal "failed to update hasher repository indices."
 }
@@ -182,12 +209,12 @@ update_RPM_database()
 		Fatal "RPM database update failed."
 }
 
-# assumed: defined APT_CONFIG
+# assumed: defined APT_CONFIG, prog_apt_get
 print_uris()
 {
 	[ -n "$APT_CONFIG" ] || Fatal "APT_CONFIG undefined."
 	local out
-	if ! out="$(apt-get -q -y --print-uris install "$@" 2>&1)"; then
+	if ! out="$("$prog_apt_get" -q -y --print-uris install "$@" 2>&1)"; then
 		printf %s "$out" >&2
 		Fatal "failed to calculate package file list."
 	fi

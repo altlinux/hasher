@@ -1,7 +1,7 @@
 #!/bin/sh -e
 #
 # $Id$
-# Copyright (C) 2003  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The mkaptbox utility for the hasher project
 #
@@ -39,6 +39,7 @@ Valid options are:
 --no-stuff              do not install built packages;
 --target=ARCH           target architecture;
 --apt-config=FILE       path to custom apt.conf file;
+--apt-prefix=DIRECTORY  path to apt directory prefix (e.g. /usr);
 -f, --force             force aptbox creation;
 -u, --update            run "apt-get update" after creation;
 -q, --quiet             try to be more quiet;
@@ -48,7 +49,7 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,q,v,h -l no-stuff,target:,apt-config:,force,update,quiet,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o f,u,q,v,h -l no-stuff,target:,apt-config:,apt-prefix:,force,update,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 force=
@@ -61,7 +62,10 @@ while :; do
 		--target) shift; target="$1"; shift
 			;;
 		--apt-config) shift; apt_config="$1"; shift
-			[ -r "$apt_config" ] || Fatal "$apt_config: cannot access."
+			[ -r "$apt_config" ] || Fatal "$apt_config: file not available."
+			;;
+		--apt-prefix) shift; apt_prefix="$1"; shift
+			[ -d "$apt_prefix" ] || Fatal "$apt_prefix: directory not available."
 			;;
 		-f|--force) force=1; shift
 			;;
@@ -85,6 +89,7 @@ done
 set_workdir "$1"
 shift
 
+set_apt_vars
 make_repo
 update_repo
 
@@ -126,7 +131,7 @@ get_apt_config()
 	value="$1"
 	shift || return 1
 
-	temp="$(apt-config shell "$value" "$name")" || return 1
+	temp="$("$prog_apt_config" shell "$value" "$name")" || return 1
 	eval $temp
 }
 	
@@ -176,4 +181,4 @@ Verbose "created APT source list file \`$target_config'"
 rpmdb --initdb --dbpath "$aptbox/var/lib/rpm"
 Verbose "created RPM database in \`./var/lib/rpm/'"
 
-[ -z "$update" ] || apt-get update $([ -n "$verbose" ] || echo -qq)
+[ -z "$update" ] || "$prog_apt_get" update $([ -n "$verbose" ] || echo -qq)
