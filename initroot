@@ -201,7 +201,7 @@ fi
 rmdir $verbose chroot/proc chroot/sys &&
 mkdir -m755 $verbose chroot/proc chroot/sys &&
 chgrp "$gid1" $verbose chroot/proc chroot/sys &&
-	Verbose "prepared mount points."
+	Verbose "prepared mount points." ||
 	Fatal "failed to prepare mount points."
 
 check_contents_cache
