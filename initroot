@@ -214,7 +214,8 @@ $entry_header
 
 rpminit $verbose
 cat >>/usr/src/.rpmmacros <<\EOF
-%packager Automated rebuilder <rebuilder@altlinux.org>
+%packager Automated package hasher <hasher@altlinux.org>
+%buildhost ${USER:-`id -nu`}.hasher.altlinux.org
 ${contents_index_bin:+%_pkg_contents_index_bin /.host/contents_index_bin}
 EOF
 __EOF__
