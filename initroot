@@ -65,7 +65,7 @@ no_cache=
 no_contents_indices=
 no_build=
 init_list='setup filesystem rpm fakeroot>=0:0.7.3'
-build_list='basesystem rpm-build>=0:4.0.4-alt21 kernel-headers-common>=1.1.4-alt1 sisyphus_check time'
+build_list='basesystem rpm-build>=0:4.0.4-alt21 kernel-headers-common>=0:1.1.4-alt1 sisyphus_check>=0:0.7.3 time'
 nprocs=
 install_langs=all
 contents_index_all=
