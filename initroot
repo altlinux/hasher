@@ -163,7 +163,7 @@ if [ -z "$no_build" ]; then
 		Fatal "failed to generate non-empty build package file list; check your sources.list"
 else
 	buildlist=
-fi
+fi # $no_build
 
 [ -n "$no_cache" ] || echo "$buildlist" >"cache/chroot/list.new/build"
 
@@ -183,13 +183,13 @@ else
 	unpack_contents_cache
 fi
 
+if [ -z "$no_build" ]; then
+	# Create /dev/log.
+	/usr/bin/mksock -m666 "$chroot/dev/log" ||
+		Fatal "failed to create \`$chroot/dev/log' socket."
 
-# Create /dev/log.
-/usr/bin/mksock -m666 "$chroot/dev/log" ||
-	Fatal "failed to create \`$chroot/dev/log' socket."
-
-# Create RPM build directory tree.
-cat >"$entry" <<__EOF__
+	# Create RPM build directory tree.
+	cat >"$entry" <<__EOF__
 $entry_header
 
 mkdir $verbose -m700 -- "\$TMPDIR"
@@ -204,9 +204,9 @@ ${contents_index_bin:+%_pkg_contents_index_bin /.host/contents_index_bin}
 ${repackage_source:+%_rpmbuild_packagesource 1}
 EOF
 __EOF__
-chmod 755 "$entry"
+	chmod 755 "$entry"
 
-"$chrootuid2" $number "$chroot" /.host/entry &&
-	Verbose "created RPM build directory tree." ||
-	Fatal "failed to create RPM build directory tree."
-
+	"$chrootuid2" $number "$chroot" /.host/entry &&
+		Verbose "created RPM build directory tree." ||
+		Fatal "failed to create RPM build directory tree."
+fi # $no_build
