@@ -75,31 +75,40 @@ no_sisyphus_check=
 no_sisyphus_check_in=
 no_sisyphus_check_out=
 
+[ -n "$prog_apt_get" ] || prog_apt_get="apt-get"
+[ -n "$prog_apt_config" ] || prog_apt_config="apt-config"
+[ -n "$prog_genbasedir" ] || prog_genbasedir="genbasedir"
+export prog_apt_get prog_apt_config prog_genbasedir
+
 set_apt_vars()
 {
-	if [ -n "$apt_prefix" ]; then
-		[ -d "$apt_prefix" ] || Fatal "$apt_prefix: directory not available."
-		local apt_libdir="$apt_prefix/lib"
-		[ -d "$apt_libdir" ] || Fatal "$apt_libdir: directory not available."
-		prog_apt_get="$apt_prefix/bin/apt-get"
-		[ -x "$prog_apt_get" ] || Fatal "$prog_apt_get: program not available."
-		prog_apt_config="$apt_prefix/bin/apt-config"
-		[ -x "$prog_apt_config" ] || Fatal "$prog_apt_config: program not available."
-		prog_genbasedir="$apt_prefix/bin/genbasedir"
-		[ -x "$prog_genbasedir" ] || Fatal "$prog_genbasedir: program not available."
-		if [ -z "$LD_LIBRARY_PATH" ]; then
-			LD_LIBRARY_PATH="$apt_libdir"
-		else
-			LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$apt_libdir"
-		fi
-		export LD_LIBRARY_PATH
+	[ -n "$apt_prefix" ] || return 0
+
+	[ -d "$apt_prefix" ] ||
+		Fatal "$apt_prefix: directory not available."
+
+	local apt_libdir="$apt_prefix/lib"
+	[ -d "$apt_libdir" ] ||
+		Fatal "$apt_libdir: directory not available."
+
+	prog_apt_get="$apt_prefix/bin/apt-get"
+	[ -x "$prog_apt_get" ] ||
+		Fatal "$prog_apt_get: program not available."
+
+	prog_apt_config="$apt_prefix/bin/apt-config"
+	[ -x "$prog_apt_config" ] ||
+		Fatal "$prog_apt_config: program not available."
+
+	prog_genbasedir="$apt_prefix/bin/genbasedir"
+	[ -x "$prog_genbasedir" ] ||
+		Fatal "$prog_genbasedir: program not available."
+
+	if [ -z "$LD_LIBRARY_PATH" ]; then
+		LD_LIBRARY_PATH="$apt_libdir"
 	else
-		apt_prefix=
-		prog_apt_get="apt-get"
-		prog_apt_config="apt-config"
-		prog_genbasedir="genbasedir"
+		LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$apt_libdir"
 	fi
-	export apt_prefix prog_apt_get prog_apt_config prog_genbasedir
+	export apt_prefix LD_LIBRARY_PATH
 }
 
 APT_CONFIG=
