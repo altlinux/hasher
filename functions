@@ -100,7 +100,7 @@ set_apt_vars()
 		prog_apt_config="apt-config"
 		prog_genbasedir="genbasedir"
 	fi
-	export prog_apt_get prog_apt_config prog_genbasedir
+	export apt_prefix prog_apt_get prog_apt_config prog_genbasedir
 }
 
 APT_CONFIG=
