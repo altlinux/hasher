@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.9.2
+Version: 0.9.9.3
 Release: alt1
 BuildArch: noarch
 
@@ -38,6 +38,10 @@ This package provides package hasher utilities.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Wed Jun 23 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.3-alt1
+- cache_contents, initroot: fix potential breakage
+  introduced in previous release.
+
 * Tue Jun 22 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.2-alt1
 - all:
   + fixed "echo" usage;
