@@ -3,7 +3,7 @@
 # $Id$
 # Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
 # 
-# This files defines functions used by hasher scripts
+# This file defines functions used by hasher scripts.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
