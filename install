@@ -104,6 +104,9 @@ $entry_fakeroot_header
 rpmi -i $rpm_verbose $hash $exclude_docs $(for f in $filelist; do echo -n "\"$(quote_arg "${f##*/}")\" "; done)
 ldconfig
 adjust_kernel_headers --first
+if [ -x /.host/postin ]; then
+	/.host/postin
+fi
 __EOF__
 chmod 755 "$entry"
 
