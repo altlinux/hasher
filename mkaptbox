@@ -103,7 +103,7 @@ export APT_CONFIG="$aptbox/etc/apt/apt.conf"
 cat >"$APT_CONFIG" <<__EOF__
 Dir::State "$aptbox/var/lib/apt/";
 Dir::Cache "$aptbox/var/cache/apt/";
-Dir::Etc::SourceParts "$aptbox/etc/apt/sources.d";
+Dir::Etc::SourceParts "$aptbox/etc/apt/sources.list.d";
 RPM::RootDir "$aptbox";
 APT::Install::Virtual "true";
 APT::Install::VirtualVersion "true";
