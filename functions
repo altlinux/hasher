@@ -75,21 +75,18 @@ no_sisyphus_check=
 no_sisyphus_check_in=
 no_sisyphus_check_out=
 
-apt_prefix=
-prog_apt_get=
-prog_apt_config=
-prog_genbasedir=
 set_apt_vars()
 {
 	if [ -n "$apt_prefix" ]; then
+		[ -d "$apt_prefix" ] || Fatal "$apt_prefix: directory not available."
+		local apt_libdir="$apt_prefix/lib"
+		[ -d "$apt_libdir" ] || Fatal "$apt_libdir: directory not available."
 		prog_apt_get="$apt_prefix/bin/apt-get"
 		[ -x "$prog_apt_get" ] || Fatal "$prog_apt_get: program not available."
 		prog_apt_config="$apt_prefix/bin/apt-config"
 		[ -x "$prog_apt_config" ] || Fatal "$prog_apt_config: program not available."
 		prog_genbasedir="$apt_prefix/bin/genbasedir"
 		[ -x "$prog_genbasedir" ] || Fatal "$prog_genbasedir: program not available."
-		local apt_libdir="$apt_prefix/lib"
-		[ -d "$apt_libdir" ] || Fatal "$apt_libdir: directory not available."
 		if [ -z "$LD_LIBRARY_PATH" ]; then
 			LD_LIBRARY_PATH="$apt_libdir"
 		else
