@@ -42,8 +42,8 @@ This package provides package hasher utilities.
 * Sat Jan 31 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.8-alt1
 - mkaptbox:
   + added --no-uptdate option;
-  + enable --update mode by default;
-  + create apt wrappers in aptbox;
+  + enabled --update mode by default;
+  + implemented creation of the apt wrappers in aptbox;
   + added mkaptbox(1) manpage;
   + added %_bindir/mkaptbox symlink.
 
