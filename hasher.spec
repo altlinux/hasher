@@ -39,8 +39,12 @@ This package provides package hasher utilities.
 
 %changelog
 * Wed Jul 07 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.6-alt1
-- initroot: added sisyphus_check to build list.
-- rebuild: query packager inside chroot.
+- initroot:
+  + added sisyphus_check to build list.
+- rebuild:
+  + run first sisyphus_check before finalizing chroot;
+  + query packager inside chroot;
+  + execute sisyphus_check inside chroot.
 
 * Sat Jul 03 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.5-alt1
 - cache_chroot: recognize dev_* as dev-*, too.
