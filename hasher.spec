@@ -33,11 +33,13 @@ This package provides package hasher utilities.
 %changelog
 * Wed Jul 30 2003 Dmitry V. Levin <ldv@altlinux.org> 0.3-alt1
 - Added "adjust_kernel_headers --first" support.
+- rmchroot:
+  + explicitly remove /var/lib/texmf/ as well.
 
 * Fri Jul 04 2003 Dmitry V. Levin <ldv@altlinux.org> 0.2-alt1
 - functions: unset CDPATH.
 - rmchroot:
-  explicitly remove /var/tmp/ and /usr/src/ as well as /*/.
+  + explicitly remove /var/tmp/ and /usr/src/ as well as /*/.
 
 * Thu Jul 03 2003 Dmitry V. Levin <ldv@altlinux.org> 0.1-alt1
 - Added apt "copy" source method support.
