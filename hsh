@@ -94,6 +94,13 @@ set_workdir "$1"
 shift
 
 for f in "$@"; do
+	[ -r "$f" ] ||
+		Fatal "${f##*/}: cannot access source"
+	[ -s "$f" ] ||
+		Fatal "${f##*/}: broken source"
+done
+
+for f in "$@"; do
 	rm -rf aptbox
 	$hasher_dir/mkaptbox "$workdir" -u \
 			${verbose:+$verbose} \
