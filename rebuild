@@ -184,7 +184,7 @@ __EOF__
 	Verbose "$sname: calculated build dependencies: $deps"
 
 	if [ -n "$known_mountpoints" ]; then
-		for file_deps in `printf %s "$deps" |LC_ALL=C grep '^/'`; do
+		for file_deps in `printf %s "$deps" |LC_ALL=C grep '^/' |LC_ALL=C sort -u`; do
 			for mpoint in $known_mountpoints; do
 				if [ "$mpoint" = "$file_deps" ]; then
 					[ -z "$required_mountpoints" ] &&
@@ -235,6 +235,8 @@ __EOF__
 			fi
 		done
 	done
+	required_mountpoints="$(printf %s "$required_mountpoints" |tr -s , '\n' |LC_ALL=C sort -u |tr -s '\n' ,)"
+	required_mountpoints="${required_mountpoints%,}"
 	Verbose "$sname: calculated mount points: $required_mountpoints"
 fi
 
