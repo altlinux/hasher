@@ -106,7 +106,7 @@ shift
 
 if [ -z "$no_cache" ]; then
 	mkdir -p -m700 $verbose cache
-	mkdir -p -m700 $verbose cache/"$PROG"/{list,package}{,.new}
+	mkdir -p -m700 $verbose cache/chroot/{list,package}{,.new}
 fi
 
 check_helpers
@@ -121,6 +121,87 @@ gid2="$(echo "$ugid2" |cut -d: -f2)"
 
 check_tty
 
+rebuild_cache=
+
+build_chroot_cache()
+{
+	[ -n "$rebuild_cache" ] || return 0
+
+	# rpmdb
+	local rpmdb="cache/chroot/rpmdb.tar"
+	tar -cf "$rpmdb" -C aptbox/var/lib/rpm/ . &&
+		Verbose "archived RPM database" ||
+		Fatal "archiving of RPM database failed."
+		
+	# chroot
+	local list="cache/chroot/chroot.list"
+	"$chrootuid1" $number "$chroot" /.host/find $(cd chroot && /bin/ls -1 |grep -v ^dev) >"$list" &&
+		[ -s "$list" ] &&
+		Verbose "generated chroot filelist" ||
+		Fatal "generation of chroot filelist failed."
+	"$chrootuid1" $number "$chroot" /.host/cpio --create --quiet --format=newc <"$list" >"cache/chroot/chroot.cpio" &&
+		Verbose "archived chroot" ||
+		Fatal "archiving of chroot failed."
+	rm -f "$list"
+}
+
+check_chroot_cache()
+{
+	[ -z "$no_cache" ] || return 0
+
+	cat cache/chroot/list.new/{init,build} |
+		while read f; do
+			touch -r "$f" "cache/chroot/package.new/${f##*/}"
+		done
+
+	while :; do
+		for f in cache/chroot/{rpmdb.tar,chroot.cpio}; do
+			if [ ! -s "$f" ]; then
+				Verbose "missing $f archive, invalidating cache"
+				rebuild_cache=1
+				break 2
+			fi
+		done
+
+		if ! cmp -s cache/chroot/list{.new,}/init; then
+			Verbose "init list changed, invalidating cache"
+			rebuild_cache=1
+			break
+		fi
+
+		if ! cmp -s cache/chroot/list{.new,}/build; then
+			Verbose "build list changed, invalidating cache"
+			rebuild_cache=1
+			break
+		fi
+
+		local bad="cache/chroot/list.new/bad"
+		rm -f "$bad"
+		cat cache/chroot/list.new/{init,build} |
+			while read f; do
+				local n
+				n="${f##*/}"
+				if [ "cache/chroot/package.new/$n" -nt "cache/chroot/package/$n" -o \
+				     "cache/chroot/package.new/$n" -ot "cache/chroot/package/$n" ]; then
+					Verbose "package $n changed, invalidating cache"
+					echo "$n" >"$bad"
+					break
+				fi
+			done
+		if [ -f "$bad" ]; then
+			rebuild_cache=1
+			break
+		fi
+		break
+	done
+
+	# Regenerate data for later cache validation.
+	mv -f $verbose cache/chroot/list{.new,}/init
+	mv -f $verbose cache/chroot/list{.new,}/build
+	rm -f cache/chroot/package/*
+	mv -f cache/chroot/package.new/* cache/chroot/package/
+}
+
 initlist="$(print_uris setup filesystem rpm 'fakeroot>=0:0.7.3')" ||
 	Fatal "failed to generate initial package file list."
 [ -n "$initlist" ] &&
@@ -132,7 +213,7 @@ initlist="$(echo "$initlist" |fgrep /setup-)
 $(echo "$initlist" |fgrep /filesystem-)
 $(echo "$initlist" |egrep -v '/(setup|filesystem)-')"
 
-[ -n "$no_cache" ] || echo "$initlist" >"cache/$PROG/list.new/init"
+[ -n "$no_cache" ] || echo "$initlist" >"cache/chroot/list.new/init"
 
 buildlist="$(print_uris basesystem 'rpm-build>=0:4.0.4-alt21' 'kernel-headers-common>=1.1.4-alt1' time)" ||
 	Fatal "failed to generate build package file list."
@@ -145,60 +226,9 @@ buildlist="$(
 	Verbose "generated build package file list." ||
 	Fatal "failed to generate build package file list."
 
-[ -n "$no_cache" ] || echo "$buildlist" >"cache/$PROG/list.new/build"
+[ -n "$no_cache" ] || echo "$buildlist" >"cache/chroot/list.new/build"
 
-rebuild_cache=
-if [ -z "$no_cache" ]; then
-
-cat cache/"$PROG"/list.new/{init,build} |
-	while read f; do
-		touch -r "$f" "cache/$PROG/package.new/${f##*/}"
-	done
-
-while :; do
-	for f in cache/"$PROG"/{rpmdb.tar,chroot.cpio}; do
-		if [ ! -s "$f" ]; then
-			Verbose "missing $f archive, invalidating cache"
-			rebuild_cache=1
-			break 2
-		fi
-	done
-	if ! cmp -s cache/"$PROG"/list{.new,}/init; then
-		Verbose "init list mismatch, invalidating cache"
-		rebuild_cache=1
-		break
-	fi
-	if ! cmp -s cache/"$PROG"/list{.new,}/build; then
-		Verbose "build list mismatch, invalidating cache"
-		rebuild_cache=1
-		break
-	fi
-	bad="cache/$PROG/list.new/bad"
-	rm -f "$bad"
-	cat cache/"$PROG"/list.new/{init,build} |
-		while read f; do
-			n="${f##*/}"
-			if [ "cache/$PROG/package.new/$n" -nt "cache/$PROG/package/$n" -o \
-			     "cache/$PROG/package.new/$n" -ot "cache/$PROG/package/$n" ]; then
-				Verbose "package $n mismatch, invalidating cache"
-				echo "$n" >"$bad"
-				break
-			fi
-		done
-	if [ -f "$bad" ]; then
-		rebuild_cache=1
-		break
-	fi
-	break
-done
-
-# Regenerate data for later cache validation.
-mv -f $verbose cache/"$PROG"/list{.new,}/init
-mv -f $verbose cache/"$PROG"/list{.new,}/build
-rm -f cache/"$PROG"/package/*
-mv -f cache/"$PROG"/package.new/* cache/"$PROG"/package/
-
-fi # !no_cache
+check_chroot_cache
 
 if [ -n "$no_cache" -o -n "$rebuild_cache" ]; then
 
@@ -300,33 +330,18 @@ __EOF__
 	Verbose "first time initialization complete." ||
 	Fatal "first time initialization failed."
 
-if [ -n "$rebuild_cache" ]; then
-	# archive rpmdb
-	f="cache/$PROG/rpmdb.tar"
-	tar -cf "$f" -C aptbox/var/lib/rpm/ . &&
-		Verbose "archived RPM database" ||
-		Fatal "archiving of RPM database failed."
-		
-	# archive chroot
-	f="cache/$PROG/chroot.list"
-	"$chrootuid1" $number "$chroot" /.host/find $(cd chroot && /bin/ls -1 |grep -v ^dev) >"$f" &&
-		Verbose "generated chroot filelist" ||
-		Fatal "generation of chroot filelist failed."
-	"$chrootuid1" $number "$chroot" /.host/cpio --create --quiet <"$f" >"cache/$PROG/chroot.cpio" &&
-		Verbose "archived chroot" ||
-		Fatal "archiving of chroot failed."
-fi # rebuild_cache
+build_chroot_cache
 
 else # !no_cache && !rebuild_cache
 	# restore rpmdb
-	f="cache/$PROG/rpmdb.tar"
+	f="cache/chroot/rpmdb.tar"
 	rm -f aptbox/var/lib/rpm/*
 	tar -xf "$f" -C aptbox/var/lib/rpm/ &&
 		Verbose "unpacked $f" ||
 		Fatal "unpack of $f failed."
 		
 	# restore chroot
-	f="cache/$PROG/chroot.cpio"
+	f="cache/chroot/chroot.cpio"
 	cat "$f" |"$chrootuid1" $number "$chroot" /.host/cpio --extract --make-directories --sparse --quiet &&
 		Verbose "unpacked $f" ||
 		Fatal "unpack of $f failed."
