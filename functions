@@ -168,7 +168,7 @@ print_uris()
 		echo -E "$out" >&2
 		Fatal "failed to calculate package file list."
 	fi
-	echo -E "$out" |sed -ne "s/^'file:\\([^']\\+\\)' .*/\\1/pg" || return 1
+	echo -E "$out" |sed -ne "s/^'\\(file\\|copy\\):\\([^']\\+\\)' .*/\\2/pg" || return 1
 	Verbose "calculated package file list."
 }
 
