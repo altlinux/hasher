@@ -101,6 +101,7 @@ cat >"$entry" <<__EOF__
 $entry_fakeroot_header
 
 rpmi -i $rpm_verbose $hash $(for f in $filelist; do echo -n "\"$(quote_arg "${f##*/}")\" "; done)
+ldconfig
 adjust_kernel_headers --first
 __EOF__
 chmod 755 "$entry"
