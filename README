@@ -1,15 +1,20 @@
 $Id$
 
-1. Installation
+1. Prepare to work.
 
-  In order to prepare package hasher to use by <user>, you must add pair
+  In order to prepare package hasher to use by USER, you must add pair
   of special satellite users.  Run as root
-  # hasher-useradd <user>
+  # hasher-useradd USER
 
-2. Usage
+  This command creates two additional satellite users, USER_a and
+  USER_b, and adds USER to groups: hashman, USER_a and USER_b.
+
+  Note that USER have to (re)login to gain new credentials.
+
+2. Usage.
 
   The package hasher consists of several low-level utilities placed in
-  /usr/share/hasher/, and high-level utility, /usr/bin/hsh.
+  /usr/share/hasher/, and two high-level utilities, hsh(1) and mkaptbox(1).
 
   Example of use:
   $ hsh workdir path/to/foobar-1.0.src.rpm
@@ -17,12 +22,12 @@ $Id$
   Working directory ("workdir" in example above) MUST exist.
 
   Working directory shouldn't contain self-made files or directories
-  with names "aptbox", "cache", "chroot", "lockdir" and "repo".
+  with reserved names "aptbox", "cache", "chroot", "lockdir" and "repo".
 
-  During the work hasher creates auto repository, workdir/repo.
-  Result of successful build will be placed into this repository.
+  During the work hasher creates work repository, workdir/repo.
+  Result of successful builds will be placed into this repository.
 
-  Useful options:
+  Most useful options:
     --no-stuff
     Do not use packages from auto repository in build system.
     By default, auto repository will be used as well as system repository.
@@ -44,20 +49,21 @@ $Id$
 
   Package repository used for creating build system must provide
   following packages:
-  fakeroot >= 0:0.7.3
-    (required for proper TCB support);
-  rpm-build >= 0:4.0.4-alt21
-    (required for proper package contents indices support);
-  kernel-headers-common >= 1.1.4-alt1
-    (required for "adjust_kernel_headers --first" support).
+    fakeroot >= 0:0.7.3
+      (required for proper TCB support);
+    rpm-build >= 0:4.0.4-alt21
+      (required for proper package contents indices support);
+    kernel-headers-common >= 1.1.4-alt1
+      (required for "adjust_kernel_headers --first" support).
 
-  Only local source methods (i.e. file and copy) are supported.
+4. Caveats and limitations.
 
-4. Bug reporting.
+  Only local apt source methods (i.e. file and copy) are supported.
 
-  In case of usage problems, write to
-  "ALT Devel discussion list" <devel@altlinux.ru>
+  Depending on age of package repository, apt installed in your host system
+  will or will not work properly.  In case of essential difference between
+  apt versions in host system and repository, consider --apt-prefix option.
 
-  In case of bug reports, visit BTS
-  http://bugs.altlinux.ru/
+5. Reporting bugs.
 
+  Report bugs to http://bugs.altlinux.ru/.
