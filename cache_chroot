@@ -43,7 +43,8 @@ archive_chroot_cache()
 		Fatal "chroot is not ready for archivation."
 
 	cat >"$entry" <<__EOF__
-$entry_fakeroot_header
+#!/bin/sh -e
+cd /
 
 list="\$(/.host/find $list)"
 printf %s "\$list" |
