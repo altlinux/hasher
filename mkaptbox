@@ -129,12 +129,16 @@ get_apt_config()
 	
 sl_name="Dir::Etc::SourceList"
 get_apt_config "$sl_name" sl_value
+[ -n "$sl_value" ] || Fatal "apt-config: undefined: $sl_name"
 
-[ -n "$sl_value" ] || Fatal "apt-config: undefined $sl_name"
 if [ -n "${sl_value##/*}" ]; then
 	get_apt_config "Dir::Etc" dir_etc
+	[ -n "$dir_etc" ] || Fatal "apt-config: undefined: Dir::Etc"
+
 	if [ -n "${dir_etc##/*}" ]; then
 		get_apt_config "Dir" dir
+		[ -n "$dir" ] || Fatal "apt-config: undefined: Dir"
+
 		dir_etc="$dir$dir_etc"
 		unset dir
 	fi
@@ -142,7 +146,9 @@ if [ -n "${sl_value##/*}" ]; then
 	unset dir_etc
 fi
 
-[ -s "$sl_value" -a -r "$sl_value" ] || Fatal "broken $sl_name: $sl_value"
+[ -z "${sl_value##/*}" ] &&
+	[ -s "$sl_value" -a -r "$sl_value" ] ||
+	Fatal "apt-config: broken $sl_name: $sl_value"
 
 # reset APT_CONFIG and fill it with new data.
 export APT_CONFIG="$aptbox/etc/apt/apt.conf"
