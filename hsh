@@ -110,6 +110,8 @@ for f in "$@"; do
 done
 
 for f in "$@"; do
+	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
+
 	rm -rf aptbox
 	$hasher_dir/mkaptbox "$workdir" -u \
 			${verbose:+$verbose} \
