@@ -107,7 +107,7 @@ uid2="$(echo "$ugid2" |cut -d: -f1)"
 gid2="$(echo "$ugid2" |cut -d: -f2)"
 
 [ -n "$nprocs" ] ||
-	nprocs="$(N=`egrep -cs ^cpu[0-9]+ /proc/stat`; [ "$N" -gt 0 ] 2>/dev/null && echo -n "$N" || echo 1)"
+	nprocs="$(N=`egrep -cs ^cpu[0-9]+ /proc/stat ||:`; [ "$N" -gt 0 ] 2>/dev/null && echo -n "$N" || echo 1)"
 
 filelist="$(print_uris setup filesystem rpm 'fakeroot>=0:0.7.3')" ||
 	Fatal "failed to generate initial package file list."
