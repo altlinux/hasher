@@ -104,7 +104,9 @@ $entry_fakeroot_header
 
 rpmi -i $rpm_verbose $hash $exclude_docs $(for f in $filelist; do echo -n "\"$(quote_arg "${f##*/}")\" "; done)
 ldconfig
-adjust_kernel_headers --first
+if [ -x /usr/sbin/adjust_kernel_headers ]; then
+	/usr/sbin/adjust_kernel_headers --first
+fi
 if [ -x /.host/postin ]; then
 	/.host/postin
 fi
