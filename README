@@ -15,6 +15,7 @@ $Id$
   $ hasher workdir path/to/foobar-1.0.src.rpm
 
   Working directory ("workdir" in example above) MUST exist.
+
   During the work hasher creates auto repository, workdir/repo.
   Result of successful build will be placed into this repository.
 
@@ -34,7 +35,27 @@ $Id$
     By default, no package contents indeces will be used.
 
     -v, --verbose
-    Print a message for each action.  Useful for tracing and/or getting
-    detailed progress information.
+    Print a message for each action.  Useful for tracing and/or
+    getting detailed progress information.
 
   See "hsh --help" for detailed information about valid options.
+
+3. Requirements.
+
+  Filesystem where workdir is located should not be mounted with
+  "noexec" or "nodev" options.
+
+  Package repository used for creating build system must provide
+  following packages:
+  fakeroot >= 0:0.7.3 (required for proper TCB support);
+  rpm-build > 0:4.0.4-alt20 (required for proper package contents
+                             indeces support).
+
+4. Bug reporting.
+
+  In case of usage problems, write to
+  "ALT Devel discussion list" <devel@altlinux.ru>
+
+  In case of bug reports, visit BTS
+  http://bugs.altlinux.ru/
+
