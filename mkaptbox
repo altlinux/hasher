@@ -36,6 +36,7 @@ Usage: $PROG [options] <path-to-workdir>
 
 Valid options are:
 --no-stuff              do not install built packages;
+--target=ARCH           target architecture;
 -f, --force             force aptbox creation;
 -u, --update            run "apt-get update" after creation;
 -v, --verbose           print a message for each action;
@@ -44,7 +45,7 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,v,h -l no-stuff,force,update,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o f,u,v,h -l no-stuff,target:,force,update,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 force=
@@ -53,6 +54,8 @@ no_stuff=
 while :; do
 	case "$1" in
 		--no-stuff) no_stuff=1; shift
+			;;
+		--target) shift; target="$1"; shift
 			;;
 		-f|--force) force=1; shift
 			;;
