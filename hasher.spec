@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.3
+Version: 0.4
 Release: alt1
 BuildArch: noarch
 
@@ -11,7 +11,7 @@ Group: Development/Other
 
 Source: %name-%version.tar.gz
 
-Requires: getopt, ash-static, cpio-static, rm-static
+Requires: getopt, ash-static, cpio-static, find-static
 Requires: hasher-priv, apt >= 0.5.5cnc4.1-alt5
 
 Obsoletes: pkg-build-utils, libbte
@@ -31,6 +31,15 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Mon Aug 11 2003 Dmitry V. Levin <ldv@altlinux.org> 0.4-alt1
+- rmchroot:
+  + install .host programs if required;
+  + use "find -delete" instead of "rm -rf".
+- mkaptbox:
+  + added --target option (#0002817).
+- hsh:
+  + pass target to mkaptbox.
+
 * Wed Jul 30 2003 Dmitry V. Levin <ldv@altlinux.org> 0.3-alt1
 - Added "adjust_kernel_headers --first" support.
 - rmchroot:
