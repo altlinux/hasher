@@ -51,8 +51,8 @@ $Id$
   Package repository used for creating build system must provide
   following packages:
   fakeroot >= 0:0.7.3 (required for proper TCB support);
-  rpm-build > 0:4.0.4-alt20 (required for proper package contents
-                             indeces support).
+  rpm-build >= 0:4.0.4-alt21 (required for proper package contents
+                              indeces support).
 
   Only local source methods (i.e. file and copy) are supported.
 

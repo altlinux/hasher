@@ -181,7 +181,7 @@ done
 
 # At this stage, RPM inside chroot is fully functional.
 
-filelist="$(print_uris basesystem 'rpm-build>0:4.0.4-alt20' kernel-headers-common time)" ||
+filelist="$(print_uris basesystem 'rpm-build>=0:4.0.4-alt21' kernel-headers-common time)" ||
 	Fatal "failed to generate build package file list."
 [ -n "$filelist" ] &&
 	Verbose "generated build package file list." ||
