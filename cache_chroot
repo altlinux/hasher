@@ -183,11 +183,12 @@ __EOF__
 
 	# At this stage, RPM inside chroot is fully functional.
 
-	purge_chroot_in
-	purge_chroot_out
-	copy_chroot_incoming $buildlist
+	if [ "$buildlist" ]; then
+		purge_chroot_in
+		purge_chroot_out
+		copy_chroot_incoming $buildlist
 
-	cat >"$entry" <<__EOF__
+		cat >"$entry" <<__EOF__
 $entry_fakeroot_header
 
 export DURING_INSTALL=1
@@ -197,16 +198,16 @@ rpmi -i $verbose $exclude_docs --nodeps --justdb $(for f in $buildlist; do f="${
 # /FIXME
 __EOF__
 
-	"$chrootuid1" $number "$chroot" /.host/entry &&
-		Verbose "installed build package list." ||
-		Fatal "failed to install build package list."
+		"$chrootuid1" $number "$chroot" /.host/entry &&
+			Verbose "installed build package list." ||
+			Fatal "failed to install build package list."
 
-	purge_chroot_in
-	update_RPM_database $buildlist
+		purge_chroot_in
+		update_RPM_database $buildlist
 
-	# First time scripts.
+		# First time scripts.
 
-	cat >"$entry" <<__EOF__
+		cat >"$entry" <<__EOF__
 $entry_fakeroot_header
 
 ldconfig
@@ -216,9 +217,10 @@ useradd -M -u $uid2 -g $gid2 -d /usr/src builder
 chmod 1777 /usr/src
 __EOF__
 
-	"$chrootuid1" $number "$chroot" /.host/entry &&
-		Verbose "first time initialization complete." ||
-		Fatal "first time initialization failed."
+		"$chrootuid1" $number "$chroot" /.host/entry &&
+			Verbose "first time initialization complete." ||
+			Fatal "first time initialization failed."
+	fi # $buildlist
 
 	archive_chroot_cache
 } # create_chroot

@@ -38,6 +38,7 @@ Usage: $PROG [options] <path-to-workdir>
 Valid options are:
 --no-cache                      do not use cache;
 --no-contents-indices           do not use content indices;
+--no-build                      do not prepare chroot for build;
 --repackage-source              package source as well as binaries;
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
@@ -50,11 +51,12 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,h -l no-cache,no-contents-indices,repackage-source,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,h -l no-cache,no-contents-indices,no-build,repackage-source,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
 no_contents_indices=
+no_build=
 nprocs=
 install_langs=all
 contents_index_all=
@@ -65,6 +67,8 @@ while :; do
 		--no-cache) no_cache=1; shift
 			;;
 		--no-contents-indices) no_contents_indices=1; shift
+			;;
+		--no-build) no_build=1; shift
 			;;
 		--repackage-source) repackage_source=1; shift
 			;;
@@ -146,16 +150,20 @@ $(echo "$initlist" |egrep -v '/(setup|filesystem)-')"
 
 [ -n "$no_cache" ] || echo "$initlist" >"cache/chroot/list.new/init"
 
-buildlist="$(print_uris basesystem 'rpm-build>=0:4.0.4-alt21' 'kernel-headers-common>=1.1.4-alt1' time)" ||
-	Fatal "failed to generate build package file list."
-buildlist="$(
-	echo "$buildlist" |while read bp; do
-		echo "$initlist" |grep -qs "^$bp\$" || echo "$bp"
-	done
-)"
-[ -n "$buildlist" ] &&
-	Verbose "generated build package file list." ||
-	Fatal "failed to generate non-empty build package file list; check your sources.list"
+if [ -z "$no_build" ]; then
+	buildlist="$(print_uris basesystem 'rpm-build>=0:4.0.4-alt21' 'kernel-headers-common>=1.1.4-alt1' time)" ||
+		Fatal "failed to generate build package file list."
+	buildlist="$(
+		echo "$buildlist" |while read bp; do
+			echo "$initlist" |grep -qs "^$bp\$" || echo "$bp"
+		done
+	)"
+	[ -n "$buildlist" ] &&
+		Verbose "generated build package file list." ||
+		Fatal "failed to generate non-empty build package file list; check your sources.list"
+else
+	buildlist=
+fi
 
 [ -n "$no_cache" ] || echo "$buildlist" >"cache/chroot/list.new/build"
 
