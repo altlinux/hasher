@@ -1,18 +1,22 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.8
+Version: 1.0.9
 Release: alt1
 
-Summary: Modern safe package build technology
+Summary: Modern safe package building technology
 License: GPL
 Group: Development/Other
 Url: ftp://ftp.altlinux.org/pub/people/ldv/hasher
 
 Source: %url/%name-%version.tar.bz2
 
+%define _libexecdir %_prefix/libexec
+%define helperdir %_libexecdir/%name
+
+Requires: %helperdir
 Requires: getopt, ash-static, cpio-static, find-static
-Requires: hasher-priv >= 1.0, apt >= 0.5.5cnc4.1-alt7
+Requires: hasher-priv >= 1.0, apt-utils >= 0.5.5cnc4.1-alt7
 
 Obsoletes: pkg-build-utils, libbte
 
@@ -38,6 +42,17 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Mon Jan 03 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.9-alt1
+- Changed hasher-priv helper directory to %helperdir,
+  updated package dependencies.
+- Updated documentation:
+  + hasher(7): applied fixes from Egor Grebnev;
+  + hsh(1), mkaptbox(1): added NAME section.
+- install: export RPM_EXCLUDEDOCS=1 if $exclude_docs is set.
+- functions: source user config from ~/.hasher/config if any.
+- hsh,initroot,install,rebuild: added --excludedocs option.
+- Unhardcoded work limits (fixes #5804).
+
 * Thu Nov 11 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.8-alt1
 - hsh: enhanced early diagnostics for invalid source files.
 
