@@ -144,7 +144,7 @@ while :; do
 			;;
 		-h|--help) Usage 0
 			;;
-		--version) echo '0.9.6'; exit 0;
+		--version) echo '@VERSION@'; exit 0;
 			;;
 		--) shift; break
 			;;

@@ -20,9 +20,11 @@
 #
 
 PROJECT = hasher
+VERSION = $(shell grep ^Version: hasher.spec |head -1 |awk '{print $$2}')
 HELPERS = functions cache_chroot cache_contents initroot install mkaptbox mkchroot rebuild rmchroot
 PROGRAMS = hsh
 MAN1PAGES = hsh.1
+TARGETS = $(PROGRAMS) $(MAN1PAGES)
 
 bindir = /usr/bin
 libexecdir = /usr/share
@@ -37,7 +39,11 @@ HELP2MAN1 = help2man -N -s1
 
 .PHONY:	all install clean
 
-all: $(MAN1PAGES)
+all: $(TARGETS)
+
+%: %.in
+	sed -e 's/@VERSION@/$(VERSION)/g' < $< > $@
+	chmod a+x $@
 
 %.1: %
 	$(HELP2MAN1) ./$< > $@
@@ -51,4 +57,4 @@ install: all
 	$(INSTALL) -p -m644 $(MAN1PAGES) $(DESTDIR)$(man1dir)/
 
 clean:
-
+	$(RM) $(TARGETS) *~

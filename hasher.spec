@@ -34,7 +34,7 @@ This package provides package hasher utilities.
 
 %files
 %_bindir/*
-%_datadir/*
+%_datadir/%name
 %_mandir/man?/*
 %doc README
 
