@@ -40,7 +40,7 @@ archive_chroot_cache()
 		
 	# chroot
 	local list="cache/chroot/chroot.list"
-	wlimit_time_elapsed=60 wlimit_time_idle=60 wlimit_bytes_written=65536 \
+	wlimit_time_elapsed=60 wlimit_time_idle=60 \
 	"$chrootuid1" $number "$chroot" /.host/find $(cd chroot && /bin/ls -1 |grep -v ^dev) >"$list" &&
 		[ -s "$list" ] && [ -z "$terminated" ] &&
 		Verbose "generated chroot filelist" ||
