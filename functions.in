@@ -78,7 +78,7 @@ def_target=@deftarget@
 target=
 
 # hasher-priv directory.
-def_hasher_priv_dir=@libdir@/hasher-priv
+def_hasher_priv_dir=@libexecdir@/hasher-priv
 hasher_priv_dir=
 
 # working directory.

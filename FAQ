@@ -58,7 +58,7 @@ CONTENTS
 
 2.1. What is hasher?
 
-   Hasher is modern safe package build technology.
+   Hasher is modern safe package building technology.
    In general, it inputs source package and outputs binary packages.
 
 2.2. What is hasher not?
@@ -207,13 +207,13 @@ CONTENTS
    you can use it for the second one, too.
 
    For example, this command
-   $ use_pty=yes /usr/lib/hasher-priv/chrootuid2.sh /path/to/workdir/chroot /bin/runas -bash bash
+   $ use_pty=yes /usr/libexec/hasher-priv/chrootuid2.sh /path/to/workdir/chroot /bin/runas -bash bash
    will run bash as login shell with stdin, stdout and stderr associated
    to pseudoterminal created by hasher.
 
    If user is allowed to create tty devices and mount /dev/pts inside
    build chroot, this command
-   $ use_pty=yes mountpoints=/dev/pts /usr/lib/hasher-priv/chrootuid2.sh /path/to/workdir/chroot /bin/runas -bash bash
+   $ use_pty=yes mountpoints=/dev/pts /usr/libexec/hasher-priv/chrootuid2.sh /path/to/workdir/chroot /bin/runas -bash bash
    will create tty devices and mount /dev/pts inside build chroot,
    execute bash as login shell with stdin, stdout and stderr associated
    to pseudoterminal created by hasher, and after bash exit this command

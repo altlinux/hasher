@@ -29,12 +29,12 @@ TARGETS = functions $(MAN1PAGES) $(MAN7PAGES)
 
 deftarget = $(shell uname -m)
 bindir = /usr/bin
-libdir = /usr/lib
-libexecdir = /usr/share
-mandir = /usr/share/man
+datadir = /usr/share
+libexecdir = /usr/libexec
+mandir = $(datadir)/man
 man1dir = $(mandir)/man1
 man7dir = $(mandir)/man7
-helperdir = $(libexecdir)/$(PROJECT)
+helperdir = $(datadir)/$(PROJECT)
 binreldir = $(shell relative $(helperdir) $(bindir)/)
 DESTDIR =
 
@@ -55,7 +55,7 @@ $(MAN7PAGES):
 %: %.in
 	sed -e 's/@VERSION@/$(VERSION)/g; \
 		s/@deftarget@/$(deftarget)/g; \
-		s,@libdir@,$(libdir),g' <$< >$@
+		s,@libexecdir@,$(libexecdir),g' <$< >$@
 	$(TOUCH_R) $< $@
 	chmod --reference=$< $@
 
