@@ -32,6 +32,8 @@ rebuild comes with ABSOLUTELY NO WARRANTY, see license for details.
 
 Usage: $PROG [options] <path-to-workdir> <source-package>
 
+<path-to-workdir> must be valid writable directory.
+
 Valid options are:
 --target=ARCH                   target architecture;
 --args=ARGS                     extra arguments for rpmbuild;

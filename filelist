@@ -32,6 +32,8 @@ filelist comes with ABSOLUTELY NO WARRANTY, see license for details.
 
 Usage: $PROG [options] <path-to-workdir> <package>...
 
+<path-to-workdir> must be valid writable directory.
+
 Valid options are:
 -v, --verbose           print a message for each action;
 -h, --help              show this text.

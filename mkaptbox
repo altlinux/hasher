@@ -32,6 +32,8 @@ mkaptbox comes with ABSOLUTELY NO WARRANTY, see license for details.
 
 Usage: $PROG [options] <path-to-workdir>
 
+<path-to-workdir> must be valid writable directory.
+
 Valid options are:
 --no-stuff              do not install built packages;
 -f, --force             force aptbox creation;
