@@ -26,6 +26,7 @@ CONTENTS
 4. HOW TO?
 4.1. Parallel build.
 4.2. Proc filesystem and pseudo terminals.
+4.3. Native shell.
 
 ------------------------------
 
@@ -158,7 +159,7 @@ CONTENTS
 
 4.2. Proc filesystem and pseudo terminals.
  
-4.2.1 Is there any way to use proc filesystem inside chroot while buildibg
+4.2.1 Is there any way to use proc filesystem inside chroot while building
    the package?
 
    Yes, it is.
@@ -175,7 +176,7 @@ CONTENTS
    Third, hsh should be run with parameter --mountpoints=/proc.
 
 4.2.2 Is there any way to create pseudoterminals and use them inside
-   chroot while buildibg the package?
+   chroot while building the package?
 
    Yes, it is.
 
@@ -190,3 +191,26 @@ CONTENTS
 	BuildPreReq: /dev/pts
  
    Third, hsh should be run with parameter --mountpoints=/dev/pts.
+
+4.3. Native shell.
+
+4.3.1 Is there any way to run shell with normal terminal inside chroot?
+
+   Yes, it is.
+
+   You should understand that building packages and running shell are
+   incompatible tasks.  Hasher is devoted for first one, however you
+   can use it for second one, too.
+
+   For example, this command
+   $ use_pty=yes /usr/lib/hasher-priv/chrootuid2.sh /path/to/workdir/chroot /bin/runas -bash bash
+   will run bash as login shell with stdin, stdout and stderr associated
+   to pseudoterminal created by hasher.
+
+   If user is allowed to create tty devices and mount /dev/pts inside
+   build chroot, this command
+   $ use_pty=yes mountpoints=/dev/pts /usr/lib/hasher-priv/chrootuid2.sh /path/to/workdir/chroot /bin/runas -bash bash
+   will create tty devices and mount /dev/pts inside build chroot,
+   execute bash as login shell with stdin, stdout and stderr associated
+   to pseudoterminal created by hasher, and after bash exit this command
+   will remove created devices and unmount /dev/pts from the chroot.
