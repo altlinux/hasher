@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.4
+Version: 1.0.5
 Release: alt1
 
 Summary: Modern safe package build technology
@@ -38,8 +38,13 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Wed Aug 25 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.5-alt1
+- rmchroot: fixed bug introduced in previous release.
+
 * Thu Aug 19 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.4-alt1
-- rmchroot: increased time limits.
+- rmchroot:
+  + increased time limits;
+  + when verbose mode is set, be more verbose.
 - Updated package dependencies.
 
 * Sun Aug 08 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.3-alt1
