@@ -192,6 +192,13 @@ else
 	unpack_chroot_cache
 fi
 
+# Prepare /proc and /sys for potential mount.
+rmdir $verbose chroot/proc chroot/sys &&
+mkdir -m755 $verbose chroot/proc chroot/sys &&
+chgrp "$gid1" $verbose chroot/proc chroot/sys &&
+	Verbose "prepared mount points."
+	Fatal "failed to prepare mount points."
+
 check_contents_cache
 
 if [ -n "$no_cache" -o -n "$rebuild_contents_cache" ]; then
