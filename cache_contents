@@ -87,6 +87,7 @@ check_contents_cache()
 
 	local f n
 	local bad="cache/contents/list.new/bad"
+	rm -f "$bad"
 	cat cache/contents/list.new/index |
 		while read f; do
 			[ -n "$f" ] || continue
