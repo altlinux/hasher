@@ -186,6 +186,19 @@ set_workdir()
 	export APT_CONFIG="$aptbox/etc/apt/apt.conf"
 }
 
+# assumed: defined APT_CONFIG, prog_apt_config
+get_apt_config()
+{
+	local temp name value
+	name="$1"
+	shift || return 1
+	value="$1"
+	shift || return 1
+
+	temp="$("$prog_apt_config" shell "$value" "$name")" || return 1
+	eval "$temp"
+}
+	
 hash=
 rpm_verbose=
 

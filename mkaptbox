@@ -1,7 +1,7 @@
 #!/bin/sh -e
 #
 # $Id$
-# Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003, 2004, 2005  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The mkaptbox utility for the hasher project
 #
@@ -137,18 +137,6 @@ mkdir -p $verbose -- \
 
 [ -z "$apt_config" ] || APT_CONFIG="$apt_config"
 
-get_apt_config()
-{
-	local temp name value
-	name="$1"
-	shift || return 1
-	value="$1"
-	shift || return 1
-
-	temp="$("$prog_apt_config" shell "$value" "$name")" || return 1
-	eval $temp
-}
-	
 sl_name="Dir::Etc::SourceList"
 get_apt_config "$sl_name" sl_value
 [ -n "$sl_value" ] || Fatal "apt-config: undefined: $sl_name"
@@ -206,7 +194,7 @@ if [ -n "$LD_LIBRARY_PATH" ]; then
 	export LD_LIBRARY_PATH
 fi
 APT_CONFIG="$APT_CONFIG" \
-exec $(eval printf %s `printf '$prog_%s' "$n" |tr - _`) "\$@"
+exec $(eval printf %s "$(printf '$prog_%s' "$n" |tr - _)") "\$@"
 __EOF__
 Verbose "created $n wrapper"
 chmod $verbose a+x "$n"
