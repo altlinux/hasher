@@ -90,6 +90,10 @@ set_apt_vars()
 	[ -d "$apt_prefix" ] ||
 		Fatal "$apt_prefix: directory not available."
 
+	if printf %s "$apt_prefix" |grep -qs '[`"$\]'; then
+		Fatal "$apt_prefix: illegal symbols in apt prefix."
+	fi
+
 	local apt_libdir="$apt_prefix/lib"
 	[ -d "$apt_libdir" ] ||
 		Fatal "$apt_libdir: directory not available."
@@ -115,6 +119,11 @@ set_apt_vars()
 	else
 		LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$apt_libdir"
 	fi
+
+	if printf %s "$LD_LIBRARY_PATH" |grep -qs '[`"$\]'; then
+		Fatal "$LD_LIBRARY_PATH: illegal symbols in LD_LIBRARY_PATH."
+	fi
+
 	export apt_prefix LD_LIBRARY_PATH
 }
 
@@ -125,9 +134,9 @@ set_workdir()
 	cd "$workdir" || return 1
 	workdir="$(/bin/pwd)" || return 1
 
-	[ -n "$(echo "$workdir" |tr -d /.)" ] ||
+	[ -n "$(printf %s "$workdir" |tr -d /.)" ] ||
 		Fatal "$workdir: illegal working directory."
-	if echo "$workdir" |grep -qs '["\]'; then
+	if printf %s "$workdir" |grep -qs '[`"$\]'; then
 		Fatal "$workdir: illegal symbols in pathname."
 	fi
 	[ -w . ] || Fatal "unwritable working directory."
@@ -261,8 +270,8 @@ print_uris()
 quote_arg()
 {
 	local out
-	out="$(echo "$@" |sed -e 's/[\`"$]/\\&/g')" || return 1
-	echo -n "$out"
+	out="$(printf %s "$*" |sed -e 's/[\`"$]/\\&/g')" || return 1
+	printf %s "$out"
 }
 
 entry_header='#!/bin/sh -e
