@@ -102,6 +102,7 @@ set_workdir "$1"
 shift
 
 for f in "$@"; do
+	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
 	[ -r "$f" ] ||
 		Fatal "${f##*/}: cannot access source"
 	[ -s "$f" ] ||

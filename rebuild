@@ -84,6 +84,8 @@ set_workdir "$1"
 shift
 
 source="$1"
+[ -z "${source##/*}" ] || source="$saved_cwd/$source"
+
 sname="${source##*/}"
 shift
 
