@@ -119,11 +119,6 @@ shift
 
 [ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
 
-# Find out packager.
-packager="$(rpmquery -p --qf '%{PACKAGER}' "$source")"
-[ "$packager" != '(none)' ] || packager=
-[ -n "$packager" ] || Fatal "$sname: undefined packager"
-
 check_helpers
 
 if [ -z "$nodeps" ]; then
@@ -168,8 +163,8 @@ cat >"$entry" <<__EOF__
 $entry_header
 
 mkdir -p $verbose -m700 -- "\$TMPDIR"
-cat >>/usr/src/.rpmmacros <<\EOF
-%packager $packager
+cat >>/usr/src/.rpmmacros <<EOF
+%packager \$(rpmquery -p --qf '%{PACKAGER}' "$(quote_arg "$sname")")
 EOF
 
 /.host/rebuild "$(quote_arg "$sname")"
