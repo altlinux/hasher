@@ -24,7 +24,7 @@ VERSION = $(shell grep ^Version: hasher.spec |head -1 |awk '{print $$2}')
 HELPERS = functions cache_chroot cache_contents hsh initroot install mkaptbox mkchroot rebuild rmchroot
 PROGRAMS = hsh mkaptbox
 MAN1PAGES = $(PROGRAMS:=.1)
-TARGETS = $(PROGRAMS) $(MAN1PAGES)
+TARGETS = functions $(MAN1PAGES)
 
 bindir = /usr/bin
 libexecdir = /usr/share
@@ -44,10 +44,12 @@ TOUCH_R = touch -r
 
 all: $(TARGETS)
 
+$(MAN1PAGES): functions
+
 %: %.in
 	sed -e 's/@VERSION@/$(VERSION)/g' <$< >$@
 	$(TOUCH_R) $< $@
-	chmod a+x $@
+	chmod --reference=$< $@
 
 %.1: % %.1.inc
 	$(HELP2MAN1) -i $@.inc ./$< >$@
