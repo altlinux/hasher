@@ -36,14 +36,14 @@ Valid options are:
 --target=ARCH                   target architecture;
 --nodeps                        ignore package dependencies (dangerous);
 --number=NUMBER                 subconfig identifier;
---pkg-build-priv-dir=DIR        pkg-build-priv directory;
+--hasher-priv-dir=DIR           hasher-priv directory;
 -v, --verbose                   print a message for each action;
 -h, --help                      show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l target:,nodeps,number:,pkg-build-priv-dir:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l target:,nodeps,number:,hasher-priv-dir:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 nodeps=
@@ -61,7 +61,7 @@ while :; do
 			number="-$number"
 			shift
 			;;
-		--pkg-build-priv-dir) shift; pkg_build_priv_dir="$1"; shift
+		--hasher-priv-dir) shift; hasher_priv_dir="$1"; shift
 			;;
 		-v|--verbose) verbose=-v; shift
 			;;
@@ -95,7 +95,7 @@ if [ -z "$nodeps" ]; then
 	[ -z "$deps" ] || /usr/share/hasher/install \
 		${verbose:+$verbose} \
 		${number:+$number} \
-		--pkg-build-priv-dir="$pkg_build_priv_dir" \
+		--hasher-priv-dir="$hasher_priv_dir" \
 		"$workdir" $deps
 fi
 

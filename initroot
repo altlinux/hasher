@@ -34,7 +34,7 @@ Usage: $PROG [options] <path-to-workdir>
 
 Valid options are:
 --number=NUMBER                 subconfig identifier;
---pkg-build-priv-dir=DIR        pkg-build-priv directory;
+--hasher-priv-dir=DIR           hasher-priv directory;
 --nprocs=NUMBER                 number of processors to use;
 --contents-index-bin=INDEX      pkg contents binary index;
 --contents-index-all=INDEX      pkg contents complete index;
@@ -44,7 +44,7 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l number:,pkg-build-priv-dir:,nprocs:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l number:,hasher-priv-dir:,nprocs:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 nprocs=
@@ -67,7 +67,7 @@ while :; do
 				Fatal "--nprocs: $nprocs: invalid number."
 			shift
 			;;
-		--pkg-build-priv-dir) shift; pkg_build_priv_dir="$1"; shift
+		--hasher-priv-dir) shift; hasher_priv_dir="$1"; shift
 			;;
 		--contents-index-all) shift; contents_index_all="$1"; shift
 			;;

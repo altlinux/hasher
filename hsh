@@ -36,7 +36,7 @@ Usage: $PROG [options] <path-to-workdir> <package>...
 Valid options are:
 --target=ARCH                   target architecture;
 --number=NUMBER                 subconfig identifier;
---pkg-build-priv-dir=DIR        pkg-build-priv directory;
+--hasher-priv-dir=DIR           hasher-priv directory;
 --contents-index-bin=INDEX      pkg contents binary index;
 --contents-index-all=INDEX      pkg contents complete index;
 -v, --verbose                   print a message for each action;
@@ -45,7 +45,7 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l target:,number:,pkg-build-priv-dir:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l target:,number:,hasher-priv-dir:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 contents_index_all=
@@ -62,7 +62,7 @@ while :; do
 			number="-$number"
 			shift
 			;;
-		--pkg-build-priv-dir) shift; pkg_build_priv_dir="$1"; shift
+		--hasher-priv-dir) shift; hasher_priv_dir="$1"; shift
 			;;
 		--contents-index-all) shift; contents_index_all="$1"; shift
 			;;
@@ -93,24 +93,24 @@ for f in "$@"; do
 		$hasher_dir/rmchroot "$workdir" \
 			${verbose:+$verbose} \
 			${number:+$number} \
-			--pkg-build-priv-dir="$pkg_build_priv_dir" \
+			--hasher-priv-dir="$hasher_priv_dir" \
 			#
 	$hasher_dir/mkchroot "$workdir" \
 			${verbose:+$verbose} \
 			${number:+$number} \
-			--pkg-build-priv-dir="$pkg_build_priv_dir" \
+			--hasher-priv-dir="$hasher_priv_dir" \
 			#
 	$hasher_dir/initroot "$workdir" \
 			${verbose:+$verbose} \
 			${number:+$number} \
-			--pkg-build-priv-dir="$pkg_build_priv_dir" \
+			--hasher-priv-dir="$hasher_priv_dir" \
 			${contents_index_all:+--contents-index-all=$contents_index_all} \
 			${contents_index_bin:+--contents-index-all=$contents_index_bin} \
 			#
 	$hasher_dir/rebuild "$workdir" \
 			${verbose:+$verbose} \
 			${number:+$number} \
-			--pkg-build-priv-dir="$pkg_build_priv_dir" \
+			--hasher-priv-dir="$hasher_priv_dir" \
 			--target="$target" \
 			"$f"
 done

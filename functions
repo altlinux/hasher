@@ -3,7 +3,7 @@
 # $Id$
 # Copyright (C) 2003  Dmitry V. Levin <ldv@altlinux.org>
 # 
-# This files defines functions used by pkg-build scripts
+# This files defines functions used by hasher scripts
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -48,8 +48,8 @@ number=
 # target architecture.
 target=i586
 
-# pkg-build-priv directory.
-pkg_build_priv_dir=/usr/lib/pkg-build-priv
+# hasher-priv directory.
+hasher_priv_dir=/usr/lib/pkg-build-priv
 
 # working directory.
 workdir=
@@ -87,26 +87,26 @@ check_tty()
 
 check_helpers()
 {
-	[ -d "$pkg_build_priv_dir" ] ||
-		Fatal "cannot access pkg-build-priv helper directory."
+	[ -d "$hasher_priv_dir" ] ||
+		Fatal "cannot access hasher-priv helper directory."
 
-	getugid1="$pkg_build_priv_dir/getugid1.sh"
+	getugid1="$hasher_priv_dir/getugid1.sh"
 	[ -x "$getugid1" ] ||
 		Fatal "cannot access getugid1 helper."
 
-	getugid2="$pkg_build_priv_dir/getugid2.sh"
+	getugid2="$hasher_priv_dir/getugid2.sh"
 	[ -x "$getugid2" ] ||
 		Fatal "cannot access getugid2 helper."
 
-	chrootuid1="$pkg_build_priv_dir/chrootuid1.sh"
+	chrootuid1="$hasher_priv_dir/chrootuid1.sh"
 	[ -x "$chrootuid1" ] ||
 		Fatal "cannot access chrootuid1 helper."
 
-	chrootuid2="$pkg_build_priv_dir/chrootuid2.sh"
+	chrootuid2="$hasher_priv_dir/chrootuid2.sh"
 	[ -x "$chrootuid2" ] ||
 		Fatal "cannot access chrootuid2 helper."
 
-	makedev="$pkg_build_priv_dir/makedev.sh"
+	makedev="$hasher_priv_dir/makedev.sh"
 	[ -x "$makedev" ] ||
 		Fatal "cannot access makedev helper."
 }
