@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.2
+Version: 0.9.3
 Release: alt1
 BuildArch: noarch
 
@@ -13,7 +13,7 @@ Source: %name-%version.tar.gz
 
 Requires: getopt, ash-static, cpio-static, find-static
 Requires: hasher-priv, apt >= 0.5.5cnc4.1-alt7
-Requires: sisyphus >= 0.5.1-alt1
+Requires: sisyphus >= 0.5.3-alt1
 
 Obsoletes: pkg-build-utils, libbte
 
@@ -32,6 +32,10 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Sun Nov 02 2003 Dmitry V. Levin <ldv@altlinux.org> 0.9.3-alt1
+- Extended sisyphus_check support.
+- Updated README.
+
 * Mon Oct 27 2003 Dmitry V. Levin <ldv@altlinux.org> 0.9.2-alt1
 - initroot: changed default packager to hasher@localhost.
 - rebuild: pass packager through .rpmmacros.
@@ -45,6 +49,7 @@ This package provides package hasher utilities.
 
 * Wed Oct 15 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8.4-alt1
 - initroot: install all locales by default.
+- Updated README.
 
 * Mon Oct 06 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8.3-alt1
 - install: call ldconfig after install.
@@ -98,11 +103,13 @@ This package provides package hasher utilities.
 - Added "adjust_kernel_headers --first" support.
 - rmchroot:
   + explicitly remove /var/lib/texmf/ as well.
+- Updated README.
 
 * Fri Jul 04 2003 Dmitry V. Levin <ldv@altlinux.org> 0.2-alt1
 - functions: unset CDPATH.
 - rmchroot:
   + explicitly remove /var/tmp/ and /usr/src/ as well as /*/.
+- Updated README.
 
 * Thu Jul 03 2003 Dmitry V. Levin <ldv@altlinux.org> 0.1-alt1
 - Added apt "copy" source method support.
