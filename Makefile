@@ -21,9 +21,9 @@
 
 PROJECT = hasher
 VERSION = $(shell grep ^Version: hasher.spec |head -1 |awk '{print $$2}')
-HELPERS = functions cache_chroot cache_contents initroot install mkaptbox mkchroot rebuild rmchroot
-PROGRAMS = hsh
-MAN1PAGES = hsh.1
+HELPERS = functions cache_chroot cache_contents hsh initroot install mkaptbox mkchroot rebuild rmchroot
+PROGRAMS = hsh mkaptbox
+MAN1PAGES = $(PROGRAMS:=.1)
 TARGETS = $(PROGRAMS) $(MAN1PAGES)
 
 bindir = /usr/bin
@@ -31,30 +31,32 @@ libexecdir = /usr/share
 mandir = /usr/share/man
 man1dir = $(mandir)/man1
 helperdir = $(libexecdir)/$(PROJECT)
+binreldir = $(shell relative $(helperdir) $(bindir)/)
 DESTDIR =
 
-MKDIR_P = mkdir -p
-INSTALL = install
 HELP2MAN1 = help2man -N -s1
+INSTALL = install
+LN_S = ln -s
+MKDIR_P = mkdir -p
 
 .PHONY:	all install clean
 
 all: $(TARGETS)
 
 %: %.in
-	sed -e 's/@VERSION@/$(VERSION)/g' < $< > $@
+	sed -e 's/@VERSION@/$(VERSION)/g' <$< >$@
 	chmod a+x $@
 
 %.1: %
 	$(HELP2MAN1) ./$< > $@
 
 install: all
-	$(MKDIR_P) -m755 $(DESTDIR)$(bindir)
-	$(INSTALL) -p -m755 $(PROGRAMS) $(DESTDIR)$(bindir)/
 	$(MKDIR_P) -m755 $(DESTDIR)$(helperdir)
 	$(INSTALL) -p -m755 $(HELPERS) $(DESTDIR)$(helperdir)/
 	$(MKDIR_P) -m755 $(DESTDIR)$(man1dir)
 	$(INSTALL) -p -m644 $(MAN1PAGES) $(DESTDIR)$(man1dir)/
+	$(MKDIR_P) -m755 $(DESTDIR)$(bindir)
+	$(LN_S) $(PROGRAMS:%=$(binreldir)/%) $(DESTDIR)$(bindir)/
 
 clean:
 	$(RM) $(TARGETS) *~
