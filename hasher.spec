@@ -46,6 +46,8 @@ This package provides package hasher utilities.
   + implemented creation of the apt wrappers in aptbox;
   + added mkaptbox(1) manpage;
   + added %_bindir/mkaptbox symlink.
+- Optimized getopt handling code.
+- Updated README.
 
 * Tue Jan 13 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.7-alt1
 - functions: fixed bug introduced by apt_prefix support.

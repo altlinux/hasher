@@ -41,18 +41,18 @@ Usage: $PROG [options] <path-to-workdir> <source-package>
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
---no-stuff                      do not generate apt hash files;
---no-sisyphus-check[=LIST]      do not run sisyphus_check tests [specified in LIST];
---no-sisyphus-check-in[=LIST]   do not run sisyphus_check input tests [specified in LIST];
---no-sisyphus-check-out[=LIST]  do not run sisyphus_check output tests [specified in LIST];
---target=ARCH                   target architecture;
---args=ARGS                     extra arguments for rpmbuild;
---nodeps                        ignore package dependencies (dangerous);
---number=NUMBER                 subconfig identifier;
---hasher-priv-dir=DIR           hasher-priv directory;
--q, --quiet                     try to be more quiet;
--v, --verbose                   print a message for each action;
--h, --help                      show this text.
+  --no-stuff                        do not generate apt hash files;
+  --no-sisyphus-check[=LIST]        do not run sisyphus_check tests [specified in LIST];
+  --no-sisyphus-check-in[=LIST]     do not run sisyphus_check input tests [specified in LIST];
+  --no-sisyphus-check-out[=LIST]    do not run sisyphus_check output tests [specified in LIST];
+  --target=ARCH                     target architecture;
+  --args=ARGS                       extra arguments for rpmbuild;
+  --nodeps                          ignore package dependencies (dangerous);
+  --number=NUMBER                   subconfig identifier;
+  --hasher-priv-dir=DIR             hasher-priv directory;
+  -q, --quiet                       try to be more quiet;
+  -v, --verbose                     print a message for each action;
+  -h, --help                        show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
@@ -64,42 +64,33 @@ nodeps=
 rpmargs=
 while :; do
 	case "$1" in
-		--no-stuff) no_stuff=1; shift
+		--no-stuff) no_stuff=1
 			;;
-		--no-sisyphus-check)
-			shift
+		--no-sisyphus-check) shift
 			[ -n "$1" ] && no_sisyphus_check="$1" || no_sisyphus_check=all
-			shift
 			;;
-		--no-sisyphus-check-in)
-			shift
+		--no-sisyphus-check-in) shift
 			[ -n "$1" ] && no_sisyphus_check_in="$1" || no_sisyphus_check_in=all
-			shift
 			;;
-		--no-sisyphus-check-out)
-			shift
+		--no-sisyphus-check-out) shift
 			[ -n "$1" ] && no_sisyphus_check_out="$1" || no_sisyphus_check_out=all
-			shift
 			;;
-		--target) shift; target="$1"; shift
+		--target) shift; target="$1"
 			;;
-		--args) shift; rpmargs="$1"; shift
+		--args) shift; rpmargs="$1"
 			;;
-		--nodeps) nodeps=--nodeps; shift
+		--nodeps) nodeps=--nodeps
 			;;
-		--number)
-			shift
-			number="${1##-}"
+		--number) shift; number="${1##-}"
 			[ -z "$(echo -E "$number" |tr -d [0-9])" ] ||
 				Fatal "--number: $number: invalid number."
 			number="-$number"
-			shift
 			;;
-		--hasher-priv-dir) shift; hasher_priv_dir="$1"; shift
+		--hasher-priv-dir) shift; hasher_priv_dir="$1"
 			;;
-		-q|--quiet) quiet=-q; shift
+		-q|--quiet) quiet=-q
 			;;
-		-v|--verbose) verbose=-v; shift
+		-v|--verbose) verbose=-v
 			;;
 		-h|--help) Usage 0
 			;;
@@ -108,6 +99,7 @@ while :; do
 		*) Fatal "unrecognized option: $1"
 			;;
 	esac
+	shift
 done
 
 # Exactly two arguments, please.

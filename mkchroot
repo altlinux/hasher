@@ -41,11 +41,11 @@ Usage: $PROG [options] <path-to-workdir>
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
---number=NUMBER         subconfig identifier;
---hasher-priv-dir=DIR   hasher-priv directory;
--q, --quiet             try to be more quiet;
--v, --verbose           print a message for each action;
--h, --help              show this text.
+  --number=NUMBER           subconfig identifier;
+  --hasher-priv-dir=DIR     hasher-priv directory;
+  -q, --quiet               try to be more quiet;
+  -v, --verbose             print a message for each action;
+  -h, --help                show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
@@ -55,19 +55,16 @@ eval set -- "$TEMP"
 
 while :; do
 	case "$1" in
-		--number)
-			shift
-			number="${1##-}"
+		--number) shift; number="${1##-}"
 			[ -z "$(echo -E "$number" |tr -d [0-9])" ] ||
 				Fatal "--number: $number: invalid number."
 			number="-$number"
-			shift
 			;;
-		--hasher-priv-dir) shift; hasher_priv_dir="$1"; shift
+		--hasher-priv-dir) shift; hasher_priv_dir="$1"
 			;;
-		-q|--quiet) quiet=-q; shift
+		-q|--quiet) quiet=-q
 			;;
-		-v|--verbose) verbose=-v; shift
+		-v|--verbose) verbose=-v
 			;;
 		-h|--help) Usage 0
 			;;
@@ -76,6 +73,7 @@ while :; do
 		*) Fatal "unrecognized option: $1"
 			;;
 	esac
+	shift
 done
 
 # Exactly one argument, please.

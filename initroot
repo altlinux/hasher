@@ -41,17 +41,17 @@ Usage: $PROG [options] <path-to-workdir>
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
---no-cache                      do not use cache;
---no-contents-indices           do not use content indices;
---no-build                      do not prepare chroot for build;
---repackage-source              package source as well as binaries;
---number=NUMBER                 subconfig identifier;
---hasher-priv-dir=DIR           hasher-priv directory;
---nprocs=NUMBER                 number of CPUs to use;
---install-langs=LANGLIST        list of languages to install;
--q, --quiet                     try to be more quiet;
--v, --verbose                   print a message for each action;
--h, --help                      show this text.
+  --no-cache                    do not use cache;
+  --no-contents-indices         do not use content indices;
+  --no-build                    do not prepare chroot for build;
+  --repackage-source            package source as well as binaries;
+  --number=NUMBER               subconfig identifier;
+  --hasher-priv-dir=DIR         hasher-priv directory;
+  --nprocs=NUMBER               number of CPUs to use;
+  --install-langs=LANGLIST      list of languages to install;
+  -q, --quiet                   try to be more quiet;
+  -v, --verbose                 print a message for each action;
+  -h, --help                    show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
@@ -69,40 +69,34 @@ contents_index_bin=
 repackage_source=
 while :; do
 	case "$1" in
-		--no-cache) no_cache=1; shift
+		--no-cache) no_cache=1
 			;;
-		--no-contents-indices) no_contents_indices=1; shift
+		--no-contents-indices) no_contents_indices=1
 			;;
-		--no-build) no_build=1; shift
+		--no-build) no_build=1
 			;;
-		--repackage-source) repackage_source=1; shift
+		--repackage-source) repackage_source=1
 			;;
-		--number)
-			shift
-			number="${1##-}"
+		--number) shift; number="${1##-}"
 			[ -z "$(echo -E "$number" |tr -d [0-9])" ] ||
 				Fatal "--number: $number: invalid number."
 			number="-$number"
-			shift
 			;;
-		--nprocs)
-			shift
-			nprocs="$1"
+		--nprocs) shift; nprocs="$1"
 			[ -z "$(echo -E "$nprocs" |tr -d [0-9])" ] ||
 				Fatal "--nprocs: $nprocs: invalid number."
-			shift
 			;;
-		--install-langs) shift; install_langs="$1"; shift
+		--install-langs) shift; install_langs="$1"
 			;;
-		--hasher-priv-dir) shift; hasher_priv_dir="$1"; shift
+		--hasher-priv-dir) shift; hasher_priv_dir="$1"
 			;;
-		--contents-index-all) shift; contents_index_all="$1"; shift
+		--contents-index-all) shift; contents_index_all="$1"
 			;;
-		--contents-index-bin) shift; contents_index_bin="$1"; shift
+		--contents-index-bin) shift; contents_index_bin="$1"
 			;;
-		-q|--quiet) quiet=-q; shift
+		-q|--quiet) quiet=-q
 			;;
-		-v|--verbose) verbose=-v; shift
+		-v|--verbose) verbose=-v
 			;;
 		-h|--help) Usage 0
 			;;
@@ -111,6 +105,7 @@ while :; do
 		*) Fatal "unrecognized option: $1"
 			;;
 	esac
+	shift
 done
 
 # exactly one argument, please.
