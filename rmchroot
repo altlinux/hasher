@@ -79,18 +79,15 @@ check_helpers
 cd chroot
 Verbose "changed working directory to \`$chroot'"
 
-[ -d ".host" ] ||
-	Fatal "invalid chroot $chroot: cannot find .host directory."
+install -pD -m755 $verbose /bin/ash.static .host/sh
+install -pD -m755 $verbose /usr/bin/find.static .host/find
+Verbose "installed .host programs."
 
 if [ ! -c "./dev/null" ]; then
 	"$makedev" $number "$chroot" ||
 		Fatal "failed to make devices."
 	Verbose "created devices in \`$chroot/dev/'"
 fi
-
-install -p -m755 $verbose /usr/bin/find.static .host/find
-install -p -m755 $verbose /bin/ash.static .host/sh
-Verbose "installed .host programs."
 
 cat >.host/entry <<\__EOF__
 #!/.host/sh
