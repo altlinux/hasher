@@ -101,6 +101,7 @@ check_tty
 cat >"$entry" <<__EOF__
 $entry_fakeroot_header
 
+${exclude_docs:+export RPM_EXCLUDEDOCS=1}
 rpmi -i $rpm_verbose $hash $exclude_docs $(for f in $filelist; do printf %s "\"$(quote_arg "${f##*/}")\" "; done)
 ldconfig
 if [ -x /usr/sbin/adjust_kernel_headers ]; then
