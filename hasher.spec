@@ -5,7 +5,7 @@ Version: 0.0.3
 Release: alt1
 BuildArch: noarch
 
-Summary: A Package Hasher
+Summary: An automated package hasher
 License: GPL
 Group: Development/Other
 
@@ -28,6 +28,7 @@ This package provides package hasher utilities.
 %files
 %_bindir/*
 %_datadir/*
+%doc README
 
 %changelog
 * Mon Jun 30 2003 Dmitry V. Levin <ldv@altlinux.org> 0.0.3-alt1
