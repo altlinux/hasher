@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.9.1
+Version: 0.9.9.2
 Release: alt1
 BuildArch: noarch
 
@@ -38,6 +38,13 @@ This package provides package hasher utilities.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Tue Jun 22 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.2-alt1
+- all:
+  + fixed "echo" usage;
+  + fixed error handling in "while read" constructions.
+- initroot:
+  + added support for exotic package filenames.
+
 * Sun Jun 13 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.1-alt1
 - mkaptbox: include custom apt.conf (if any) to header
   of the generated apt.conf file.
