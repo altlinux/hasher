@@ -12,7 +12,7 @@ Group: Development/Other
 Source: %name-%version.tar.bz2
 
 Requires: getopt, ash-static, cpio-static, find-static
-Requires: hasher-priv >= 0.9, apt >= 0.5.5cnc4.1-alt7
+Requires: hasher-priv >= 1.0, apt >= 0.5.5cnc4.1-alt7
 Requires: sisyphus >= 0.5.3-alt1
 
 Obsoletes: pkg-build-utils, libbte
