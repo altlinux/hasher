@@ -137,6 +137,4 @@ find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -print0 |
 purge_chroot_in
 purge_chroot_out
 
-genbasedir --topdir=repo --no-oldhashfile --bz2only --mapi $target hasher &&
-	Verbose "updated repository indices." ||
-	Fatal "failed to update repository indices."
+update_repo

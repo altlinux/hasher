@@ -69,6 +69,7 @@ set_workdir "$1"
 shift
 
 make_repo
+update_repo
 
 # exists already?
 if [ -e aptbox -o -L aptbox ]; then
