@@ -94,9 +94,9 @@ mkdir -m1777 $verbose .out
 chgrp "$gid1" $verbose . dev
 Verbose "created directory tree."
 
-install -p -m755 $verbose /usr/bin/rm.static .host/rm
-install -p -m755 $verbose /usr/bin/cpio.static .host/cpio
 install -p -m755 $verbose /bin/ash.static .host/sh
+install -p -m755 $verbose /usr/bin/find.static .host/find
+install -p -m755 $verbose /usr/bin/cpio.static .host/cpio
 Verbose "installed .host programs."
 
 "$makedev" $number "$chroot" ||
