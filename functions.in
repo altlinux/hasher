@@ -70,6 +70,10 @@ saved_cwd="$(/bin/pwd)"
 # hasher directory.
 hasher_dir=/usr/share/hasher
 
+# hasher-priv directory.
+def_hasher_priv_dir=@libexecdir@/hasher-priv
+hasher_priv_dir=
+
 # subconfig identifier.
 number=
 
@@ -77,12 +81,13 @@ number=
 def_target=@deftarget@
 target=
 
-# hasher-priv directory.
-def_hasher_priv_dir=@libexecdir@/hasher-priv
-hasher_priv_dir=
-
 # RPM --excludedocs
 exclude_docs=
+
+# various reasonable work limits
+wlimit_time_short=60
+wlimit_time_long=600
+wlimit_bytes_out=65536
 
 # allow use of built packages or not
 no_stuff=

@@ -236,7 +236,7 @@ EOF
 __EOF__
 	chmod 755 "$entry"
 
-	wlimit_time_elapsed=60 wlimit_time_idle=60 wlimit_bytes_written=65536 \
+	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 	"$chrootuid2" $number "$chroot" /.host/entry &&
 		Verbose "created RPM build directory tree." ||
 		Fatal "failed to create RPM build directory tree."

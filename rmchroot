@@ -110,12 +110,12 @@ exit 0
 __EOF__
 chmod 755 .host/entry
 
-wlimit_time_elapsed=600 wlimit_time_idle=600 \
+wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 "$chrootuid2" $number "$chroot" /.host/entry &&
 	Verbose "removed files owned by user2" ||
 	Fatal "failed to remove files owned by user2."
 
-wlimit_time_elapsed=300 wlimit_time_idle=300 \
+wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 "$chrootuid1" $number "$chroot" /.host/entry &&
 	Verbose "removed files owned by user1" ||
 	Fatal "failed to remove files owned by user1."
