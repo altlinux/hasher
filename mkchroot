@@ -101,6 +101,10 @@ Verbose "created directory tree."
 install -p -m755 $verbose /bin/ash.static .host/sh
 install -p -m755 $verbose /usr/bin/find.static .host/find
 install -p -m755 $verbose /usr/bin/cpio.static .host/cpio
+postin="$HOME/.hasher/install/post"
+if [ -r "$postin" -a -x "$postin" ]; then
+	install -p -m755 $verbose "$postin" .host/postin
+fi
 Verbose "installed .host programs."
 
 "$makedev" $number "$chroot" ||
