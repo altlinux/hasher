@@ -145,7 +145,7 @@ check_tty
 . "$hasher_dir/cache_chroot"
 . "$hasher_dir/cache_contents"
 
-initlist="$(print_uris "$init_list")" ||
+initlist="$(print_uris $init_list)" ||
 	Fatal "failed to generate initial package file list."
 [ -n "$initlist" ] &&
 	Verbose "generated initial package file list." ||
@@ -159,7 +159,7 @@ $(echo "$initlist" |egrep -v '/(setup|filesystem)-')"
 [ -n "$no_cache" ] || echo "$initlist" >"cache/chroot/list.new/init"
 
 if [ -z "$no_build" ]; then
-	buildlist="$(print_uris "$build_list")" ||
+	buildlist="$(print_uris $build_list)" ||
 		Fatal "failed to generate build package file list."
 	buildlist="$(
 		echo "$buildlist" |while read bp; do
