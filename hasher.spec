@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.0.3
+Version: 0.1
 Release: alt1
 BuildArch: noarch
 
@@ -31,5 +31,9 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Thu Jul 03 2003 Dmitry V. Levin <ldv@altlinux.org> 0.1-alt1
+- Added apt "copy" source method support.
+- Enhanced error diagnostics.
+
 * Mon Jun 30 2003 Dmitry V. Levin <ldv@altlinux.org> 0.0.3-alt1
 - Initial revision.
