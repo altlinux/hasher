@@ -38,6 +38,7 @@ HELP2MAN1 = help2man -N -s1
 INSTALL = install
 LN_S = ln -s
 MKDIR_P = mkdir -p
+TOUCH_R = touch -r
 
 .PHONY:	all install clean
 
@@ -45,10 +46,12 @@ all: $(TARGETS)
 
 %: %.in
 	sed -e 's/@VERSION@/$(VERSION)/g' <$< >$@
+	$(TOUCH_R) $< $@
 	chmod a+x $@
 
 %.1: %
 	$(HELP2MAN1) ./$< > $@
+	$(TOUCH_R) $< $@
 
 install: all
 	$(MKDIR_P) -m755 $(DESTDIR)$(helperdir)
