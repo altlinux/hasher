@@ -32,7 +32,8 @@ This package provides package hasher utilities.
 
 %changelog
 * Mon Sep 22 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8.1-alt1
-- initroot: manifest hasher via defining __hasher macro (#3008).
+- initroot: manifest hasher via defining __BTE macro
+  to "hasher" (#3008).
 
 * Wed Sep 17 2003 Dmitry V. Levin <ldv@altlinux.org> 0.8-alt1
 - Implemented initial chroot caching.
