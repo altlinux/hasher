@@ -1,7 +1,7 @@
 #!/bin/sh -e
 #
 # $Id$
-# Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003, 2004, 2005  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The hsh utility for the hasher project
 #
@@ -42,6 +42,7 @@ Valid options are:
   --without-stuff                   do not use built packages;
   --no-cache                        do not use initroot cache;
   --no-contents-indices             do not use content indices;
+  --excludedocs                     do not install documentation files;
   --repackage-source                repackage source as well as binaries;
   --initroot-only                   do not build, stop after initroot stage;
   --no-sisyphus-check[=LIST]        do not run sisyphus_check tests
@@ -74,7 +75,7 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l with-stuff,without-stuff,no-stuff,no-cache,no-contents-indices,repackage-source,initroot-only,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,rebuild-prog:,target:,number:,nprocs:,mountpoints:,hasher-priv-dir:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,pkg-init-list:,pkg-build-list:,apt-config:,apt-prefix:,quiet,verbose,help,version -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,V,h -l with-stuff,without-stuff,no-stuff,no-cache,no-contents-indices,excludedocs,repackage-source,initroot-only,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,rebuild-prog:,target:,number:,nprocs:,mountpoints:,hasher-priv-dir:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,pkg-init-list:,pkg-build-list:,apt-config:,apt-prefix:,quiet,verbose,help,version -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
@@ -144,6 +145,8 @@ while :; do
 			;;
 		--apt-prefix) shift; apt_prefix="$1"
 			[ -d "$apt_prefix" ] || Fatal "$apt_prefix: directory not available."
+			;;
+		--excludedocs) exclude_docs=--excludedocs
 			;;
 		-q|--quiet) quiet=-q
 			;;
@@ -237,6 +240,7 @@ handle_package()
 		${no_cache:+--no-cache} \
 		${no_contents_indices:+--no-contents-indices} \
 		${repackage_source:+--repackage-source} \
+		${exclude_docs:+--excludedocs} \
 		${number:+--number=$number} \
 		${nprocs:+--nprocs=$nprocs} \
 		${install_langs:+--install-langs="$install_langs"} \
@@ -251,6 +255,7 @@ handle_package()
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
 		${no_stuff:+--no-stuff} \
+		${exclude_docs:+--excludedocs} \
 		${no_sisyphus_check:+--no-sisyphus-check="$no_sisyphus_check"} \
 		${no_sisyphus_check_in:+--no-sisyphus-check-in="$no_sisyphus_check_in"} \
 		${no_sisyphus_check_out:+--no-sisyphus-check-out="$no_sisyphus_check_out"} \

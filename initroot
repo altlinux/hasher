@@ -1,7 +1,7 @@
 #!/bin/sh -e
 #
 # $Id$
-# Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003, 2004, 2005  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The initroot utility for the hasher project
 #
@@ -40,6 +40,7 @@ Usage: $PROG [options] <path-to-workdir>
 Valid options are:
   --no-cache                    do not use cache;
   --no-contents-indices         do not use content indices;
+  --excludedocs                 do not install documentation files;
   --repackage-source            repackage source as well as binaries;
   --number=NUMBER               subconfig identifier;
   --hasher-priv-dir=DIR         hasher-priv directory;
@@ -55,7 +56,7 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l no-cache,no-contents-indices,repackage-source,pkg-init-list:,pkg-build-list:,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help,version -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,V,h -l no-cache,no-contents-indices,excludedocs,repackage-source,pkg-init-list:,pkg-build-list:,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help,version -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
@@ -89,6 +90,8 @@ while :; do
 		--pkg-init-list) shift; init_list="$1"
 			;;
 		--pkg-build-list) shift; build_list="$1"
+			;;
+		--excludedocs) exclude_docs=--excludedocs
 			;;
 		-q|--quiet) quiet=-q
 			;;
