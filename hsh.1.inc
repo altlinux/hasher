@@ -1,5 +1,5 @@
 .\" $Id$
-.\" Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
+.\" Copyright (C) 2003, 2004, 2005  Dmitry V. Levin <ldv@altlinux.org>
 .\" 
 .\" Additional documentation for the hsh command.
 .\"
@@ -16,6 +16,9 @@
 .\" You should have received a copy of the GNU General Public License
 .\" along with this program; if not, write to the Free Software
 .\" Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+[NAME]
+\fBhsh\fR \- builds package using hasher utilities
 
 [OPTIONS]
 .TP
