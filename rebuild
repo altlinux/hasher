@@ -1,0 +1,138 @@
+#!/bin/sh -e
+#
+# $Id$
+# Copyright (C) 2003  Dmitry V. Levin <ldv@altlinux.org>
+# 
+# The rebuild utility for the pkg-build
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+. /usr/share/hasher/functions
+
+Usage()
+{
+	cat >&2 <<EOF
+rebuild - rebuilds source packages.
+
+This program is free software, covered by the GNU General Public License.
+rebuild comes with ABSOLUTELY NO WARRANTY, see license for details.
+
+Usage: $PROG [options] <path-to-workdir> <source-package>
+
+Valid options are:
+--target=ARCH                   target architecture;
+--nodeps                        ignore package dependencies (dangerous);
+--number=NUMBER                 subconfig identifier;
+--pkg-build-priv-dir=DIR        pkg-build-priv directory;
+-v, --verbose                   print a message for each action;
+-h, --help                      show this text.
+EOF
+	[ -n "$1" ] && exit "$1" || exit
+}
+
+TEMP=`getopt -n $PROG -o v,h -l target:,nodeps,number:,pkg-build-priv-dir:,verbose,help -- "$@"` || Usage
+eval set -- "$TEMP"
+
+nodeps=
+while :; do
+	case "$1" in
+		--target) shift; target="$1"; shift
+			;;
+		--nodeps) nodeps=--nodeps; shift
+			;;
+		--number)
+			shift
+			number="$1"
+			[ -z "$(echo -E "$number" |tr -d [0-9])" ] ||
+				Fatal "$number: invalid number."
+			number="-$number"
+			shift
+			;;
+		--pkg-build-priv-dir) shift; pkg_build_priv_dir="$1"; shift
+			;;
+		-v|--verbose) verbose=-v; shift
+			;;
+		-h|--help) Usage 0
+			;;
+		--) shift; break
+			;;
+		*) Fatal "unrecognized option: $1"
+			;;
+	esac
+done
+
+# Exactly two arguments, please.
+[ "$#" -ge 2 ] || Usage
+set_workdir "$1"
+shift
+
+source="$1"
+sname="${source##*/}"
+shift
+
+[ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
+
+check_helpers
+
+if [ -z "$nodeps" ]; then
+	deps="$(rpmquery -pR -- "$source")"
+	deps="$(echo -E "$deps" |grep -v '^rpmlib(' |tr -d [[:blank:]])" ||:
+	Verbose "$sname: calculated dependencies: $deps"
+
+	/usr/share/hasher/install \
+		${number:+$number} \
+		${verbose:+$verbose} \
+		--pkg-build-priv-dir="$pkg_build_priv_dir" \
+		"$workdir" $deps
+fi
+
+purge_chroot_in
+purge_chroot_out
+copy_chroot_incoming "$source"
+
+cat >"$entry" <<__EOF__
+$entry_header
+
+f="$(quote_arg "$sname")"
+p="\$(rpmquery -p --qf '%{PACKAGER}' "\$f")"
+[ "\$p" != '(none)' ] || p=
+if [ -z "\$p" ]; then
+	echo "\$f: undefined packager" >&2
+	exit 1
+fi
+nice time rpmbuild --rebuild $nodeps --target="$(quote_arg "$target")" --define "packager \$p" "\$f"
+find /usr/src/RPM/RPMS/ -mindepth 2 -maxdepth 2 -type f -print0 |
+	xargs -r0 mv --reply=yes $verbose --target-directory=/.out/ --
+__EOF__
+chmod 755 "$entry"
+
+"$chrootuid2" $number "$chroot" /.host/entry &&
+	Verbose "rebuild of \`$sname' complete." ||
+	Fatal "rebuild of \`$sname' failed."
+
+make_repo
+
+find chroot/.in/ -mindepth 1 -maxdepth 1 -type f -print0 |
+	xargs -r0 mv --reply=yes $verbose --target-directory=repo/SRPMS.auto/ --
+find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -print0 |
+	xargs -r0 mv --reply=yes $verbose --target-directory=repo/$target/RPMS.auto/ --
+
+purge_chroot_in
+purge_chroot_out
+
+genbasedir --topdir=repo --no-oldhashfile --bz2only --mapi $target auto &&
+	Verbose "updated repository indices." ||
+	Fatal "failed to update repository indices."

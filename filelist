@@ -1,0 +1,68 @@
+#!/bin/sh -e
+#
+# $Id$
+# Copyright (C) 2003  Dmitry V. Levin <ldv@altlinux.org>
+# 
+# The filelist utility for the pkg-build
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+. /usr/share/hasher/functions
+
+Usage()
+{
+	cat >&2 <<EOF
+filelist - generates package file list.
+
+This program is free software, covered by the GNU General Public License.
+filelist comes with ABSOLUTELY NO WARRANTY, see license for details.
+
+Usage: $PROG [options] <path-to-workdir> <package>...
+
+Valid options are:
+-v, --verbose           print a message for each action;
+-h, --help              show this text.
+EOF
+	[ -n "$1" ] && exit "$1" || exit
+}
+
+TEMP=`getopt -n $PROG -o v,h -l verbose,help -- "$@"` || Usage
+eval set -- "$TEMP"
+
+while :; do
+	case "$1" in
+		-v|--verbose) verbose=-v; shift
+			;;
+		-h|--help) Usage 0
+			;;
+		--) shift; break
+			;;
+		*) Fatal "unrecognized option: $1"
+			;;
+	esac
+done
+
+# At least two arguments, please.
+[ "$#" -ge 2 ] || Usage
+set_workdir "$1"
+shift
+
+cd aptbox
+Verbose "changed working directory to \`$aptbox'"
+
+[ -r "$APT_CONFIG" ] || Fatal "$APT_CONFIG: cannot access APT configuration."
+
+print_uris "$@"

@@ -1,0 +1,225 @@
+#!/bin/sh -e
+#
+# $Id$
+# Copyright (C) 2003  Dmitry V. Levin <ldv@altlinux.org>
+# 
+# The initroot utility for the pkg-build
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+. /usr/share/hasher/functions
+
+Usage()
+{
+	cat >&2 <<EOF
+initroot - fills chroot with initial set of packages.
+
+This program is free software, covered by the GNU General Public License.
+initroot comes with ABSOLUTELY NO WARRANTY, see license for details.
+
+Usage: $PROG [options] <path-to-workdir>
+
+Valid options are:
+--number=NUMBER                 subconfig identifier;
+--pkg-build-priv-dir=DIR        pkg-build-priv directory;
+--contents-index-bin=INDEX      pkg contents binary index;
+--contents-index-all=INDEX      pkg contents complete index;
+-v, --verbose                   print a message for each action;
+-h, --help                      show this text.
+EOF
+	[ -n "$1" ] && exit "$1" || exit
+}
+
+TEMP=`getopt -n $PROG -o v,h -l number:,pkg-build-priv-dir:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
+eval set -- "$TEMP"
+
+contents_index_all=
+contents_index_bin=
+while :; do
+	case "$1" in
+		--number)
+			shift
+			number="$1"
+			[ -z "$(echo -E "$number" |tr -d [0-9])" ] ||
+				Fatal "$number: invalid number."
+			number="-$number"
+			shift
+			;;
+		--pkg-build-priv-dir) shift; pkg_build_priv_dir="$1"; shift
+			;;
+		--contents-index-all) shift; contents_index_all="$1"; shift
+			;;
+		--contents-index-bin) shift; contents_index_bin="$1"; shift
+			;;
+		-v|--verbose) verbose=-v; shift
+			;;
+		-h|--help) Usage 0
+			;;
+		--) shift; break
+			;;
+		*) Fatal "unrecognized option: $1"
+			;;
+	esac
+done
+
+# exactly one argument, please.
+[ "$#" -eq 1 ] || Usage
+set_workdir "$1"
+shift
+
+[ -d "$chroot" ] || Fatal "$chroot: cannot access chroot."
+[ -d "$aptbox" ] || Fatal "$aptbox: cannot access aptbox."
+[ -r "$APT_CONFIG" ] || Fatal "$APT_CONFIG: cannot access APT configuration."
+
+check_helpers
+
+ugid2="$("$getugid2" $number)" ||
+	Fatal "getugid2 failed."
+uid2="$(echo "$ugid2" |cut -d: -f1)"
+gid2="$(echo "$ugid2" |cut -d: -f2)"
+
+filelist="$(print_uris setup filesystem rpm fakeroot coreutils findutils)"
+filelist="$(echo "$filelist" |fgrep /setup-)
+$(echo "$filelist" |fgrep /filesystem-)
+$(echo "$filelist" |egrep -v '/(setup|filesystem)-')"
+Verbose "generated initial filelist."
+
+purge_chroot_in
+purge_chroot_out
+for f in $filelist; do
+	copy_chroot_incoming "$f"
+	rpm2cpio "$f" |"$chrootuid1" $number "$chroot" /.host/cpio --extract --make-directories --quiet &&
+		Verbose "unpacked ${f##*/}" ||
+		Fatal "unpack of ${f##*/} failed."
+done
+Verbose "unpacked initial package list."
+
+cat >"$entry" <<__EOF__
+$entry_header
+
+# FIXME: mtab is missing in setup-2.2.2-alt1
+touch /etc/mtab
+# /FIXME
+rm -f /etc/rpm/macros.db1
+# FIXME: glibc-locales is too large
+echo '%_install_langs	dummy' >>/etc/rpm/macros
+# /FIXME
+rpmdb --initdb
+__EOF__
+chmod 755 "$entry"
+
+"$chrootuid1" $number "$chroot" /.host/entry &&
+	Verbose "created RPM database." ||
+	Fatal "failed to create RPM database."
+
+cat >"$entry" <<__EOF__
+$entry_fakeroot_header
+
+rpmi -i $verbose --justdb --nodeps $(for f in $filelist; do echo -n "\"$(quote_arg "${f##*/}")\" "; done)
+__EOF__
+
+"$chrootuid1" $number "$chroot" /.host/entry &&
+	Verbose "installed initial package list." ||
+	Fatal "failed to install initial package list."
+
+purge_chroot_in
+update_RPM_database --nodeps
+
+for f in /etc/host.conf /etc/hosts /etc/resolv.conf; do
+	if [ -r "$f" -a -s "$f" ]; then
+	cat >"$entry" <<__EOF__
+$entry_header
+
+# Too simple to call fakeroot here.
+cat >$f
+__EOF__
+
+		cat $f |"$chrootuid1" $number "$chroot" /.host/entry &&
+			Verbose "installed $f file." ||
+			Fatal "failed to install $f file."
+	fi
+done
+
+# At this stage, RPM inside chroot is fully functional.
+
+filelist="$(print_uris basesystem rpm-build time kernel-headers-common)"
+purge_chroot_in
+purge_chroot_out
+copy_chroot_incoming $filelist
+
+check_tty
+
+cat >"$entry" <<__EOF__
+$entry_fakeroot_header
+
+# FIXME: dev shouldn't be installed
+rpmi -i $verbose --nodeps $hash $(for f in $filelist; do f="${f##*/}"; [ -z "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
+rpmi -i $verbose --nodeps --justdb $(for f in $filelist; do f="${f##*/}"; [ -n "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
+# /FIXME
+__EOF__
+
+"$chrootuid1" $number "$chroot" /.host/entry &&
+	Verbose "installed build package list." ||
+	Fatal "failed to install build package list."
+
+purge_chroot_in
+update_RPM_database
+
+# First time scripts.
+
+cat >"$entry" <<__EOF__
+$entry_fakeroot_header
+
+ldconfig
+adjust_kernel_headers
+groupadd -g $gid2 builder
+useradd -M -u $uid2 -g $gid2 -d /usr/src builder
+chmod 1777 /usr/src
+__EOF__
+
+"$chrootuid1" $number "$chroot" /.host/entry &&
+	Verbose "first time initialization complete." ||
+	Fatal "first time initialization failed."
+
+# Install contents indeces.
+if [ -n "$contents_index_bin" ]; then
+	install -p -m644 $verbose -- "$contents_index_bin" chroot/.host/contents_index_bin
+elif [ -n "$contents_index_all" ]; then
+	if fgrep -v openmosix "$contents_index_all" |
+	   egrep '^(/usr(/X11R6)?)?/s?bin/' >chroot/.host/contents_index_bin; then
+		chmod 644 chroot/.host/contents_index_bin
+		Verbose "created contents_index_bin from $contents_index_all"
+		contents_index_bin="$chroot/.host/contents_index_bin"
+	else
+		rm -f $verbose -- chroot/.host/contents_index_bin
+	fi
+fi
+
+# Create RPM build directory tree.
+cat >"$entry" <<__EOF__
+$entry_header
+
+rpminit $verbose
+cat >>/usr/src/.rpmmacros <<\EOF
+%packager Automated rebuilder <rebuilder@altlinux.org>
+${contents_index_bin:+%_pkg_contents_index_bin /.host/contents_index_bin}
+EOF
+__EOF__
+
+"$chrootuid2" $number "$chroot" /.host/entry &&
+	Verbose "created RPM build directory tree." ||
+	Fatal "failed to create RPM build directory tree."
+

@@ -1,0 +1,175 @@
+#!/bin/sh -e
+#
+# $Id$
+# Copyright (C) 2003  Dmitry V. Levin <ldv@altlinux.org>
+# 
+# This files defines functions used by pkg-build scripts
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+PROG="${0##*/}"
+
+Fatal()
+{
+	echo "${0##*/}: $*" >&2
+	exit 1
+}
+
+verbose=
+Verbose()
+{
+	[ -n "$verbose" ] || return 0
+	echo "${0##*/}: $*" >&2
+}
+
+# root, go away.
+[ "$EUID" -gt 0 ] 2>/dev/null ||
+	Fatal "please run me as unprivileged user."
+
+# safe umask
+umask 077
+
+# subconfig identifier.
+number=
+
+# target architecture.
+target=i586
+
+# pkg-build-priv directory.
+pkg_build_priv_dir=/usr/lib/pkg-build-priv
+
+# working directory.
+workdir=
+
+aptbox=
+chroot=
+entry=
+APT_CONFIG=
+
+set_workdir()
+{
+	workdir="$1"
+	cd "$workdir" || return 1
+	workdir="$(/bin/pwd)" || return 1
+
+	[ -n "$(echo "$workdir" |tr -d /.)" ] ||
+		Fatal "$workdir: illegal working directory."
+	if echo "$workdir" |grep -qs '["\]'; then
+		Fatal "$workdir: illegal symbols in pathname."
+	fi
+	Verbose "changed working directory to \`$workdir'"
+	aptbox="$workdir/aptbox"
+	chroot="$workdir/chroot"
+	entry="$chroot/.host/entry"
+	export APT_CONFIG="$aptbox/etc/apt/apt.conf"
+}
+
+# set hash variable.
+check_tty()
+{
+	[ -n "$verbose" ] && tty -s <&1 &&
+		hash=-h ||
+		hash=
+}
+
+check_helpers()
+{
+	[ -d "$pkg_build_priv_dir" ] ||
+		Fatal "cannot access pkg-build-priv helper directory."
+
+	getugid1="$pkg_build_priv_dir/getugid1.sh"
+	[ -x "$getugid1" ] ||
+		Fatal "cannot access getugid1 helper."
+
+	getugid2="$pkg_build_priv_dir/getugid2.sh"
+	[ -x "$getugid2" ] ||
+		Fatal "cannot access getugid2 helper."
+
+	chrootuid1="$pkg_build_priv_dir/chrootuid1.sh"
+	[ -x "$chrootuid1" ] ||
+		Fatal "cannot access chrootuid1 helper."
+
+	chrootuid2="$pkg_build_priv_dir/chrootuid2.sh"
+	[ -x "$chrootuid2" ] ||
+		Fatal "cannot access chrootuid2 helper."
+
+	makedev="$pkg_build_priv_dir/makedev.sh"
+	[ -x "$makedev" ] ||
+		Fatal "cannot access makedev helper."
+}
+
+# assumed: cwd == workdir
+copy_chroot_incoming()
+{
+	install -p -m644 $verbose -- "$@" chroot/.in/
+}
+
+# assumed: cwd == workdir
+purge_chroot_in()
+{
+	find chroot/.in/ -mindepth 1 -delete
+}
+
+# assumed: cwd == workdir
+purge_chroot_out()
+{
+	find chroot/.out/ -mindepth 1 -delete
+}
+
+# assumed: cwd == workdir
+make_repo()
+{
+	mkdir -p $verbose -- repo/{{SRPMS,$target/RPMS}.auto,$target/base}
+}
+
+# assumed: defined variables: hash, filelist
+update_RPM_database()
+{
+	rpmi -i $verbose $hash --dbpath "$aptbox/var/lib/rpm" --ignoresize --noorder --noscripts --notriggers --justdb "$@" $filelist
+		Verbose "RPM database updated." ||
+		Fatal "RPM database update failed."
+}
+
+# assumed: defined APT_CONFIG
+print_uris()
+{
+	[ -n "$APT_CONFIG" ] || Fatal "APT_CONFIG undefined."
+	local out
+	if ! out="$(apt-get -q -y --print-uris install "$@" 2>&1)"; then
+		echo -E "$out" >&2
+		Fatal "failed to calculate package file list."
+	fi
+	echo -E "$out" |sed -ne "s/^'file:\\([^']\\+\\)' .*/\\1/pg" || return 1
+	Verbose "calculated package file list."
+}
+
+# quote argument for /.host/entry.
+quote_arg()
+{
+	local out
+	out="$(echo "$@" |sed -e 's/[\`"$]/\\&/g')" || return 1
+	echo -n "$out"
+}
+
+entry_header='#!/bin/sh -e
+cd /.in'
+
+entry_fakeroot_header='#!/bin/sh -e
+if [ -z "$FAKEROOTKEY" -a "$USER" = "root" -a -x "/usr/bin/fakeroot" ]; then
+	exec /usr/bin/fakeroot "$0" "$@"
+fi
+cd /.in'
+

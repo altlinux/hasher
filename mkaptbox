@@ -1,0 +1,123 @@
+#!/bin/sh -e
+#
+# $Id$
+# Copyright (C) 2003  Dmitry V. Levin <ldv@altlinux.org>
+# 
+# The mkaptbox utility for the pkg-build
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+. /usr/share/hasher/functions
+
+Usage()
+{
+	cat >&2 <<EOF
+mkaptbox - creates initial aptbox.
+
+This program is free software, covered by the GNU General Public License.
+mkaptbox comes with ABSOLUTELY NO WARRANTY, see license for details.
+
+Usage: $PROG [options] <path-to-workdir>
+
+Valid options are:
+-f, --force             force aptbox creation;
+-u, --update            run "apt-get update" after creation;
+-v, --verbose           print a message for each action;
+-h, --help              show this text.
+EOF
+	[ -n "$1" ] && exit "$1" || exit
+}
+
+TEMP=`getopt -n $PROG -o f,u,v,h -l force,update,verbose,help -- "$@"` || Usage
+eval set -- "$TEMP"
+
+force=
+update=
+while :; do
+	case "$1" in
+		-f|--force) force=1; shift
+			;;
+		-u|--update) update=1; shift
+			;;
+		-v|--verbose) verbose=-v; shift
+			;;
+		-h|--help) Usage 0
+			;;
+		--) shift; break
+			;;
+		*) Fatal "unrecognized option: $1"
+			;;
+	esac
+done
+
+# Exactly one argument, please.
+[ "$#" -eq 1 ] || Usage
+set_workdir "$1"
+shift
+
+make_repo
+
+# exists already?
+if [ -e aptbox -o -L aptbox ]; then
+	[ -n "$force" ] || Fatal "remove $aptbox first."
+	[ -d aptbox ] || Fatal "$aptbox: invalid pathname."
+
+	# empty dir?
+	if rmdir -- aptbox 2>/dev/null; then
+		mkdir $verbose -- aptbox
+		cd aptbox
+	else
+		cd aptbox
+		[ -d ./etc/apt -a -d ./var/lib/rpm ] ||
+			Fatal "$aptbox: doesn't look valid."
+	fi
+else
+	mkdir $verbose -- aptbox
+	cd aptbox
+fi
+
+Verbose "changed working directory to \`$aptbox'"
+
+# apt/rpm skeleton directories.
+mkdir -p $verbose -- \
+	./etc/apt/{apt.conf,{sources,vendors}.list}.d \
+	./var/cache/apt/archives/partial \
+	./var/lib/apt/lists/partial \
+	./var/lib/rpm
+
+# apt.conf file.
+export APT_CONFIG="$aptbox/etc/apt/apt.conf"
+cat >"$APT_CONFIG" <<__EOF__
+Dir::State "$aptbox/var/lib/apt/";
+Dir::Cache "$aptbox/var/cache/apt/";
+Dir::Etc::SourceParts "$aptbox/etc/apt/sources.d";
+RPM::RootDir "$aptbox";
+APT::Install::Virtual "true";
+APT::Install::VirtualVersion "true";
+__EOF__
+Verbose "created APT configuration file \`$APT_CONFIG'"
+
+target_config="./etc/apt/sources.list.d/$target.auto"
+cat >"$target_config" <<__EOF__
+rpm file:$workdir/repo $target auto
+__EOF__
+Verbose "created APT source list file \`$target_config'"
+
+# create a new rpm database.
+rpmdb --initdb --dbpath "$aptbox/var/lib/rpm"
+Verbose "created RPM database in \`./var/lib/rpm/'"
+
+[ -z "$update" ] || apt-get update

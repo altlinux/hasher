@@ -1,0 +1,105 @@
+#!/bin/sh -e
+#
+# $Id$
+# Copyright (C) 2003  Dmitry V. Levin <ldv@altlinux.org>
+# 
+# The mkchroot utility for the pkg-build
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+. /usr/share/hasher/functions
+
+Usage()
+{
+	cat >&2 <<EOF
+mkchroot - creates initial chroot.
+
+This program is free software, covered by the GNU General Public License.
+mkchroot comes with ABSOLUTELY NO WARRANTY, see license for details.
+
+Usage: $PROG [options] <path-to-workdir>
+
+Valid options are:
+--number=NUMBER                 subconfig identifier;
+--pkg-build-priv-dir=DIR        pkg-build-priv directory;
+-v, --verbose                   print a message for each action;
+-h, --help                      show this text.
+EOF
+	[ -n "$1" ] && exit "$1" || exit
+}
+
+TEMP=`getopt -n $PROG -o v,h -l number:,pkg-build-priv-dir:,verbose,help -- "$@"` || Usage
+eval set -- "$TEMP"
+
+number=
+pkg_build_priv_dir=/usr/lib/pkg-build-priv
+while :; do
+	case "$1" in
+		--number)
+			shift
+			number="$1"
+			[ -z "$(echo -E "$number" |tr -d [0-9])" ] ||
+				Fatal "$number: invalid number."
+			number="-$number"
+			shift
+			;;
+		--pkg-build-priv-dir) shift; pkg_build_priv_dir="$1"; shift
+			;;
+		-v|--verbose) verbose=-v; shift
+			;;
+		-h|--help) Usage 0
+			;;
+		--) shift; break
+			;;
+		*) Fatal "unrecognized option: $1"
+			;;
+	esac
+done
+
+# Exactly one argument, please.
+[ "$#" -eq 1 ] || Usage
+set_workdir "$1"
+shift
+
+# exists already?
+[ ! -e chroot -a ! -L chroot ] ||
+	Fatal "remove $chroot first."
+
+check_helpers
+
+ugid1="$("$getugid1" $number)" ||
+	Fatal "getugid1 failed."
+gid1="$(echo "$ugid1" |cut -d: -f2)"
+
+mkdir -m1775 $verbose -- chroot
+cd chroot
+Verbose "changed working directory to \`$chroot'"
+
+mkdir -m711 $verbose .host
+mkdir -m755 $verbose .in dev
+mkdir -m1777 $verbose .out
+chgrp "$gid1" $verbose . dev
+Verbose "created directory tree."
+
+install -p -m755 $verbose /usr/bin/rm.static .host/rm
+install -p -m755 $verbose /usr/bin/cpio.static .host/cpio
+install -p -m755 $verbose /bin/ash.static .host/sh
+Verbose "installed .host programs."
+
+"$makedev" $number "$chroot" ||
+	Fatal "failed to make devices."
+
+Verbose "created devices in \`$chroot/dev/'"
