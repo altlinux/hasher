@@ -55,7 +55,7 @@ Valid options are:
   --apt-prefix=DIRECTORY            path to apt directory prefix (e.g. /usr);
   -q, --quiet                       try to be more quiet;
   -v, --verbose                     print a message for each action;
-  --version                         print program version and exit;
+  -V, --version                     print program version and exit;
   -h, --help                        show this text and exit.
     
 Report bugs to http://bugs.altlinux.ru/
@@ -64,7 +64,7 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-cache,no-contents-indices,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,repackage-source,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,apt-prefix:,quiet,verbose,help,version -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,V,h -l no-stuff,no-cache,no-contents-indices,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,repackage-source,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,apt-prefix:,quiet,verbose,help,version -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
@@ -126,9 +126,9 @@ while :; do
 			;;
 		-v|--verbose) verbose=-v
 			;;
-		-h|--help) Usage 0
+		-V|--version) print_version hsh
 			;;
-		--version) print_version hsh
+		-h|--help) Usage 0
 			;;
 		--) shift; break
 			;;
