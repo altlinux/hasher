@@ -26,22 +26,34 @@ archive_chroot_cache()
 {
 	[ -n "$rebuild_chroot_cache" ] || return 0
 
+	local terminated=
+	trap 'terminated=1' HUP INT QUIT TERM
+
 	# rpmdb
-	local rpmdb="cache/chroot/rpmdb.tar"
-	tar -cf "$rpmdb" -C aptbox/var/lib/rpm/ . &&
-		Verbose "archived RPM database" ||
+	local rpmdb_archive="cache/chroot/rpmdb.tar"
+	if tar -cf "$rpmdb_archive" -C aptbox/var/lib/rpm/ . && [ -z "$terminated" ]; then
+		Verbose "archived RPM database"
+	else
+		rm -f -- "$rpmdb_archive"
 		Fatal "archiving of RPM database failed."
+	fi
 		
 	# chroot
 	local list="cache/chroot/chroot.list"
 	"$chrootuid1" $number "$chroot" /.host/find $(cd chroot && /bin/ls -1 |grep -v ^dev) >"$list" &&
-		[ -s "$list" ] &&
+		[ -s "$list" ] && [ -z "$terminated" ] &&
 		Verbose "generated chroot filelist" ||
 		Fatal "generation of chroot filelist failed."
-	"$chrootuid1" $number "$chroot" /.host/cpio --create --quiet --format=newc <"$list" >"cache/chroot/chroot.cpio" &&
-		Verbose "archived chroot" ||
+	local chroot_archive="cache/chroot/chroot.cpio"
+	if "$chrootuid1" $number "$chroot" /.host/cpio --create --quiet --format=newc <"$list" >"$chroot_archive" && [ -z "$terminated" ]; then
+		Verbose "archived chroot"
+	else
+		rm -f -- "$chroot_archive"
 		Fatal "archiving of chroot failed."
-	rm -f "$list"
+	fi
+	rm -f -- "$list"
+
+	trap - HUP INT QUIT TERM
 } # archive_chroot_cache
 
 check_chroot_cache()
