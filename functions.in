@@ -90,6 +90,7 @@ aptbox=
 chroot=
 entry=
 no_stuff=
+mountpoints=
 no_sisyphus_check=
 no_sisyphus_check_in=
 no_sisyphus_check_out=
