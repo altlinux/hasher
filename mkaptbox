@@ -173,6 +173,7 @@ fi
 # reset APT_CONFIG and fill it with new data.
 export APT_CONFIG="$aptbox/etc/apt/apt.conf"
 cat >"$APT_CONFIG" <<__EOF__
+${apt_config:+$(cat "$apt_config")}
 Dir::State "$aptbox/var/lib/apt/";
 Dir::Cache "$aptbox/var/cache/apt/";
 $sl_name "$aptbox/etc/apt/sources.list";
