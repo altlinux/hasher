@@ -83,7 +83,8 @@ install -pD -m755 $verbose /bin/ash.static .host/sh
 install -pD -m755 $verbose /usr/bin/find.static .host/find
 Verbose "installed .host programs."
 
-if [ ! -c "./dev/null" ]; then
+if [ ! -c "dev/null" ]; then
+	mkdir -m755 $verbose dev
 	"$makedev" $number "$chroot" ||
 		Fatal "failed to make devices."
 	Verbose "created devices in \`$chroot/dev/'"
