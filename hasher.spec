@@ -9,7 +9,7 @@ Summary: A Package Hasher
 License: GPL
 Group: Development/Other
 
-Source: %name-%version.tar.bz2
+Source: %name-%version.tar.gz
 
 %description
 This package provides package hasher utilities.
