@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.6
+Version: 1.0.7
 Release: alt1
 
 Summary: Modern safe package build technology
@@ -38,6 +38,10 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Tue Nov 09 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.7-alt1
+- cache_contents: fixed find warning.
+- mkaptbox: create wrapper for genbasedir.
+
 * Thu Aug 26 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.6-alt1
 - rebuild: enhanced --mountpoints implementation.
 
