@@ -44,8 +44,9 @@ Valid options are:
     --target=ARCH           target architecture of the work repository;
     --apt-config=FILE       path to custom apt.conf file;
     --apt-prefix=DIRECTORY  path to apt directory prefix (e.g. /usr);
-    -f, --force             force aptbox creation;
+    --no-update             do not run "apt-get update" after creation;
     -u, --update            run "apt-get update" after creation;
+    -f, --force             force aptbox creation;
     -q, --quiet             try to be more quiet;
     -v, --verbose           print a message for each action;
     --version               print program version and exit;
@@ -54,11 +55,11 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,q,v,h -l no-stuff,target:,apt-config:,apt-prefix:,force,update,quiet,verbose,help,version -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o f,u,q,v,h -l no-stuff,target:,apt-config:,apt-prefix:,no-update,update,force,quiet,verbose,help,version -- "$@"` || Usage
 eval set -- "$TEMP"
 
 force=
-update=
+update=1
 apt_config=
 while :; do
 	case "$1" in
@@ -72,9 +73,11 @@ while :; do
 		--apt-prefix) shift; apt_prefix="$1"; shift
 			[ -d "$apt_prefix" ] || Fatal "$apt_prefix: directory not available."
 			;;
-		-f|--force) force=1; shift
+		--no-update) update=0; shift
 			;;
 		-u|--update) update=1; shift
+			;;
+		-f|--force) force=1; shift
 			;;
 		-q|--quiet) quiet=-q; shift
 			;;
@@ -187,5 +190,14 @@ Verbose "created APT source list file \`$target_config'"
 # create a new rpm database.
 rpmdb --initdb --dbpath "$aptbox/var/lib/rpm"
 Verbose "created RPM database in \`./var/lib/rpm/'"
+
+# create apt wrappers.
+for n in cache config get; do
+	cat >"apt-$n" <<__EOF__
+#!/bin/sh -e
+
+APT_CONFIG="$APT_CONFIG" exec apt-$n "\$@"
+__EOF__
+done
 
 [ -z "$update" ] || "$prog_apt_get" update $([ -n "$verbose" ] || echo -qq)
