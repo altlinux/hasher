@@ -1,0 +1,38 @@
+1. Installation
+
+  In order to prepare package hasher to use by <user>, you must add pair
+  of special satellite users.  Run as root
+  # hasher-useradd <user>
+
+2. Usage
+
+  The package hasher consists of several low-level utilities placed in
+  /usr/share/hasher/, and high-level utility, /usr/bin/hsh.
+
+  Example of use:
+  $ hasher workdir path/to/foobar-1.0.src.rpm
+
+  Working directory ("workdir" in example above) MUST exist.
+  During the work hasher creates auto repository, workdir/repo.
+  Result of successful build will be placed into this repository.
+
+  Useful options:
+    --no-stuff
+    Do not use packages from auto repository in build system.
+    By default, auto repository will be used as well as system repository.
+
+    --nprocs=NUMBER
+    Number of CPUs to use.
+    By default, number of CPUs is calculated using /proc/stat data.
+
+    --contents-index-all=INDEX
+    Path to file with complete package contents index, e.g.
+    path/to/Sisyphus/i586/base/contents_index; necessary for proper
+    binary package dependencies calculation.
+    By default, no package contents indeces will be used.
+
+    -v, --verbose
+    Print a message for each action.  Useful for tracing and/or getting
+    detailed progress information.
+
+  See "hsh --help" for detailed information about valid options.
