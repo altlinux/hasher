@@ -90,7 +90,7 @@ chmod -Rf u+rwX -- /* 2>/dev/null
 /.host/rm -rf -- /usr/src/* /usr/src/.[^.]* /usr/src/..?* 2>/dev/null
 /.host/rm -rf -- /var/lib/texmf/* /var/lib/texmf/.[^.]* /var/lib/texmf/..?* 2>/dev/null
 /.host/rm -rf -- /var/tmp/* /var/tmp/.[^.]* /var/tmp/..?* 2>/dev/null
-/.host/rm -rf -- /*/* /*/.[^.]* /*/..?* 2>/dev/null
+/.host/rm -rf -- /*/* /*/.[^.]* /*/..?* /* 2>/dev/null
 exit 0
 __EOF__
 chmod 755 .host/entry
