@@ -22,6 +22,7 @@
 
 if [ "$0" = ./hsh ]; then
 	. ./functions
+	hasher_dir="$(/bin/pwd)"
 else
 	. /usr/share/hasher/functions
 fi
