@@ -14,6 +14,8 @@ Source: %name-%version.tar.gz
 Requires: getopt, ash-static, cpio-static, rm-static
 Requires: hasher-priv, apt >= 0.5.5cnc4.1-alt5
 
+Obsoletes: pkg-build-utils
+
 %description
 This package provides package hasher utilities.
 
