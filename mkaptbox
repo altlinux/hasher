@@ -92,7 +92,7 @@ if [ -e aptbox -o -L aptbox ]; then
 
 	# empty dir?
 	if rmdir -- aptbox 2>/dev/null; then
-		mkdir $verbose -- aptbox
+		mkdir -m700 $verbose -- aptbox
 		cd aptbox
 	else
 		cd aptbox
@@ -100,7 +100,7 @@ if [ -e aptbox -o -L aptbox ]; then
 			Fatal "$aptbox: doesn't look valid."
 	fi
 else
-	mkdir $verbose -- aptbox
+	mkdir -m700 $verbose -- aptbox
 	cd aptbox
 fi
 
