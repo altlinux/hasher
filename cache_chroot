@@ -38,13 +38,14 @@ archive_chroot_cache()
 
 	# chroot
 	local list
-	list=`ls -1 chroot/ |grep -v ^dev` && [ -n "$list" ] ||
+	list=`ls -1 chroot/ |grep -v ^dev` && [ -n "$list" ] &&
+		list=`printf %s "$list" |tr '[:space:]' ' '` ||
 		Fatal "chroot is not ready for archivation."
 
 	cat >"$entry" <<__EOF__
 $entry_fakeroot_header
 
-list=\"\$(/.host/find $list)\"
+list="\$(/.host/find $list)"
 printf %s "\$list" |
 	/.host/cpio --create --quiet --format=newc
 __EOF__
