@@ -100,7 +100,7 @@ ugid2="$("$getugid2" $number)" ||
 uid2="$(echo "$ugid2" |cut -d: -f1)"
 gid2="$(echo "$ugid2" |cut -d: -f2)"
 
-[ -z "$nprocs" ] ||
+[ -n "$nprocs" ] ||
 	nprocs="$(N=`egrep -cs ^cpu[0-9]+ /proc/stat`; [ "$N" -gt 0 ] 2>/dev/null && echo -n "$N" || echo 1)"
 
 filelist="$(print_uris setup filesystem rpm fakeroot)"
