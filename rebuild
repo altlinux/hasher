@@ -33,9 +33,6 @@ Usage()
 	cat <<EOF
 rebuild - rebuilds source packages.
 
-This program is free software, covered by the GNU General Public License.
-rebuild comes with ABSOLUTELY NO WARRANTY, see license for details.
-
 Usage: $PROG [options] <path-to-workdir> <source-package>
 
 <path-to-workdir> must be valid writable directory.
@@ -54,12 +51,13 @@ Valid options are:
   --hasher-priv-dir=DIR             hasher-priv directory;
   -q, --quiet                       try to be more quiet;
   -v, --verbose                     print a message for each action;
+  -V, --version                     print program version and exit;
   -h, --help                        show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,rebuild-prog:,target:,args:,mountpoints:,nodeps,number:,hasher-priv-dir:,quiet,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,V,h -l no-stuff,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,rebuild-prog:,target:,args:,mountpoints:,nodeps,number:,hasher-priv-dir:,quiet,verbose,help,version -- "$@"` || Usage
 eval set -- "$TEMP"
 
 nodeps=
@@ -102,6 +100,8 @@ while :; do
 		-q|--quiet) quiet=-q
 			;;
 		-v|--verbose) verbose=-v
+			;;
+		-V|--version) print_version rebuild
 			;;
 		-h|--help) Usage 0
 			;;
@@ -183,17 +183,19 @@ __EOF__
 	fi
 	Verbose "$sname: calculated build dependencies: $deps"
 
-	for file_deps in `printf %s "$deps" |LC_ALL=C grep '^/'`; do
-		for mpoint in $known_mountpoints; do
-			if [ "$mpoint" = "$file_deps" ]; then
-				[ -z "$required_mountpoints" ] &&
-					required_mountpoints="$mpoint" ||
-					required_mountpoints="$required_mountpoints,$mpoint"
-				break
-			fi
+	if [ -n "$known_mountpoints" ]; then
+		for file_deps in `printf %s "$deps" |LC_ALL=C grep '^/'`; do
+			for mpoint in $known_mountpoints; do
+				if [ "$mpoint" = "$file_deps" ]; then
+					[ -z "$required_mountpoints" ] &&
+						required_mountpoints="$mpoint" ||
+						required_mountpoints="$required_mountpoints,$mpoint"
+					break
+				fi
+			done
 		done
-	done
-	Verbose "$sname: calculated mount points: $required_mountpoints"
+		Verbose "$sname: calculated mount points: $required_mountpoints"
+	fi
 
 	if [ -n "$deps" ]; then
 		"$hasher_dir/install" \
@@ -206,6 +208,34 @@ __EOF__
 
 		copy_chroot_incoming "$source"
 	fi
+fi
+
+# Calculate required mountpoints from installed file dependencies.
+if [ -z "$nodeps" -a -n "$known_mountpoints" ]; then
+	cat >"$entry" <<__EOF__
+$entry_header
+
+rpmquery -aR |grep ^/ |sort -u
+__EOF__
+	chmod 755 "$entry"
+
+	deps="$(wlimit_time_elapsed=60 wlimit_time_idle=60 wlimit_bytes_written=65536 \
+		"$chrootuid2" $number "$chroot" /.host/entry)" &&
+		Verbose "$sname: fetched installed file dependencies." ||
+		Fatal "$sname: failed to fetch installed file dependencies."
+	deps="$(printf %s "$deps" |grep ^/ |LC_ALL=C tr -d [[:blank:]])"
+
+	for file_deps in $deps; do
+		for mpoint in $known_mountpoints; do
+			if [ "$mpoint" = "$file_deps" ]; then
+				[ -z "$required_mountpoints" ] &&
+					required_mountpoints="$mpoint" ||
+					required_mountpoints="$required_mountpoints,$mpoint"
+				break
+			fi
+		done
+	done
+	Verbose "$sname: calculated mount points: $required_mountpoints"
 fi
 
 # Build the package.
