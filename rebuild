@@ -130,13 +130,13 @@ chmod 755 "$entry"
 make_repo
 
 find chroot/.in/ -mindepth 1 -maxdepth 1 -type f -print0 |
-	xargs -r0 mv --reply=yes $verbose --target-directory=repo/SRPMS.auto/ --
+	xargs -r0 mv --reply=yes $verbose --target-directory=repo/SRPMS.hasher/ --
 find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -print0 |
-	xargs -r0 mv --reply=yes $verbose --target-directory=repo/$target/RPMS.auto/ --
+	xargs -r0 mv --reply=yes $verbose --target-directory=repo/$target/RPMS.hasher/ --
 
 purge_chroot_in
 purge_chroot_out
 
-genbasedir --topdir=repo --no-oldhashfile --bz2only --mapi $target auto &&
+genbasedir --topdir=repo --no-oldhashfile --bz2only --mapi $target hasher &&
 	Verbose "updated repository indices." ||
 	Fatal "failed to update repository indices."

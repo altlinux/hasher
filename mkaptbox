@@ -150,7 +150,7 @@ Verbose "created APT configuration file \`$APT_CONFIG'"
 
 target_config="./etc/apt/sources.list.d/1-$target.hasher"
 cat >"$target_config" <<__EOF__
-rpm file:$workdir/repo $target auto
+rpm file:$workdir/repo $target hasher
 __EOF__
 Verbose "created APT source list file \`$target_config'"
 

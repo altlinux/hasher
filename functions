@@ -132,7 +132,7 @@ purge_chroot_out()
 # assumed: cwd == workdir
 make_repo()
 {
-	mkdir -p $verbose -- repo/{{SRPMS,$target/RPMS}.auto,$target/base}
+	mkdir -p $verbose -- repo/{{SRPMS,$target/RPMS}.hasher,$target/base}
 }
 
 # assumed: defined variables: hash, filelist
