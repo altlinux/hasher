@@ -35,17 +35,20 @@ Usage: $PROG [options] <path-to-workdir> <package>...
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
+-q, --quiet             try to be more quiet;
 -v, --verbose           print a message for each action;
 -h, --help              show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,h -l quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 while :; do
 	case "$1" in
+		-q|--quiet) quiet=-q; shift
+			;;
 		-v|--verbose) verbose=-v; shift
 			;;
 		-h|--help) Usage 0

@@ -34,6 +34,7 @@ Info()
 	echo "${0##*/}: $*" >&2
 }
 
+quiet=
 verbose=
 Verbose()
 {
@@ -92,12 +93,21 @@ set_workdir()
 	export APT_CONFIG="$aptbox/etc/apt/apt.conf"
 }
 
-# set hash variable.
+hash=
+rpm_verbose=
+# set hash and rpm_verbose variables.
 check_tty()
 {
 	[ -n "$verbose" ] && tty -s <&1 &&
 		hash=-h ||
 		hash=
+
+	rpm_verbose="$verbose"
+	if [ -z "$rpm_verbose" ]; then
+		if [ -z "$quiet" ]; then
+			rpm_verbose=-v
+		fi
+	fi
 }
 
 check_helpers()

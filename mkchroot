@@ -35,15 +35,16 @@ Usage: $PROG [options] <path-to-workdir>
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
---number=NUMBER                 subconfig identifier;
---hasher-priv-dir=DIR           hasher-priv directory;
--v, --verbose                   print a message for each action;
--h, --help                      show this text.
+--number=NUMBER         subconfig identifier;
+--hasher-priv-dir=DIR   hasher-priv directory;
+-q, --quiet             try to be more quiet;
+-v, --verbose           print a message for each action;
+-h, --help              show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l number:,hasher-priv-dir:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,h -l number:,hasher-priv-dir:,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 while :; do
@@ -57,6 +58,8 @@ while :; do
 			shift
 			;;
 		--hasher-priv-dir) shift; hasher_priv_dir="$1"; shift
+			;;
+		-q|--quiet) quiet=-q; shift
 			;;
 		-v|--verbose) verbose=-v; shift
 			;;

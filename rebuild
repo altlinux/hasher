@@ -41,13 +41,14 @@ Valid options are:
 --nodeps                ignore package dependencies (dangerous);
 --number=NUMBER         subconfig identifier;
 --hasher-priv-dir=DIR   hasher-priv directory;
+-q, --quiet             try to be more quiet;
 -v, --verbose           print a message for each action;
 -h, --help              show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l no-stuff,target:,args:,nodeps,number:,hasher-priv-dir:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,target:,args:,nodeps,number:,hasher-priv-dir:,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 nodeps=
@@ -71,6 +72,8 @@ while :; do
 			shift
 			;;
 		--hasher-priv-dir) shift; hasher_priv_dir="$1"; shift
+			;;
+		-q|--quiet) quiet=-q; shift
 			;;
 		-v|--verbose) verbose=-v; shift
 			;;
@@ -104,6 +107,7 @@ if [ -z "$nodeps" ]; then
 	Verbose "$sname: calculated dependencies: $deps"
 
 	[ -z "$deps" ] || /usr/share/hasher/install \
+		${quiet:+$quiet} \
 		${verbose:+$verbose} \
 		${number:+--number=$number} \
 		--hasher-priv-dir="$hasher_priv_dir" \

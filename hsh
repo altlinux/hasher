@@ -46,14 +46,15 @@ Valid options are:
 --build-args=ARGS               extra arguments for rpmbuild;
 --contents-index-bin=INDEX      pkg contents binary index;
 --contents-index-all=INDEX      pkg contents complete index;
---apt-config=FILE       	path to custom apt.conf file;
+--apt-config=FILE               path to custom apt.conf file;
+-q, --quiet                     try to be more quiet;
 -v, --verbose                   print a message for each action;
 -h, --help                      show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l no-stuff,no-cache,no-contents-indices,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,h -l no-stuff,no-cache,no-contents-indices,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
@@ -101,6 +102,8 @@ while :; do
 			;;
 		--apt-config) shift; apt_config="$1"; shift
 			[ -r "$apt_config" ] || Fatal "$apt_config: cannot access."
+			;;
+		-q|--quiet) quiet=-q; shift
 			;;
 		-v|--verbose) verbose=-v; shift
 			;;
@@ -155,22 +158,26 @@ for f in "$@"; do
 			--update \
 			--target="$target" \
 			${apt_config:+--apt-config="$apt_config"} \
+			${quiet:+$quiet} \
 			${verbose:+$verbose} \
 			${no_stuff:+--no-stuff} \
 			#
 	[ ! -d chroot ] ||
 		$hasher_dir/rmchroot "$workdir" \
 			--hasher-priv-dir="$hasher_priv_dir" \
+			${quiet:+$quiet} \
 			${verbose:+$verbose} \
 			${number:+--number=$number} \
 			#
 	$hasher_dir/mkchroot "$workdir" \
 			--hasher-priv-dir="$hasher_priv_dir" \
+			${quiet:+$quiet} \
 			${verbose:+$verbose} \
 			${number:+--number=$number} \
 			#
 	$hasher_dir/initroot "$workdir" \
 			--hasher-priv-dir="$hasher_priv_dir" \
+			${quiet:+$quiet} \
 			${verbose:+$verbose} \
 			${no_cache:+--no-cache} \
 			${no_contents_indices:+--no-contents-indices} \
@@ -183,6 +190,7 @@ for f in "$@"; do
 	$hasher_dir/rebuild "$workdir" \
 			--target="$target" \
 			--hasher-priv-dir="$hasher_priv_dir" \
+			${quiet:+$quiet} \
 			${verbose:+$verbose} \
 			${no_stuff:+--no-stuff} \
 			${number:+--number=$number} \

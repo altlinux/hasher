@@ -40,13 +40,14 @@ Valid options are:
 --apt-config=FILE       path to custom apt.conf file;
 -f, --force             force aptbox creation;
 -u, --update            run "apt-get update" after creation;
+-q, --quiet             try to be more quiet;
 -v, --verbose           print a message for each action;
 -h, --help              show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,v,h -l no-stuff,target:,apt-config:,force,update,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o f,u,q,v,h -l no-stuff,target:,apt-config:,force,update,quiet,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 force=
@@ -64,6 +65,8 @@ while :; do
 		-f|--force) force=1; shift
 			;;
 		-u|--update) update=1; shift
+			;;
+		-q|--quiet) quiet=-q; shift
 			;;
 		-v|--verbose) verbose=-v; shift
 			;;

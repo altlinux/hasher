@@ -192,8 +192,8 @@ $entry_fakeroot_header
 
 export DURING_INSTALL=1
 # FIXME: dev shouldn't be installed
-rpmi -i $verbose --nodeps $hash $(for f in $buildlist; do f="${f##*/}"; [ -z "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
-rpmi -i $verbose --nodeps --justdb $(for f in $buildlist; do f="${f##*/}"; [ -n "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
+rpmi -i $rpm_verbose --nodeps $hash $(for f in $buildlist; do f="${f##*/}"; [ -z "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
+rpmi -i $rpm_verbose --nodeps --justdb $(for f in $buildlist; do f="${f##*/}"; [ -n "${f##dev-*}" ] || echo -n "\"$(quote_arg "$f")\" "; done)
 # /FIXME
 __EOF__
 
