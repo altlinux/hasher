@@ -1,9 +1,8 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.1
+Version: 1.0.2
 Release: alt1
-BuildArch: noarch
 
 Summary: Modern safe package build technology
 License: GPL
@@ -27,7 +26,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %setup -q
 
 %build
-%make_build
+%make_build libdir=%_libdir deftarget="$RPM_ARCH"
 
 %install
 %make_install install DESTDIR=$RPM_BUILD_ROOT
@@ -39,6 +38,13 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Tue Aug 03 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.2-alt1
+- rebuild: run rebuild script as login shell.
+- Added multilib support.
+
+* Mon Jul 26 2004 Kachalov Anton <mouse@altlinux.ru> 1.0.1-alt2
+- Added libdir, deftarget variables to makefile
+
 * Mon Jul 19 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.1-alt1
 - initroot:
   + removed --no-build option, use --pkg-build-list= instead.

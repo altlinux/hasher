@@ -74,11 +74,11 @@ hasher_dir=/usr/share/hasher
 number=
 
 # target architecture.
-def_target=i586
+def_target=@deftarget@
 target=
 
 # hasher-priv directory.
-def_hasher_priv_dir=/usr/lib/hasher-priv
+def_hasher_priv_dir=@libdir@/hasher-priv
 hasher_priv_dir=
 
 # working directory.

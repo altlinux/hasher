@@ -27,7 +27,9 @@ MAN1PAGES = $(PROGRAMS:=.1)
 MAN7PAGES = $(PROJECT).7
 TARGETS = functions $(MAN1PAGES) $(MAN7PAGES)
 
+deftarget = $(shell uname -m)
 bindir = /usr/bin
+libdir = /usr/lib
 libexecdir = /usr/share
 mandir = /usr/share/man
 man1dir = $(mandir)/man1
@@ -51,7 +53,9 @@ $(MAN1PAGES): functions
 $(MAN7PAGES):
 
 %: %.in
-	sed -e 's/@VERSION@/$(VERSION)/g' <$< >$@
+	sed -e 's/@VERSION@/$(VERSION)/g; \
+		s/@deftarget@/$(deftarget)/g; \
+		s,@libdir@,$(libdir),g' <$< >$@
 	$(TOUCH_R) $< $@
 	chmod --reference=$< $@
 
