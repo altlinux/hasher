@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.1
+Version: 0.2
 Release: alt1
 BuildArch: noarch
 
@@ -31,6 +31,11 @@ This package provides package hasher utilities.
 %doc README
 
 %changelog
+* Fri Jul 04 2003 Dmitry V. Levin <ldv@altlinux.org> 0.2-alt1
+- functions: unset CDPATH.
+- rmchroot:
+  explicitly remove /var/tmp/ and /usr/src/ as well as /*/.
+
 * Thu Jul 03 2003 Dmitry V. Levin <ldv@altlinux.org> 0.1-alt1
 - Added apt "copy" source method support.
 - Enhanced error diagnostics.
