@@ -185,9 +185,8 @@ __EOF__
 	for f in /etc/host.conf /etc/hosts /etc/resolv.conf; do
 		if [ -r "$f" -a -s "$f" ]; then
 			cat >"$entry" <<__EOF__
-$entry_header
+$entry_fakeroot_header
 
-# Too simple to call fakeroot here.
 cat >$f
 __EOF__
 
