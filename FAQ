@@ -23,6 +23,9 @@ CONTENTS
 3.2. Workdir prefix mismatch.
 3.3. Local and remote repositories.
 
+4. HOW TO?
+4.1. Parallel build.
+4.2. Proc filesystem and pseudo terminals.
 
 ------------------------------
 
@@ -110,7 +113,7 @@ CONTENTS
 3.2. Workdir prefix mismatch.
 
 3.2.1 When I run
-	hsh /path/to/workdir path/to/foobar-1.0.src.rpm
+	hsh /path/to/workdir path/to/package.src.rpm
       hasher fails with:
 	hasher-priv: /path/to/workdir/chroot: prefix mismatch, working directory should start with $HOME
 	mkchroot: failed to make devices.
@@ -133,3 +136,57 @@ CONTENTS
 
    Hasher supports only local apt source methods (i.e. file and copy).
    That is, you have to place package repository on local host or use NFS.
+
+------------------------------
+
+4. HOW TO?
+
+4.1. Parallel build.
+
+4.1.1 Is there any way to build packages in different locations
+   simultaneously?
+
+   Yes, it is.
+
+   First, additional pseudouser pairs should be created by hasher-useradd
+   for each additional parallel build.
+   Second, you have to pass subconfig identifier to hsh.
+
+   For example,
+   # hasher-useradd --number=1 --names=joe_a1:joe_b1
+   $ hsh --number=1 /path/to/workdir1 package.src.rpm
+
+4.2. Proc filesystem and pseudo terminals.
+ 
+4.2.1 Is there any way to use proc filesystem inside chroot while buildibg
+   the package?
+
+   Yes, it is.
+
+   First, you have to configure hasher-priv for the user, to allow
+   mounting /proc inside chroot.
+   Add the line:
+	allowed_mountpoints=/proc
+
+   Second, the package you are going to build should include /proc
+   in build dependencies, e.g.
+	BuildPreReq: /proc
+ 
+   Third, hsh should be run with parameter --mountpoints=/proc.
+
+4.2.2 Is there any way to create pseudoterminals and use them inside
+   chroot while buildibg the package?
+
+   Yes, it is.
+
+   First, you have to configure hasher-priv for the user, to allow
+   terminal device files creation and mounting /dev/pts inside chroot.
+   Add two lines:
+	allow_ttydev=yes
+	allowed_mountpoints=/dev/pts
+
+   Second, the package you are going to build should include /dev/pts
+   in build dependencies, e.g.
+	BuildPreReq: /dev/pts
+ 
+   Third, hsh should be run with parameter --mountpoints=/dev/pts.
