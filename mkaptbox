@@ -37,6 +37,7 @@ Usage: $PROG [options] <path-to-workdir>
 Valid options are:
 --no-stuff              do not install built packages;
 --target=ARCH           target architecture;
+--apt-config=FILE       path to custom apt.conf file;
 -f, --force             force aptbox creation;
 -u, --update            run "apt-get update" after creation;
 -v, --verbose           print a message for each action;
@@ -45,17 +46,21 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,v,h -l no-stuff,target:,force,update,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o f,u,v,h -l no-stuff,target:,apt-config:,force,update,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 force=
 update=
 no_stuff=
+apt_config=
 while :; do
 	case "$1" in
 		--no-stuff) no_stuff=1; shift
 			;;
 		--target) shift; target="$1"; shift
+			;;
+		--apt-config) shift; apt_config="$1"; shift
+			[ -r "$apt_config" ] || Fatal "$apt_config: cannot access."
 			;;
 		-f|--force) force=1; shift
 			;;
@@ -108,6 +113,8 @@ mkdir -p $verbose -- \
 	./var/lib/apt/lists/partial \
 	./var/lib/rpm
 
+[ -z "$apt_config" ] || APT_CONFIG="$apt_config"
+
 get_apt_config()
 {
 	local temp name value
@@ -137,7 +144,7 @@ fi
 
 [ -s "$sl_value" -a -r "$sl_value" ] || Fatal "broken $sl_name: $sl_value"
 
-# apt.conf file.
+# reset APT_CONFIG and fill it with new data.
 export APT_CONFIG="$aptbox/etc/apt/apt.conf"
 cat >"$APT_CONFIG" <<__EOF__
 Dir::State "$aptbox/var/lib/apt/";

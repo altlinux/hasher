@@ -44,13 +44,14 @@ Valid options are:
 --build-args=ARGS               extra arguments for rpmbuild;
 --contents-index-bin=INDEX      pkg contents binary index;
 --contents-index-all=INDEX      pkg contents complete index;
+--apt-config=FILE       	path to custom apt.conf file;
 -v, --verbose                   print a message for each action;
 -h, --help                      show this text.
 EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l no-stuff,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l no-stuff,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_stuff=
@@ -59,6 +60,7 @@ rpmargs=
 install_langs=
 contents_index_all=
 contents_index_bin=
+apt_config=
 while :; do
 	case "$1" in
 		--no-stuff) no_stuff=1; shift
@@ -89,6 +91,9 @@ while :; do
 		--contents-index-all) shift; contents_index_all="$1"; shift
 			;;
 		--contents-index-bin) shift; contents_index_bin="$1"; shift
+			;;
+		--apt-config) shift; apt_config="$1"; shift
+			[ -r "$apt_config" ] || Fatal "$apt_config: cannot access."
 			;;
 		-v|--verbose) verbose=-v; shift
 			;;
@@ -121,6 +126,7 @@ for f in "$@"; do
 	$hasher_dir/mkaptbox "$workdir" \
 			--update \
 			--target="$target" \
+			${apt_config:+--apt-config="$apt_config"} \
 			${verbose:+$verbose} \
 			${no_stuff:+--no-stuff} \
 			#
