@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.2
+Version: 1.0.3
 Release: alt1
 
 Summary: Modern safe package build technology
@@ -38,6 +38,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Sun Aug 08 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.3-alt1
+- initroot,install,mkchroot,rebuild,rmchroot:
+  + implemented --version parameter.
+- rebuild:
+  + calculate required mountpoints from installed file dependencies.
+
 * Tue Aug 03 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.2-alt1
 - rebuild: run rebuild script as login shell.
 - Added multilib support.
