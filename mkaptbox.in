@@ -198,6 +198,7 @@ for n in cache config get; do
 
 APT_CONFIG="$APT_CONFIG" exec $(eval echo \$prog_apt_$n) "\$@"
 __EOF__
+Verbose "created apt-$n wrapper"
 done
 
 [ -z "$update" ] || "$prog_apt_get" update $([ -n "$verbose" ] || echo -qq)
