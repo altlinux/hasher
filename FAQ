@@ -1,0 +1,120 @@
+$Id$
+
+                                 The hasher FAQ
+
+                           Frequently Asked Questions
+                            about the package hasher
+
+CONTENTS
+
+1. GENERAL INFORMATION
+1.1. Introduction - How this FAQ is organized
+1.2. Credits and acknowledgements
+1.3. Standard disclaimers
+
+2. BASIC HASHER
+2.1. What is hasher?
+2.2. What is hasher not?
+2.3. Where can I learn more about hasher?
+
+3. WHY ISN'T THIS WORKING?
+3.1. Problems accessing privileged helpers.
+3.2. Workdir prefix mismatch.
+3.3. Local and remote repositories.
+
+
+------------------------------
+
+1. GENERAL INFORMATION
+
+1.1. Introduction - How this FAQ is organized
+
+   This FAQ is organized to answer common (and some uncommon)
+   questions about hasher, quickly.
+
+1.2. Credits and acknowledgements
+
+   The following individuals have contributed significantly to this
+   document, and have provided input and wording suggestions for
+   questions, answers, and examples.  Credit goes to these
+   contributors (in alphabetical order by last name):
+
+1.3. Standard disclaimers
+
+   While a serious attempt has been made to ensure the accuracy of the
+   information presented herein, the contributors and maintainers of
+   this document do not claim the absence of errors and make no
+   warranties on the information provided.  If you notice any mistakes,
+   please let us know so we can fix it.
+
+------------------------------
+
+2. BASIC HASHER
+
+2.1. What is hasher?
+2.2. What is hasher not?
+2.3. Where can I learn more about hasher?
+
+------------------------------
+
+3. WHY ISN'T THIS WORKING?
+
+3.1. Problems accessing privileged helpers.
+
+3.1.1 How to make hasher work? Every run ends up with the following:
+	Components: hasher
+	Processing pkglists... hasher done
+	Processing srclists...  hasher done
+	Creating component releases... hasher done
+	Creating global release file... done
+	Appending MD5Sum... hasher done
+	All your base are belong to us!!!
+	mkchroot: cannot access getugid1 helper.
+
+  In order to prepare package hasher to use by USER, pair of special
+  satellite users must be added.  System administrator should run
+	# hasher-useradd USER
+
+  This command creates two additional satellite users, USER_a and
+  USER_b, and adds USER to groups: hashman, USER_a and USER_b.
+
+  See hasher-useradd(8) for details.
+
+3.1.2 I've created satellite users according to instructions, but still
+   getting the same error.  Why?
+
+   You have to re-login to gain new credentials.
+
+3.1.3 Well, I've logged in, now it reports:
+	usr/lib/hasher-priv/hasher-priv: /: bad perms: 757
+	mkchroot: getugid1 failed.
+
+   You filesystem permissions are broken, you really should repair your
+   operating system as soon as possible.
+
+3.2. Workdir prefix mismatch.
+
+3.2.1 When I run
+	hsh /path/to/workdir path/to/foobar-1.0.src.rpmrpm
+      hasher fails with:
+	/usr/lib/hasher-priv/hasher-priv: /path/to/workdir/chroot: prefix mismatch, working directory should start with $HOME
+	mkchroot: failed to make devices.
+
+   By default, hasher is configured to create working directories
+   inside $HOME only.  This is a security sensitive parameter.
+   System administrator can change this default, either systemwide
+   or personally for you.
+   In first case, change "prefix" parameter in
+   /etc/hasher-priv/system to /path/to/workdir.
+   In second case, add the line
+	prefix=/path/to/workdir
+   to the per-user config, /etc/hasher-priv/user.d/$USER.
+
+3.3. Local and remote repositories.
+
+3.3.1 Run of hasher failed with the following error:
+	initroot: calculated package file list is not local.
+	initroot: failed to generate initial package file list.
+
+   Hasher supports only local apt source methods (i.e. file and copy).
+   That is, you have to place package repository on local host or use NFS.
