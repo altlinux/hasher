@@ -120,4 +120,4 @@ Verbose "created APT source list file \`$target_config'"
 rpmdb --initdb --dbpath "$aptbox/var/lib/rpm"
 Verbose "created RPM database in \`./var/lib/rpm/'"
 
-[ -z "$update" ] || apt-get update ${verbose:--qq}
+[ -z "$update" ] || apt-get update $([ -n "$verbose" ] || echo -qq)
