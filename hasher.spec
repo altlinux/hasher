@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 0.9.9.5
+Version: 0.9.9.6
 Release: alt1
 BuildArch: noarch
 
@@ -38,8 +38,12 @@ This package provides package hasher utilities.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Wed Jul 07 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.6-alt1
+- initroot: added sisyphus_check to build list.
+- rebuild: query packager inside chroot.
+
 * Sat Jul 03 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.5-alt1
-- cache_chroot: recognize dev_* as dev-*.
+- cache_chroot: recognize dev_* as dev-*, too.
 
 * Thu Jun 24 2004 Dmitry V. Levin <ldv@altlinux.org> 0.9.9.4-alt1
 - functions/print_uris, rebuild, hsh:
