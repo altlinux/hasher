@@ -39,7 +39,7 @@ This package provides package hasher utilities.
   + added --target option (#0002817);
   + added --apt-config option.
 - hsh:
-  + pass --target and --apt-config to mkaptbox;
+  + pass --target and --apt-config to mkaptbox.
 
 * Wed Jul 30 2003 Dmitry V. Levin <ldv@altlinux.org> 0.3-alt1
 - Added "adjust_kernel_headers --first" support.
