@@ -12,7 +12,7 @@ Url: ftp://ftp.altlinux.org/pub/people/ldv/hasher
 Source: %url/%name-%version.tar.bz2
 
 %define _libexecdir %_prefix/libexec
-%define helperdir %_libexecdir/%name
+%define helperdir %_libexecdir/%name-priv
 
 Requires: %helperdir
 Requires: getopt, ash-static, cpio-static, find-static
