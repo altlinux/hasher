@@ -56,7 +56,7 @@ eval set -- "$TEMP"
 no_cache=
 no_contents_indices=
 nprocs=
-install_langs=dummy
+install_langs=all
 contents_index_all=
 contents_index_bin=
 while :; do
