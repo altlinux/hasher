@@ -48,26 +48,36 @@ allowed in
 build will fail.
 
 [FILES]
+.B ~/.hasher/config
+- user config file sourced by all hasher utilities.
+.TP
+.B ~/.hasher/install/post
+- postinstall script;
+.B mkchroot
+copies it into chroot, and
+.B install
+executes the copy at the end of package installation transaction.
+.TP
 Working directory contents:
 .TP
 .B aptbox
-\- created automatically by 
+- created automatically by 
 .BR mkaptbox (1),
 required for apt.
 .TP
 .B cache
-\- build environment and rpm database cache, created automatically
+- build environment and rpm database cache, created automatically
 by initroot.
 .TP
 .B chroot
-\- build environment, created automatically by mkchroot.
+- build environment, created automatically by mkchroot.
 .TP
 .B lockdir
-\- lock directory, handled internally by
+- lock directory, handled internally by
 .BR hsh .
 .TP
 .B repo
-\- package repository, contains build results.
+- package repository, contains build results.
 
 [SEE ALSO]
 .BR mkaptbox (1),

@@ -45,13 +45,14 @@ See %_docdir/%name-%version/QUICKSTART for details.
 * Mon Jan 03 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.9-alt1
 - Changed hasher-priv helper directory to %helperdir,
   updated package dependencies.
-- Updated documentation:
-  + hasher(7): applied fixes from Egor Grebnev;
-  + hsh(1), mkaptbox(1): added NAME section.
 - install: export RPM_EXCLUDEDOCS=1 if $exclude_docs is set.
 - functions: source user config from ~/.hasher/config if any.
 - hsh,initroot,install,rebuild: added --excludedocs option.
 - Unhardcoded work limits (fixes #5804).
+- Updated documentation:
+  + hasher(7): applied fixes from Egor Grebnev;
+  + hsh(1), mkaptbox(1): added NAME section.
+  + hsh(1): document ~/.hasher/config and ~/.hasher/install/post.
 
 * Thu Nov 11 2004 Dmitry V. Levin <ldv@altlinux.org> 1.0.8-alt1
 - hsh: enhanced early diagnostics for invalid source files.
