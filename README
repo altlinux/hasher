@@ -55,6 +55,8 @@ $Id$
       (required for proper TCB support);
     rpm-build >= 0:4.0.4-alt21
       (required for proper package contents indices support);
+    sisyphus_check>=0:0.7.3
+      (required for executing sisyphus_check inside chroot);
     kernel-headers-common >= 1.1.4-alt1
       (required for "adjust_kernel_headers --first" support).
 
