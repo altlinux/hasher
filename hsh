@@ -35,8 +35,9 @@ Usage: $PROG [options] <path-to-workdir> <package>...
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
---no-cache                      do not use initroot cache;
 --no-stuff                      do not install built packages;
+--no-cache                      do not use initroot cache;
+--no-contents-indeces           do not use content indeces;
 --target=ARCH                   target architecture;
 --number=NUMBER                 subconfig identifier;
 --hasher-priv-dir=DIR           hasher-priv directory;
@@ -52,10 +53,11 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o v,h -l no-cache,no-stuff,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,verbose,help -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o v,h -l no-stuff,no-cache,no-contents-indeces,target:,number:,hasher-priv-dir:,nprocs:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,apt-config:,verbose,help -- "$@"` || Usage
 eval set -- "$TEMP"
 
 no_cache=
+no_contents_indeces=
 nprocs=
 rpmargs=
 install_langs=
@@ -64,9 +66,11 @@ contents_index_bin=
 apt_config=
 while :; do
 	case "$1" in
+		--no-stuff) no_stuff=1; shift
+			;;
 		--no-cache) no_cache=1; shift
 			;;
-		--no-stuff) no_stuff=1; shift
+		--no-contents-indeces) no_contents_indeces=1; shift
 			;;
 		--target) shift; target="$1"; shift
 			;;
@@ -169,6 +173,7 @@ for f in "$@"; do
 			--hasher-priv-dir="$hasher_priv_dir" \
 			${verbose:+$verbose} \
 			${no_cache:+--no-cache} \
+			${no_contents_indeces:+--no-contents-indeces} \
 			${number:+--number=$number} \
 			${nprocs:+--nprocs=$nprocs} \
 			${install_langs:+--install-langs="$install_langs"} \
