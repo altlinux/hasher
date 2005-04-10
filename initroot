@@ -45,7 +45,7 @@ Valid options are:
   --number=NUMBER               subconfig identifier;
   --hasher-priv-dir=DIR         hasher-priv directory;
   --nprocs=NUMBER               number of CPUs to use;
-  --install-langs=LANGLIST      list of languages to install;
+  --install-langs=LIST          colon-separated list of languages to install;
   --pkg-init-list=LIST          override default initial package file list;
   --pkg-build-list=LIST         override default build package file list;
   -q, --quiet                   try to be more quiet;

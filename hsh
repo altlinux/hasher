@@ -59,7 +59,7 @@ Valid options are:
   --number=NUMBER                   subconfig identifier;
   --nprocs=NUMBER                   number of CPUs to use;
   --mountpoints=LIST                comma-separated list of known mount points;
-  --install-langs=LANGLIST          colon-separated list of languages to install;
+  --install-langs=LIST              colon-separated list of languages to install;
   --build-args=ARGS                 extra arguments for rpmbuild;
   --pkg-init-list=LIST              override default initial package file list;
   --pkg-build-list=LIST             override default build package file list;
