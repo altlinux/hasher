@@ -112,6 +112,7 @@ while :; do
 		--hasher-priv-dir)
 			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
 			shift
+			;;
 		-q|--quiet) quiet=-q
 			;;
 		-v|--verbose) verbose=-v
