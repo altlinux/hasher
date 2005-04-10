@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.12
+Version: 1.0.13
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -17,6 +17,8 @@ Source: %url/%name-%version.tar.bz2
 Requires: %helperdir
 Requires: getopt, ash-static, cpio-static, find-static
 Requires: hasher-priv >= 1.0, apt-utils >= 0.5.5cnc4.1-alt7
+# Due to "readlink -e".
+Requires: coreutils >= 5.2.1-alt3
 
 Obsoletes: pkg-build-utils, libbte
 
@@ -42,6 +44,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Sun Apr 10 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.13-alt1
+- Fixed handling of options with file or dir arguments.
+- rebuild: really handle --mountpoints as comma-separated list.
+- Documented --without-stuff instead of --no-stuff as preferred
+  way to build without internal package repository.
+
 * Wed Mar 16 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.12-alt1
 - mkaptbox: fixed regression introduced by previous change.
 
