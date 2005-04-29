@@ -41,6 +41,7 @@ Valid options are:
   --with-stuff              configure sources.list for the work repository;
   --without-stuff           do not configure sources.list for the work repository;
   --target=ARCH             target architecture of the work repository;
+  --repo=DIR                path to work repository directory;
   --apt-config=FILE         path to custom apt.conf file;
   --apt-prefix=DIR          path to apt directory prefix (e.g. /usr);
   --no-update               do not run "apt-get update" after creation;
@@ -57,7 +58,7 @@ EOF
 	[ -n "$1" ] && exit "$1" || exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,q,v,V,h -l with-stuff,without-stuff,no-stuff,target:,apt-config:,apt-prefix:,no-update,update,force,quiet,verbose,help,version -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o f,u,q,v,V,h -l with-stuff,without-stuff,no-stuff,target:,repo:,apt-config:,apt-prefix:,no-update,update,force,quiet,verbose,help,version -- "$@"` || Usage
 eval set -- "$TEMP"
 
 force=
@@ -72,6 +73,8 @@ while :; do
 		--target) shift; target="$1"
 			[ -z "${target##[A-Za-z]*}" ] ||
 				Fatal "--target: $target: invalid architecture."
+			;;
+		--repo) shift; repo="$1"
 			;;
 		--apt-config)
 			apt_config="$(opt_check_read "$1" "$2")"
@@ -159,7 +162,7 @@ Verbose "created APT configuration file \`$APT_CONFIG'"
 
 target_config="./etc/apt/sources.list"
 cat >"$target_config" <<__EOF__
-${no_stuff:+#}rpm file:$workdir/repo ${target:-$def_target} hasher
+${no_stuff:+#}rpm file:$workdir/${repo:-$def_repo} ${target:-$def_target} hasher
 $(grep '^[^#]' "$sl_value")
 __EOF__
 Verbose "created APT source list file \`$target_config'"

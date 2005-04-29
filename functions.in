@@ -77,6 +77,10 @@ number=
 def_target=@deftarget@
 target=
 
+# repo directory.
+def_repo=repo
+repo=
+
 # RPM --excludedocs
 exclude_docs=
 
@@ -313,14 +317,14 @@ copy_chroot_incoming()
 # assumed: cwd == workdir
 make_repo()
 {
-	mkdir -p $verbose -- repo/{{SRPMS,${target:-$def_target}/RPMS}.hasher,${target:-$def_target}/base}
+	mkdir -p $verbose -- ${repo:-$def_repo}/{{SRPMS,${target:-$def_target}/RPMS}.hasher,${target:-$def_target}/base}
 }
 
 # assumed: cwd == workdir, defined prog_genbasedir
 update_repo()
 {
 	[ -z "$no_stuff" ] || return 0
-	"$prog_genbasedir" --topdir=repo --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher &&
+	"$prog_genbasedir" --topdir=${repo:-$def_repo} --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher &&
 		Verbose "updated hasher repository indices." ||
 		Fatal "failed to update hasher repository indices."
 }
