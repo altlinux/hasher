@@ -1,5 +1,5 @@
 .\" $Id$
-.\" Copyright (C) 2003, 2004, 2005  Dmitry V. Levin <ldv@altlinux.org>
+.\" Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
 .\" 
 .\" Additional documentation for the hsh command.
 .\"
@@ -35,10 +35,6 @@ point of time.  To overcome this restriction, additional pseudouser
 pairs should be created by
 .BR hasher\-useradd (8).
 The subconfig identifier defines the pair to use.
-.TP
-.BR \-\-repackage\-source
-Controls whether to repackage source package during build together with
-binary packages.  Default is to package binary packages only.
 .TP
 \fB\-\-mountpoints\fR=\fILIST\fR
 Defines list of known mount points.  Every build dependence which belongs
