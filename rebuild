@@ -209,7 +209,7 @@ __EOF__
 
 	if [ -n "$known_mountpoints" ]; then
 		for file_deps in `printf %s "$deps" |LC_ALL=C grep '^/' |LC_ALL=C sort -u`; do
-			for mpoint in $known_mountpoints; do
+			for mpoint in $(printf %s "$known_mountpoints" |tr -s , ' '); do
 				if [ "$mpoint" = "$file_deps" ]; then
 					[ -z "$required_mountpoints" ] &&
 						required_mountpoints="$mpoint" ||
