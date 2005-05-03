@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.13
+Version: 1.0.14
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,14 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Tue May 03 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.14-alt1
+- rebuild: really handle --mountpoints as comma-separated list [take 3].
+- functions,hsh,mkaptbox,rebuild:
+  + new option: --repo (Ivan Fedorov, closes #6739).
+- hsh,initroot:
+  + new option: --no-repackage-source;
+  + repackage source by default.
+
 * Sun Apr 10 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.13-alt1
 - Fixed handling of options with file or dir arguments.
 - rebuild: really handle --mountpoints as comma-separated list.
