@@ -27,9 +27,8 @@ else
 	. /usr/share/hasher/functions
 fi
 
-Usage()
+show_help()
 {
-	[ "$1" = 0 ] || exec >&2
 	cat <<EOF
 hsh - builds package using hasher utilities.
 
@@ -46,6 +45,7 @@ Valid options are:
   --repackage-source                repackage source along with binaries;
   --no-repackage-source             do not repackage source along with binaries;
   --initroot-only                   do not build, stop after initroot stage;
+  --cleanup-only                    do not build at all, just cleanup workdir;
   --no-sisyphus-check[=LIST]        do not run sisyphus_check tests
                                     [specified in comma-separated LIST];
   --no-sisyphus-check-in[=LIST]     do not run sisyphus_check input tests
@@ -76,10 +76,17 @@ Valid options are:
 Report bugs to http://bugs.altlinux.ru/
 
 EOF
-	[ -n "$1" ] && exit "$1" || exit
+	exit 0
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l with-stuff,without-stuff,no-stuff,no-cache,no-contents-indices,excludedocs,repackage-source,no-repackage-source,initroot-only,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,rebuild-prog:,query-req-prog:,target:,repo:,number:,nprocs:,mountpoints:,hasher-priv-dir:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,pkg-init-list:,pkg-build-list:,apt-config:,apt-prefix:,quiet,verbose,help,version -- "$@"` || Usage
+show_usage()
+{
+	[ -z "$*" ] || Info "$*"
+	echo "Try \`$PROG --help' for more information." >&2
+	exit 1
+}
+
+TEMP=`getopt -n $PROG -o q,v,V,h -l with-stuff,without-stuff,no-stuff,no-cache,no-contents-indices,excludedocs,repackage-source,no-repackage-source,initroot-only,cleanup-only,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,rebuild-prog:,query-req-prog:,target:,repo:,number:,nprocs:,mountpoints:,hasher-priv-dir:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,pkg-init-list:,pkg-build-list:,apt-config:,apt-prefix:,quiet,verbose,help,version -- "$@"` || show_usage
 eval set -- "$TEMP"
 
 no_cache=
@@ -95,6 +102,7 @@ build_list=
 repackage_source=
 apt_config=
 initroot_only=
+cleanup_only=
 while :; do
 	case "$1" in
 		--with-stuff) no_stuff=
@@ -108,6 +116,8 @@ while :; do
 		--repackage-source|--no-repackage-source) repackage_source="$1"
 			;;
 		--initroot-only) initroot_only=1
+			;;
+		--cleanup-only) cleanup_only=1
 			;;
 		--no-sisyphus-check) shift
 			[ -n "$1" ] && no_sisyphus_check="$1" || no_sisyphus_check=all
@@ -171,24 +181,37 @@ while :; do
 			;;
 		-V|--version) print_version hsh
 			;;
-		-h|--help) Usage 0
+		-h|--help) show_help
 			;;
-		--contents-index-all|--contents-index-bin) shift # obsolete
+		--contents-index-all|--contents-index-bin)
+			Info "Warning: obsolete option $1 ignored."
+			shift
 			;;
 		--) shift; break
 			;;
-		*) Fatal "unrecognized option: $1"
+		*) Fatal "Unrecognized option: $1"
 			;;
 	esac
 	shift
 done
 
-if [ -z "$initroot_only" ]; then
+if [ -n "$initroot_only" -a -n "$cleanup_only" ]; then
+	show_usage "--initroot-only and --cleanup-only are mutually exclusive options."
+fi
+
+if [ -z "$initroot_only" -a -z "$cleanup_only" ]; then
 	# At least two arguments, please.
-	[ "$#" -ge 2 ] || Usage
+	if [ "$#" -lt 2 ]; then
+		show_usage 'Insufficient arguments.'
+	fi
 else
 	# Exactly one argument, please.
-	[ "$#" -eq 1 ] || Usage
+	if [ "$#" -lt 1 ]; then
+		show_usage 'Insufficient arguments.'
+	fi
+	if [ "$#" -gt 1 ]; then
+		show_usage 'Too many arguments.'
+	fi
 fi
 
 set_workdir "$1"
@@ -199,11 +222,11 @@ set_apt_vars
 for f in "$@"; do
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
 	[ -f "$f" ] ||
-		Fatal "$f: not a regular file"
+		Fatal "$f: not a regular file."
 	[ -r "$f" ] ||
-		Fatal "$f: cannot access source"
+		Fatal "$f: cannot access source."
 	[ -s "$f" ] ||
-		Fatal "$f: empty source file"
+		Fatal "$f: empty source file."
 done
 
 exit_handler()
@@ -217,13 +240,37 @@ exit_handler()
 pidfile="lockdir/pid"
 if ! mkdir -m700 $verbose -- lockdir; then
 	[ ! -s "$pidfile" ] ||
-		Info "working directory \`$workdir' is locked, pid=`cat "$pidfile"`"
-	Fatal "unable to create lock directory"
+		Info "Working directory \`$workdir' is locked, pid=`cat "$pidfile"`."
+	Fatal "Unable to create lock directory."
 fi
 
 trap exit_handler HUP PIPE INT QUIT TERM EXIT
 
 echo $$ >"$pidfile"
+
+cleanup_workdir()
+{
+	if [ -d aptbox ]; then
+		rm -rf aptbox &&
+			Verbose "Removed aptbox." ||
+			Fatal "Failed to remove aptbox."
+	fi
+	if [ -d cache ]; then
+		rm -rf cache &&
+			Verbose "Removed cache." ||
+			Fatal "Failed to remove cache."
+	fi
+	if [ -d chroot ]; then
+		$hasher_dir/rmchroot "$workdir" \
+			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
+			${quiet:+$quiet} \
+			${verbose:+$verbose} \
+			${number:+--number=$number} \
+			&& 
+			Verbose "Removed chroot." ||
+			Fatal "Failed to remove chroot."
+	fi
+}
 
 handle_package()
 {
@@ -285,10 +332,12 @@ handle_package()
 		-- "$f"
 }
 
-if [ -z "$initroot_only" ]; then
+if [ -n "$cleanup_only" ]; then
+	cleanup_workdir
+elif [ -n "$initroot_only" ]; then
+	handle_package
+else
 	for f in "$@"; do
 		handle_package "$f"
 	done
-else
-	handle_package
 fi
