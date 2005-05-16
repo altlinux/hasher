@@ -108,6 +108,7 @@ while :; do
 		--contents-index-all|--contents-index-bin)
 			Info "Warning: obsolete option $1 ignored."
 			shift
+			;;
 		--) shift; break
 			;;
 		*) Fatal "Unrecognized option: $1"
