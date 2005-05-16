@@ -50,6 +50,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
 - functions: new function: show_usage.
 - Reduced size of usage messages to necessary minimum.
 - Enforced policy on messages format.
+- hsh-shell: new program.
 
 * Tue May 03 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.14-alt1
 - rebuild: really handle --mountpoints as comma-separated list [take 3].

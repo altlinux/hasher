@@ -1,0 +1,118 @@
+#!/bin/sh -e
+#
+# $Id$
+# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
+# 
+# The hasher shell.
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+if [ "$0" = ./hsh ]; then
+	. ./functions
+	hasher_dir="$(/bin/pwd)"
+else
+	. /usr/share/hasher/functions
+fi
+
+show_help()
+{
+	cat <<EOF
+hsh-shell - the hasher shell.
+
+Usage: $PROG [options] <path-to-workdir>
+
+<path-to-workdir> must be valid hasher working directory.
+
+Valid options are:
+  --number=NUMBER           subconfig identifier;
+  --mountpoints=LIST        comma-separated list of known mount points;
+  --hasher-priv-dir=DIR     hasher-priv directory;
+  -q, --quiet               try to be more quiet;
+  -v, --verbose             print a message for each action;
+  -V, --version             print program version and exit;
+  -h, --help                show this text and exit.
+    
+Report bugs to http://bugs.altlinux.ru/
+
+EOF
+	exit
+}
+
+TEMP=`getopt -n $PROG -o q,v,V,h -l number:,mountpoints:,hasher-priv-dir:,quiet,verbose,help,version -- "$@"` || show_usage
+eval set -- "$TEMP"
+
+mountpoints=
+while :; do
+	case "$1" in
+		--number) shift; number="${1##-}"
+			[ -z "$(printf %s "$number" |tr -d [0-9])" ] ||
+				Fatal "--number: $number: invalid number."
+			number="-$number"
+			;;
+		--mountpoints) shift; mountpoints="$1"
+			;;
+		--hasher-priv-dir)
+			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
+			shift
+			;;
+		-q|--quiet) quiet=-q
+			;;
+		-v|--verbose) verbose=-v
+			;;
+		-V|--version) print_version hsh-shell
+			;;
+		-h|--help) show_help
+			;;
+		--) shift; break
+			;;
+		*) Fatal "Unrecognized option: $1"
+			;;
+	esac
+	shift
+done
+
+# Exactly one argument, please.
+[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+
+set_workdir "$1"
+shift
+
+check_helpers
+
+exit_handler()
+{
+	local rc=$?
+	trap - EXIT
+	rm -rf -- lockdir
+	exit $rc
+}
+
+pidfile="lockdir/pid"
+if ! mkdir -m700 $verbose -- lockdir; then
+	[ ! -s "$pidfile" ] ||
+		Info "Working directory \`$workdir' is locked, pid=`cat "$pidfile"`."
+	Fatal 'Unable to create lock directory.'
+fi
+
+trap exit_handler HUP PIPE INT QUIT TERM EXIT
+
+echo $$ >"$pidfile"
+
+export mountpoints
+use_pty=yes "$chrootuid2" $number "$chroot" /bin/runas -bash bash &&
+	Verbose 'hasher shell finished.' ||
+	Fatal 'hasher shell failed.'

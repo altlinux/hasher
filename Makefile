@@ -1,6 +1,6 @@
 #
 # $Id$
-# Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # Makefile for the hasher project.
 #
@@ -21,8 +21,8 @@
 
 PROJECT = hasher
 VERSION = $(shell grep ^Version: hasher.spec |head -1 |awk '{print $$2}')
-HELPERS = functions cache_chroot cache_contents hsh initroot install mkaptbox mkchroot rebuild rmchroot
-PROGRAMS = hsh mkaptbox
+HELPERS = functions cache_chroot cache_contents hsh hsh-shell initroot install mkaptbox mkchroot rebuild rmchroot
+PROGRAMS = hsh hsh-shell mkaptbox
 MAN1PAGES = $(PROGRAMS:=.1)
 MAN7PAGES = $(PROJECT).7
 TARGETS = functions $(MAN1PAGES) $(MAN7PAGES)
