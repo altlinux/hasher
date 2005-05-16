@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.14
+Version: 1.0.15
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Tue May 17 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.15-alt1
+- hsh: new option: --cleanup-only.
+- functions: new function: show_usage.
+- Reduced size of usage messages to necessary minimum.
+- Enforced policy on messages format.
+
 * Tue May 03 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.14-alt1
 - rebuild: really handle --mountpoints as comma-separated list [take 3].
 - functions,hsh,mkaptbox,rebuild:
