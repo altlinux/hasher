@@ -260,6 +260,11 @@ cleanup_workdir()
 			Verbose "Removed cache." ||
 			Fatal "Failed to remove cache."
 	fi
+	if [ -d repo ]; then
+		rm -rf repo &&
+			Verbose "Removed repo." ||
+			Fatal "Failed to remove repo."
+	fi
 	if [ -d chroot ]; then
 		$hasher_dir/rmchroot "$workdir" \
 			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
