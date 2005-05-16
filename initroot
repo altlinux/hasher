@@ -229,6 +229,7 @@ if [ -n "$build_list" ]; then
 	cat >"$entry" <<__EOF__
 $entry_header
 
+[ ! -d /etc/skel ] || cp -a $verbose /etc/skel/* /etc/skel/.[^.]* "\$HOME"/ ||:
 mkdir $verbose -m700 -- "\$TMPDIR"
 rpminit $verbose
 cat >>/usr/src/.rpmmacros <<\EOF
