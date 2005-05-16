@@ -27,9 +27,8 @@ else
 	. /usr/share/hasher/functions
 fi
 
-Usage()
+show_help()
 {
-	[ "$1" = 0 ] || exec >&2
 	cat <<EOF
 rmchroot - removes chroot created by mkchroot.
 
@@ -45,10 +44,10 @@ Valid options are:
   -V, --version             print program version and exit;
   -h, --help                show this text.
 EOF
-	[ -n "$1" ] && exit "$1" || exit
+	exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l number:,hasher-priv-dir:,quiet,verbose,help,version -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,V,h -l number:,hasher-priv-dir:,quiet,verbose,help,version -- "$@"` || show_usage
 eval set -- "$TEMP"
 
 while :; do
@@ -68,40 +67,42 @@ while :; do
 			;;
 		-V|--version) print_version rmchroot
 			;;
-		-h|--help) Usage 0
+		-h|--help) show_help
 			;;
 		--) shift; break
 			;;
-		*) Fatal "unrecognized option: $1"
+		*) Fatal "Unrecognized option: $1"
 			;;
 	esac
 	shift
 done
 
-# exactly one argument, please.
-[ "$#" -eq 1 ] || Usage
+# Exactly one argument, please.
+[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+
 set_workdir "$1"
 shift
 
 check_helpers
 
 cd chroot
-Verbose "changed working directory to \`$chroot'"
+Verbose "Changed working directory to \`$chroot'."
 
 install -pD -m755 $verbose /bin/ash.static .host/sh
 install -pD -m755 $verbose /usr/bin/find.static .host/find
-Verbose "installed .host programs."
+Verbose 'Installed .host programs.'
 
 if [ ! -c "dev/null" ]; then
 	ugid1="$("$getugid1" $number)" ||
-		Fatal "getugid1 failed."
+		Fatal 'getugid1 failed.'
 	gid1="$(printf %s "$ugid1" |cut -d: -f2)"
 
 	mkdir -p -m755 $verbose dev
 	chgrp "$gid1" $verbose . dev
 	"$makedev" $number "$chroot" ||
-		Fatal "failed to make devices."
-	Verbose "created devices in \`$chroot/dev/'"
+		Fatal 'Failed to make devices.'
+	Verbose "Created devices in \`$chroot/dev/'."
 fi
 
 cat >.host/entry <<__EOF__
@@ -114,13 +115,13 @@ chmod 755 .host/entry
 
 wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 "$chrootuid2" $number "$chroot" /.host/entry &&
-	Verbose "removed files owned by user2" ||
-	Fatal "failed to remove files owned by user2."
+	Verbose 'Removed files owned by user2.' ||
+	Fatal 'Failed to remove files owned by user2.'
 
 wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 "$chrootuid1" $number "$chroot" /.host/entry &&
-	Verbose "removed files owned by user1" ||
-	Fatal "failed to remove files owned by user1."
+	Verbose 'Removed files owned by user1.' ||
+	Fatal 'Failed to remove files owned by user1.'
 
 rm -rf $verbose -- "$chroot" ||
-	Fatal "failed to remove some files."
+	Fatal 'Failed to remove some files.'

@@ -1,7 +1,7 @@
 #!/bin/sh -e
 #
 # $Id$
-# Copyright (C) 2003, 2004  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The contents cache functions for the initroot
 #
@@ -36,7 +36,7 @@ archive_contents_cache()
 		Verbose "archived contents index"
 	else
 		rm -f -- "$contents_archive"
-		Fatal "archiving of contents index failed."
+		Fatal 'Archiving of contents index failed.'
 	fi
 
 	trap - HUP INT QUIT TERM
@@ -49,8 +49,8 @@ unpack_contents_cache()
 	local f=cache/contents/contents_index_bin
 	install -p -m644 $verbose -- "$f" \
 		"$contents_index_bin" &&
-		Verbose "unpacked contents index" ||
-		Fatal "unpacking of contents index failed."
+		Verbose 'Unpacked contents index.' ||
+		Fatal 'Unpacking of contents index failed.'
 } # unpack_contents_cache
 
 make_contents_index_list()
@@ -77,8 +77,8 @@ check_contents_cache()
 	[ -z "$no_contents_indices" ] || return 0
 
 	make_contents_index_list &&
-		Verbose "created contents index list" ||
-		Fatal "failed to create contents index list."
+		Verbose 'Created contents index list.' ||
+		Fatal 'Failed to create contents index list.'
 
 	[ -z "$no_cache" ] || return 0
 
@@ -98,17 +98,17 @@ check_contents_cache()
 				break
 			fi
 		done
-	[ ! -f "$bad" ] || Fatal "failed to check contents cache."
+	[ ! -f "$bad" ] || Fatal 'Failed to check contents cache.'
 
 	while :; do
 		if [ ! -s cache/contents/contents_index_bin ]; then
-			Verbose "missing contents_index_bin archive, invalidating contents cache"
+			Verbose 'Missing contents_index_bin archive, invalidating contents cache.'
 			rebuild_contents_cache=1
 			break
 		fi
 
 		if ! cmp -s cache/contents/list{.new,}/index; then
-			Verbose "index list changed, invalidating contents cache"
+			Verbose 'Index list changed, invalidating contents cache.'
 			rebuild_contents_cache=1
 			break
 		fi
@@ -120,7 +120,7 @@ check_contents_cache()
 				n="$(printf %s "$f" |sed -e s,/,_,g)"
 				if [ "cache/contents/index.new/$n" -nt "cache/contents/index/$n" -o \
 				     "cache/contents/index.new/$n" -ot "cache/contents/index/$n" ]; then
-					Verbose "index $n changed, invalidating contents cache"
+					Verbose "Index $n changed, invalidating contents cache."
 					printf %s\\n "$n" >"$bad"
 					break
 				fi
@@ -187,7 +187,7 @@ create_contents()
 	cat cache/contents/list/index |
 		while read f; do
 			if ! egrep '^/((usr/)?bin|(usr/)?sbin|usr/X11R6/bin|etc)/' "$f"; then
-				Verbose "failed to process contents index $f"
+				Verbose "Failed to process contents index $f."
 				printf %s\\n "$f" >"$bad"
 				break
 			fi
@@ -195,15 +195,15 @@ create_contents()
 
 	if [ -f "$bad" ]; then
 		rm -rf "$tmpdir"
-		Fatal "failed to create contents index."
+		Fatal 'Failed to create contents index.'
 	fi
 
 	if ! LC_COLLATE=C prepare_contents "$tmpdir" >"$contents_index_bin"; then
 		rm -rf "$tmpdir"
-		Fatal "failed to prepare contents index."
+		Fatal 'Failed to prepare contents index.'
 	fi
 	rm -rf "$tmpdir"
-	Verbose "prepared contents index"
+	Verbose 'Prepared contents index.'
 
 	if [ -s "$contents_index_bin" ]; then
 		chmod 644 "$contents_index_bin"

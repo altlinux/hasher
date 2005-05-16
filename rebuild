@@ -27,9 +27,8 @@ else
 	. /usr/share/hasher/functions
 fi
 
-Usage()
+show_help()
 {
-	[ "$1" = 0 ] || exec >&2
 	cat <<EOF
 rebuild - rebuilds source packages.
 
@@ -58,10 +57,10 @@ Valid options are:
   -V, --version                     print program version and exit;
   -h, --help                        show this text.
 EOF
-	[ -n "$1" ] && exit "$1" || exit
+	exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l with-stuff,without-stuff,no-stuff,excludedocs,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,rebuild-prog:,query-req-prog:,target:,repo:,args:,mountpoints:,nodeps,number:,hasher-priv-dir:,quiet,verbose,help,version -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,V,h -l with-stuff,without-stuff,no-stuff,excludedocs,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,rebuild-prog:,query-req-prog:,target:,repo:,args:,mountpoints:,nodeps,number:,hasher-priv-dir:,quiet,verbose,help,version -- "$@"` || show_usage
 eval set -- "$TEMP"
 
 nodeps=
@@ -122,18 +121,20 @@ while :; do
 			;;
 		-V|--version) print_version rebuild
 			;;
-		-h|--help) Usage 0
+		-h|--help) show_help
 			;;
 		--) shift; break
 			;;
-		*) Fatal "unrecognized option: $1"
+		*) Fatal "Unrecognized option: $1"
 			;;
 	esac
 	shift
 done
 
 # Exactly two arguments, please.
-[ "$#" -ge 2 ] || Usage
+[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
+[ "$#" -le 2 ] || show_usage 'Too many arguments.'
+
 set_workdir "$1"
 shift
 
@@ -156,7 +157,7 @@ else
 exec nice time rpmbuild --rebuild $nodeps --target="$(quote_arg "${target:-$def_target}")" $rpmargs "\$@"
 __EOF__
 	chmod 755 "chroot/.host/rebuild"
-	Verbose "created rebuild script."
+	Verbose 'Created rebuild script.'
 fi
 
 # Copy source to chroot.
@@ -321,7 +322,7 @@ case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |grep -
 			xargs -r0 mv --reply=yes $verbose --target-directory=${repo:-$def_repo}/SRPMS.hasher/ --
 		;;
 	*)
-		Fatal "too many src.rpm files written."
+		Fatal 'Too many src.rpm files written.'
 		;;
 esac
 find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.rpm -print0 |

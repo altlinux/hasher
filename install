@@ -27,9 +27,8 @@ else
 	. /usr/share/hasher/functions
 fi
 
-Usage()
+show_help()
 {
-	[ "$1" = 0 ] || exec >&2
 	cat <<EOF
 install - installs binary packages.
 
@@ -46,10 +45,10 @@ Valid options are:
   -V, --version             print program version and exit;
   -h, --help                show this text.
 EOF
-	[ -n "$1" ] && exit "$1" || exit
+	exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l number:,hasher-priv-dir:,excludedocs,quiet,verbose,help,version -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,V,h -l number:,hasher-priv-dir:,excludedocs,quiet,verbose,help,version -- "$@"` || show_usage
 eval set -- "$TEMP"
 
 while :; do
@@ -71,18 +70,19 @@ while :; do
 			;;
 		-V|--version) print_version install
 			;;
-		-h|--help) Usage 0
+		-h|--help) show_help
 			;;
 		--) shift; break
 			;;
-		*) Fatal "unrecognized option: $1"
+		*) Fatal "Unrecognized option: $1"
 			;;
 	esac
 	shift
 done
 
 # At least two arguments, please.
-[ "$#" -ge 2 ] || Usage
+[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
+
 set_workdir "$1"
 shift
 
@@ -93,9 +93,9 @@ check_helpers
 [ -r "$APT_CONFIG" ] || Fatal "$APT_CONFIG: cannot access APT configuration."
 
 filelist="$(print_uris "$@")" ||
-	Fatal "failed to generate package file list."
+	Fatal 'Failed to generate package file list.'
 if [ -z "$filelist" ]; then
-	Verbose "nothing to install."
+	Verbose 'Nothing to install.'
 	exit 0
 fi
 
@@ -119,8 +119,8 @@ __EOF__
 chmod 755 "$entry"
 
 "$chrootuid1" $number "$chroot" /.host/entry &&
-	Verbose "packages installation complete." ||
-	Fatal "packages installation failed."
+	Verbose 'Packages installation complete.' ||
+	Fatal 'Packages installation failed.'
 
 purge_chroot_in
 update_RPM_database $filelist

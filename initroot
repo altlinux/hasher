@@ -27,9 +27,8 @@ else
 	. /usr/share/hasher/functions
 fi
 
-Usage()
+show_help()
 {
-	[ "$1" = 0 ] || exec >&2
 	cat <<EOF
 initroot - fills chroot with initial set of packages.
 
@@ -54,10 +53,10 @@ Valid options are:
   -V, --version                 print program version and exit;
   -h, --help                    show this text.
 EOF
-	[ -n "$1" ] && exit "$1" || exit
+	exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l no-cache,no-contents-indices,excludedocs,repackage-source,no-repackage-source,pkg-init-list:,pkg-build-list:,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help,version -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,V,h -l no-cache,no-contents-indices,excludedocs,repackage-source,no-repackage-source,pkg-init-list:,pkg-build-list:,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help,version -- "$@"` || show_usage
 eval set -- "$TEMP"
 
 no_cache=
@@ -104,20 +103,22 @@ while :; do
 			;;
 		-V|--version) print_version initroot
 			;;
-		-h|--help) Usage 0
+		-h|--help) show_help
 			;;
-		--contents-index-all|--contents-index-bin) shift # obsolete
-			;;
+		--contents-index-all|--contents-index-bin)
+			Info "Warning: obsolete option $1 ignored."
+			shift
 		--) shift; break
 			;;
-		*) Fatal "unrecognized option: $1"
+		*) Fatal "Unrecognized option: $1"
 			;;
 	esac
 	shift
 done
 
-# exactly one argument, please.
-[ "$#" -eq 1 ] || Usage
+# Exactly one argument, please.
+[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+[ "$#" -le 1 ] || show_usage 'Too many arguments.'
 
 set_workdir "$1"
 shift
@@ -133,12 +134,12 @@ mkdir -p -m700 $verbose cache/contents/{list,index}{,.new}
 check_helpers
 
 ugid1="$("$getugid1" $number)" ||
-	Fatal "getugid1 failed."
+	Fatal 'getugid1 failed.'
 uid1="$(printf %s "$ugid1" |cut -d: -f1)"
 gid1="$(printf %s "$ugid1" |cut -d: -f2)"
 
 ugid2="$("$getugid2" $number)" ||
-	Fatal "getugid2 failed."
+	Fatal 'getugid2 failed.'
 uid2="$(printf %s "$ugid2" |cut -d: -f1)"
 gid2="$(printf %s "$ugid2" |cut -d: -f2)"
 
@@ -152,13 +153,13 @@ check_tty
 
 init_list=`printf %s "$init_list" |tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//'`
 [ -n "$init_list" ] ||
-	Fatal "initial package file list is empty, cannot setup chroot."
+	Fatal 'Initial package file list is empty, cannot setup chroot.'
 
 initlist="$(print_uris $init_list)" ||
-	Fatal "failed to generate initial package file list."
+	Fatal 'Failed to generate initial package file list.'
 [ -n "$initlist" ] &&
-	Verbose "generated initial package file list." ||
-	Fatal "failed to generate non-empty initial package file list; check your sources.list"
+	Verbose 'Generated initial package file list.' ||
+	Fatal 'Failed to generate non-empty initial package file list; check your sources.list'
 
 # reorder to get setup and filesystem first.
 initlist="$(printf %s "$initlist" |grep '/setup[-_]' ||:)
@@ -174,7 +175,7 @@ fi
 build_list=`printf %s "$build_list" |tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//'`
 if [ -n "$build_list" ]; then
 	buildlist="$(print_uris $build_list)" ||
-		Fatal "failed to generate build package file list."
+		Fatal 'Failed to generate build package file list.'
 	buildlist="$(
 		printf %s\\n "$buildlist" |while read bp; do
 			[ -n "$bp" ] || continue
@@ -183,10 +184,10 @@ if [ -n "$build_list" ]; then
 	)"
 	buildlist="$(printf %s "$buildlist" |grep -v '^$' ||:)"
 	[ -n "$buildlist" ] &&
-		Verbose "generated build package file list." ||
-		Fatal "failed to generate non-empty build package file list; check your sources.list"
+		Verbose 'Generated build package file list.' ||
+		Fatal 'Failed to generate non-empty build package file list; check your sources.list'
 else
-	Verbose "package file list for build is empty, bypassing."
+	Verbose 'Package file list for build is empty, bypassing.'
 	buildlist=
 fi # $build_list
 
@@ -207,8 +208,8 @@ fi
 rmdir $verbose chroot/proc chroot/sys &&
 mkdir -m755 $verbose chroot/proc chroot/sys &&
 chgrp "$gid1" $verbose chroot/proc chroot/sys &&
-	Verbose "prepared mount points." ||
-	Fatal "failed to prepare mount points."
+	Verbose 'Prepared mount points.' ||
+	Fatal 'Failed to prepare mount points.'
 
 check_contents_cache
 
@@ -221,7 +222,7 @@ fi
 if [ -n "$build_list" ]; then
 	# Create /dev/log.
 	/usr/bin/mksock -m666 "$chroot/dev/log" ||
-		Fatal "failed to create \`$chroot/dev/log' socket."
+		Fatal "Failed to create \`$chroot/dev/log' socket."
 
 	# Create RPM build directory tree.
 	cat >"$entry" <<__EOF__
@@ -243,8 +244,8 @@ __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 	"$chrootuid2" $number "$chroot" /.host/entry &&
-		Verbose "created RPM build directory tree." ||
-		Fatal "failed to create RPM build directory tree."
+		Verbose "Created RPM build directory tree." ||
+		Fatal 'Failed to create RPM build directory tree.'
 fi # $build_list
 
 purge_chroot_in

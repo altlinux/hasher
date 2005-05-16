@@ -27,9 +27,8 @@ else
 	. /usr/share/hasher/functions
 fi
 
-Usage()
+show_help()
 {
-	[ "$1" = 0 ] || exec >&2
 	cat <<EOF
 mkaptbox - creates initial aptbox in specified working directory.
 
@@ -55,10 +54,10 @@ Valid options are:
 Report bugs to http://bugs.altlinux.ru/
 
 EOF
-	[ -n "$1" ] && exit "$1" || exit
+	exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,q,v,V,h -l with-stuff,without-stuff,no-stuff,target:,repo:,apt-config:,apt-prefix:,no-update,update,force,quiet,verbose,help,version -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o f,u,q,v,V,h -l with-stuff,without-stuff,no-stuff,target:,repo:,apt-config:,apt-prefix:,no-update,update,force,quiet,verbose,help,version -- "$@"` || show_usage
 eval set -- "$TEMP"
 
 force=
@@ -96,7 +95,7 @@ while :; do
 			;;
 		-V|--version) print_version mkaptbox
 			;;
-		-h|--help) Usage 0
+		-h|--help) show_help
 			;;
 		--) shift; break
 			;;
@@ -107,7 +106,9 @@ while :; do
 done
 
 # Exactly one argument, please.
-[ "$#" -eq 1 ] || Usage
+[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+
 set_workdir "$1"
 shift
 
@@ -134,7 +135,7 @@ else
 	cd aptbox
 fi
 
-Verbose "changed working directory to \`$aptbox'"
+Verbose "Changed working directory to \`$aptbox'."
 
 # apt/rpm skeleton directories.
 mkdir -p $verbose -- \
@@ -158,18 +159,18 @@ RPM::RootDir "$aptbox";
 APT::Install::Virtual "true";
 APT::Install::VirtualVersion "true";
 __EOF__
-Verbose "created APT configuration file \`$APT_CONFIG'"
+Verbose "Created APT configuration file \`$APT_CONFIG'."
 
 target_config="./etc/apt/sources.list"
 cat >"$target_config" <<__EOF__
 ${no_stuff:+#}rpm file:$workdir/${repo:-$def_repo} ${target:-$def_target} hasher
 $(grep '^[^#]' "$sl_value")
 __EOF__
-Verbose "created APT source list file \`$target_config'"
+Verbose "Created APT source list file \`$target_config'."
 
 # create a new rpm database.
 rpmdb --initdb --dbpath "$aptbox/var/lib/rpm"
-Verbose "created RPM database in \`./var/lib/rpm/'"
+Verbose "Created RPM database in \`./var/lib/rpm/'."
 
 # create apt wrappers.
 for n in apt-cache apt-config apt-get genbasedir; do

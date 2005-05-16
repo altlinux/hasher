@@ -27,9 +27,8 @@ else
 	. /usr/share/hasher/functions
 fi
 
-Usage()
+show_help()
 {
-	[ "$1" = 0 ] || exec >&2
 	cat <<EOF
 mkchroot - creates initial chroot.
 
@@ -45,10 +44,10 @@ Valid options are:
   -V, --version             print program version and exit;
   -h, --help                show this text.
 EOF
-	[ -n "$1" ] && exit "$1" || exit
+	exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l number:,hasher-priv-dir:,quiet,verbose,help,version -- "$@"` || Usage
+TEMP=`getopt -n $PROG -o q,v,V,h -l number:,hasher-priv-dir:,quiet,verbose,help,version -- "$@"` || show_usage
 eval set -- "$TEMP"
 
 while :; do
@@ -68,24 +67,26 @@ while :; do
 			;;
 		-V|--version) print_version mkchroot
 			;;
-		-h|--help) Usage 0
+		-h|--help) show_help
 			;;
 		--) shift; break
 			;;
-		*) Fatal "unrecognized option: $1"
+		*) Fatal "Unrecognized option: $1"
 			;;
 	esac
 	shift
 done
 
 # Exactly one argument, please.
-[ "$#" -eq 1 ] || Usage
+[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+
 set_workdir "$1"
 shift
 
 # exists already?
 [ ! -e chroot -a ! -L chroot ] ||
-	Fatal "remove $chroot first."
+	Fatal "Remove $chroot first."
 
 check_helpers
 
@@ -98,14 +99,14 @@ gid2="$(printf %s "$ugid2" |cut -d: -f2)"
 
 mkdir -m1775 $verbose -- chroot
 cd chroot
-Verbose "changed working directory to \`$chroot'"
+Verbose "Changed working directory to \`$chroot'."
 
 mkdir -m711 $verbose .host
 mkdir -m755 $verbose .in dev dev/pts
 chgrp "$gid1" $verbose . dev dev/pts
 mkdir -m1770 $verbose .out
 chgrp "$gid2" $verbose .out
-Verbose "created directory tree."
+Verbose 'Created directory tree.'
 
 install -p -m755 $verbose /bin/ash.static .host/sh
 install -p -m755 $verbose /usr/bin/find.static .host/find
@@ -114,9 +115,9 @@ postin="$HOME/.hasher/install/post"
 if [ -r "$postin" -a -x "$postin" ]; then
 	install -p -m755 $verbose "$postin" .host/postin
 fi
-Verbose "installed .host programs."
+Verbose 'Installed .host programs.'
 
 "$makedev" $number "$chroot" ||
-	Fatal "failed to make devices."
+	Fatal 'failed to make devices.'
 
-Verbose "created devices in \`$chroot/dev/'"
+Verbose "Created devices in \`$chroot/dev/'."

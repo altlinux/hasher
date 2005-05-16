@@ -76,14 +76,7 @@ Valid options are:
 Report bugs to http://bugs.altlinux.ru/
 
 EOF
-	exit 0
-}
-
-show_usage()
-{
-	[ -z "$*" ] || Info "$*"
-	echo "Try \`$PROG --help' for more information." >&2
-	exit 1
+	exit
 }
 
 TEMP=`getopt -n $PROG -o q,v,V,h -l with-stuff,without-stuff,no-stuff,no-cache,no-contents-indices,excludedocs,repackage-source,no-repackage-source,initroot-only,cleanup-only,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,rebuild-prog:,query-req-prog:,target:,repo:,number:,nprocs:,mountpoints:,hasher-priv-dir:,install-langs:,build-args:,contents-index-all:,contents-index-bin:,pkg-init-list:,pkg-build-list:,apt-config:,apt-prefix:,quiet,verbose,help,version -- "$@"` || show_usage
@@ -196,22 +189,16 @@ while :; do
 done
 
 if [ -n "$initroot_only" -a -n "$cleanup_only" ]; then
-	show_usage "--initroot-only and --cleanup-only are mutually exclusive options."
+	show_usage '--initroot-only and --cleanup-only are mutually exclusive options.'
 fi
 
 if [ -z "$initroot_only" -a -z "$cleanup_only" ]; then
 	# At least two arguments, please.
-	if [ "$#" -lt 2 ]; then
-		show_usage 'Insufficient arguments.'
-	fi
+	[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
 else
 	# Exactly one argument, please.
-	if [ "$#" -lt 1 ]; then
-		show_usage 'Insufficient arguments.'
-	fi
-	if [ "$#" -gt 1 ]; then
-		show_usage 'Too many arguments.'
-	fi
+	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+	[ "$#" -le 1 ] || show_usage 'Too many arguments.'
 fi
 
 set_workdir "$1"
@@ -241,7 +228,7 @@ pidfile="lockdir/pid"
 if ! mkdir -m700 $verbose -- lockdir; then
 	[ ! -s "$pidfile" ] ||
 		Info "Working directory \`$workdir' is locked, pid=`cat "$pidfile"`."
-	Fatal "Unable to create lock directory."
+	Fatal 'Unable to create lock directory.'
 fi
 
 trap exit_handler HUP PIPE INT QUIT TERM EXIT
@@ -252,18 +239,18 @@ cleanup_workdir()
 {
 	if [ -d aptbox ]; then
 		rm -rf aptbox &&
-			Verbose "Removed aptbox." ||
-			Fatal "Failed to remove aptbox."
+			Verbose 'Removed aptbox.' ||
+			Fatal 'Failed to remove aptbox.'
 	fi
 	if [ -d cache ]; then
 		rm -rf cache &&
-			Verbose "Removed cache." ||
-			Fatal "Failed to remove cache."
+			Verbose 'Removed cache.' ||
+			Fatal 'Failed to remove cache.'
 	fi
 	if [ -d repo ]; then
 		rm -rf repo &&
-			Verbose "Removed repo." ||
-			Fatal "Failed to remove repo."
+			Verbose 'Removed repo.' ||
+			Fatal 'Failed to remove repo.'
 	fi
 	if [ -d chroot ]; then
 		$hasher_dir/rmchroot "$workdir" \
@@ -272,8 +259,8 @@ cleanup_workdir()
 			${verbose:+$verbose} \
 			${number:+--number=$number} \
 			&& 
-			Verbose "Removed chroot." ||
-			Fatal "Failed to remove chroot."
+			Verbose 'Removed chroot.' ||
+			Fatal 'Failed to remove chroot.'
 	fi
 }
 

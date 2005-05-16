@@ -50,11 +50,18 @@ print_version()
 $prog version @VERSION@
 Written by Dmitry V. Levin <ldv@altlinux.org>
 
-Copyright (C) 2003, 2004, 2005  Dmitry V. Levin <ldv@altlinux.org>
+Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 EOF
 	exit
+}
+
+show_usage()
+{
+	[ -z "$*" ] || Info "$*"
+	echo "Try \`$PROG --help' for more information." >&2
+	exit 1
 }
 
 # safe umask.
