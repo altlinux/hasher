@@ -46,6 +46,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %changelog
 * Tue May 17 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.15-alt1
 - hsh: new option: --cleanup-only.
+- initroot: copy /etc/skel contents to the builder's homedir.
 - functions: new function: show_usage.
 - Reduced size of usage messages to necessary minimum.
 - Enforced policy on messages format.
