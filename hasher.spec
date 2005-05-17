@@ -45,12 +45,14 @@ See %_docdir/%name-%version/QUICKSTART for details.
 
 %changelog
 * Tue May 17 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.15-alt1
-- hsh: new option: --cleanup-only.
+- hsh(1): new option: --cleanup-only.
+- hsh(1), rebuild: new option: --query-repackage.
 - initroot: copy /etc/skel contents to the builder's homedir.
 - functions: new function: show_usage.
 - Reduced size of usage messages to necessary minimum.
 - Enforced policy on messages format.
-- hsh-shell: new program.
+- hsh-shell(1): new program.
+- FAQ: updated.
 
 * Tue May 03 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.14-alt1
 - rebuild: really handle --mountpoints as comma-separated list [take 3].
