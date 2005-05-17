@@ -237,6 +237,10 @@ $entry_fakeroot_header
 
 ldconfig
 adjust_kernel_headers
+groupadd -g $gid0 caller
+useradd -M -u $uid0 -g $gid0 -d / caller
+groupadd -g $gid1 rooter
+useradd -M -u $uid1 -g $gid1 -d /root rooter
 groupadd -g $gid2 builder
 useradd -M -u $uid2 -g $gid2 -d /usr/src builder
 chmod 1777 /usr/src
