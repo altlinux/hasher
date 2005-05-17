@@ -48,6 +48,8 @@ See %_docdir/%name-%version/QUICKSTART for details.
 - hsh(1): new option: --cleanup-only.
 - hsh(1), rebuild: new option: --query-repackage.
 - initroot: copy /etc/skel contents to the builder's homedir.
+- cache_chroot: create group and passwd entries for caller
+  and pseudoroot users.
 - functions: new function: show_usage.
 - Reduced size of usage messages to necessary minimum.
 - Enforced policy on messages format.
