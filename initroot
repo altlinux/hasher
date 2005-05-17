@@ -134,6 +134,9 @@ mkdir -p -m700 $verbose cache/contents/{list,index}{,.new}
 
 check_helpers
 
+uid0="$(id -u)"
+gid0="$(id -g)"
+
 ugid1="$("$getugid1" $number)" ||
 	Fatal 'getugid1 failed.'
 uid1="$(printf %s "$ugid1" |cut -d: -f1)"
