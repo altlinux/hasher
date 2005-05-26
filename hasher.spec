@@ -16,7 +16,7 @@ Source: %url/%name-%version.tar.bz2
 
 Requires: %helperdir
 Requires: getopt, ash-static, cpio-static, find-static
-Requires: hasher-priv >= 1.0, apt-utils >= 0.5.5cnc4.1-alt7
+Requires: hasher-priv >= 1.0, apt-utils >= 0.5.5cnc4.1-alt5
 # Due to "readlink -e".
 Requires: coreutils >= 5.2.1-alt3
 
