@@ -45,6 +45,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
 
 %changelog
 * Fri May 27 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.16-alt1
+- rebuild: pass sources as arguments to query-req-prog script.
 - cache_chroot: caller user and/or group may exist,
   do not fail when unable to create them.
 - Corrected package dependencies.

@@ -201,23 +201,23 @@ if [ -z "$nodeps" ]; then
 		cat >chroot/.host/query_req <<__EOF__
 $entry_header
 
-rpmi -i -- "$(quote_arg "$sname")"
+rpmi -i -- "\$@"
 cd \`rpm --eval %_specdir\`
 rpmbuild -bs --nodeps $rpmargs -- *.spec >/dev/null
 cd \`rpm --eval %_srcrpmdir\`
-rpmquery -pR -- "$(quote_arg "$sname")"
+rpmquery -pR -- "\$@"
 __EOF__
 	else
 		cat >chroot/.host/query_req <<__EOF__
 $entry_header
 
-rpmquery -pR -- "$(quote_arg "$sname")"
+rpmquery -pR -- "\$@"
 __EOF__
 	fi
 	chmod 755 chroot/.host/query_req
 
 	deps="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-		"$chrootuid2" $number "$chroot" /.host/query_req)" &&
+		"$chrootuid2" $number "$chroot" /.host/query_req "$sname")" &&
 		Verbose "$sname: fetched build dependencies." ||
 		Fatal "$sname: failed to fetch build dependencies."
 	deps="$(printf %s "$deps" |grep -v '^rpmlib(' |LC_ALL=C tr -d [[:blank:]])"
