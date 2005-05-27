@@ -16,9 +16,9 @@ Source: %url/%name-%version.tar.bz2
 
 Requires: %helperdir
 Requires: getopt, ash-static, cpio-static, find-static
-Requires: hasher-priv >= 1.0, apt-utils >= 0.5.5cnc4.1-alt5
+Requires: hasher-priv >= 0:1.0, apt-utils >= 0:0.5.5cnc4.1-alt7
 # Due to "readlink -e".
-Requires: coreutils >= 5.2.1-alt3
+Requires: coreutils >= 0:5.2.1-alt3
 
 Obsoletes: pkg-build-utils, libbte
 
@@ -48,7 +48,6 @@ See %_docdir/%name-%version/QUICKSTART for details.
 - rebuild: pass sources as arguments to query-req-prog script.
 - cache_chroot: caller user and/or group may exist,
   do not fail when unable to create them.
-- Corrected package dependencies.
 - Added query-req-prog and rebuild-prog examples.
 
 * Tue May 17 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.15-alt1
