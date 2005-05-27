@@ -216,8 +216,15 @@ __EOF__
 	fi
 	chmod 755 chroot/.host/query_req
 
+	cat >"$entry" <<__EOF__
+$entry_header
+
+/.host/query_req "$(quote_arg "$sname")"
+__EOF__
+	chmod 755 "$entry"
+
 	deps="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-		"$chrootuid2" $number "$chroot" /.host/query_req "$sname")" &&
+		"$chrootuid2" $number "$chroot" /.host/entry)" &&
 		Verbose "$sname: fetched build dependencies." ||
 		Fatal "$sname: failed to fetch build dependencies."
 	deps="$(printf %s "$deps" |grep -v '^rpmlib(' |LC_ALL=C tr -d [[:blank:]])"
