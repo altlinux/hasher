@@ -41,7 +41,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %_bindir/*
 %_datadir/%name
 %_mandir/man?/*
-%doc FAQ QUICKSTART README
+%doc FAQ QUICKSTART README *.sh
 
 %changelog
 * Fri May 27 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.16-alt1
@@ -49,6 +49,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
 - cache_chroot: caller user and/or group may exist,
   do not fail when unable to create them.
 - Corrected package dependencies.
+- Added query-req-prog and rebuild-prog examples.
 
 * Tue May 17 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.15-alt1
 - hsh(1): new option: --cleanup-only.
