@@ -199,8 +199,7 @@ if [ -z "$nodeps" ]; then
 		install -p -m755 $verbose "$prog_query_req" chroot/.host/query_req
 	elif [ -n "$query_repackage" ]; then
 		cat >chroot/.host/query_req <<__EOF__
-$entry_header
-
+#!/bin/sh -e
 rpmi -i -- "\$@"
 cd \`rpm --eval %_specdir\`
 rpmbuild -bs --nodeps $rpmargs -- *.spec >/dev/null
@@ -209,8 +208,7 @@ rpmquery -pR -- "\$@"
 __EOF__
 	else
 		cat >chroot/.host/query_req <<__EOF__
-$entry_header
-
+#!/bin/sh -e
 rpmquery -pR -- "\$@"
 __EOF__
 	fi
