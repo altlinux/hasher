@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.15
+Version: 1.0.16
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,11 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README
 
 %changelog
+* Fri May 27 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.16-alt1
+- cache_chroot: caller user and/or group may exist,
+  do not fail when unable to create them.
+- Corrected package dependencies.
+
 * Tue May 17 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.15-alt1
 - hsh(1): new option: --cleanup-only.
 - hsh(1), rebuild: new option: --query-repackage.
@@ -57,7 +62,8 @@ See %_docdir/%name-%version/QUICKSTART for details.
 - FAQ: updated.
 
 * Tue May 03 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.14-alt1
-- rebuild: really handle --mountpoints as comma-separated list [take 3].
+- rebuild: really handle --mountpoints as comma-separated list
+  [take 3].
 - functions,hsh,mkaptbox,rebuild:
   + new option: --repo (Ivan Fedorov, closes #6739).
 - hsh,initroot:
