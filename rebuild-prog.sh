@@ -2,7 +2,7 @@
 # Usage: hsh --rebuild-prog=path_to_this_script
 
 # install source package
-rpmi -i "$@"
+rpmi -i -- "$@"
 
 # find specfile
 specdir="`rpm --eval %_specdir`"
