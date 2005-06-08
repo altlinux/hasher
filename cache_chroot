@@ -57,6 +57,12 @@ __EOF__
 		Fatal 'Chroot archivation failed.'
 
 	trap - EXIT HUP INT QUIT TERM
+
+	# Regenerate data for later cache validation.
+	mv -f $verbose cache/chroot/list{.new,}/init
+	mv -f $verbose cache/chroot/list{.new,}/build
+	rm -rf cache/chroot/package
+	mv -f $verbose cache/chroot/package{.new,}
 } # archive_chroot_cache
 
 check_chroot_cache()
@@ -115,12 +121,6 @@ check_chroot_cache()
 		fi
 		break
 	done
-
-	# Regenerate data for later cache validation.
-	mv -f $verbose cache/chroot/list{.new,}/init
-	mv -f $verbose cache/chroot/list{.new,}/build
-	rm -f cache/chroot/package/*
-	mv -f cache/chroot/package.new/* cache/chroot/package/
 } # check_chroot_cache
 
 unpack_chroot_cache()

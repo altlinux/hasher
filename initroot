@@ -129,6 +129,8 @@ shift
 [ -r "$APT_CONFIG" ] || Fatal "$APT_CONFIG: cannot access APT configuration."
 
 mkdir -p -m700 $verbose cache
+rm -rf $verbose \
+	cache/chroot/{list,package}.new cache/contents/{list,index}.new
 mkdir -p -m700 $verbose cache/chroot/{list,package}{,.new}
 mkdir -p -m700 $verbose cache/contents/{list,index}{,.new}
 

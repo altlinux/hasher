@@ -40,6 +40,11 @@ archive_contents_cache()
 	fi
 
 	trap - HUP INT QUIT TERM
+
+	# Regenerate data for later cache validation.
+	mv -f $verbose cache/contents/list{.new,}/index
+	rm -rf $verbose cache/contents/index
+	mv -f $verbose cache/contents/index{.new,}
 } # archive_contents_cache
 
 unpack_contents_cache()
@@ -131,13 +136,6 @@ check_contents_cache()
 		fi
 		break
 	done
-
-	# Regenerate data for later cache validation.
-	mv -f $verbose cache/contents/list{.new,}/index
-	rm -f cache/contents/index/*
-	find cache/contents/index.new/ -maxdepth 1 -type f -print0 |
-		xargs -r0 mv -f --target-directory=cache/contents/index/ --
-	[ -z "$rebuild_contents_cache" ] || rm -f cache/contents/contents_index_bin
 } # check_contents_cache
 
 prepare_contents()
