@@ -114,6 +114,9 @@ no_sisyphus_check_out=
 [ -n "$prog_genbasedir" ] || prog_genbasedir="genbasedir"
 export prog_apt_get prog_apt_cache prog_apt_config prog_genbasedir
 
+# whether to save fakeroot state
+save_fakeroot=
+
 # source user config if any
 hasher_config="$HOME/.hasher/config"
 if [ -s "$hasher_config" ]; then
@@ -344,6 +347,43 @@ update_RPM_database()
 		Fatal "RPM database update failed."
 }
 
+# execute as pseudoroot.
+chrootuid1()
+{
+	[ $# -gt 0 ] || set -- /.host/entry
+	"$chrootuid1" $number "$chroot" "$@"
+}
+
+# execute as builder.
+chrootuid2()
+{
+	[ $# -gt 0 ] || set -- /.host/entry
+	"$chrootuid2" $number "$chroot" "$@"
+}
+
+create_entry_header()
+{
+	cat >"$entry" <<__EOF__
+#!/bin/sh -e
+TMPDIR="$HOME/tmp"
+export TMPDIR
+cd /.in
+__EOF__
+	chmod 755 "$entry"
+}
+
+create_entry_fakeroot_header()
+{
+	cat >"$entry" <<__EOF__
+#!/bin/sh -e
+if [ -z "\$FAKEROOTKEY" -a "\$USER" = root -a -x /usr/bin/fakeroot ]; then
+	exec /usr/bin/fakeroot${save_fakeroot:+ -i /.fakedata -s /.fakedata} "\$0" "\$@"
+fi
+cd /.in
+__EOF__
+	chmod 755 "$entry"
+}
+
 # assumed: defined APT_CONFIG, prog_apt_get
 print_uris()
 {
@@ -383,15 +423,4 @@ quote_arg()
 	out="$(printf %s "$*" |sed -e 's/[\`"$]/\\&/g')" || return 1
 	printf %s "$out"
 }
-
-entry_header='#!/bin/sh -e
-TMPDIR="$HOME/tmp"
-export TMPDIR
-cd /.in'
-
-entry_fakeroot_header='#!/bin/sh -e
-if [ -z "$FAKEROOTKEY" -a "$USER" = "root" -a -x "/usr/bin/fakeroot" ]; then
-	exec /usr/bin/fakeroot "$0" "$@"
-fi
-cd /.in'
 
