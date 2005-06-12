@@ -140,6 +140,7 @@ unpack_chroot_cache()
 	if [ -n "$save_fakeroot" ]; then
 		create_entry_fakeroot_header
 		cat >>"$entry" <<__EOF__
+cd /
 cpio --extract --make-directories --sparse --quiet --unconditional
 __EOF__
 		wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
@@ -164,6 +165,7 @@ create_chroot()
 	if [ -n "$save_fakeroot" ]; then
 		create_entry_fakeroot_header
 		cat >>"$entry" <<__EOF__
+cd /
 cpio --extract --make-directories --sparse --quiet --unconditional
 __EOF__
 		rpm2cpio "$f" |wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
