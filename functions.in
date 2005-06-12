@@ -365,7 +365,7 @@ create_entry_header()
 {
 	cat >"$entry" <<__EOF__
 #!/bin/sh -e
-TMPDIR="$HOME/tmp"
+TMPDIR="\$HOME/tmp"
 export TMPDIR
 cd /.in
 __EOF__
