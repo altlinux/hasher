@@ -108,6 +108,12 @@ mkdir -m1770 $verbose .out
 chgrp "$gid2" $verbose .out
 Verbose 'Created directory tree.'
 
+ln -s $verbose ../proc/self/fd dev/fd
+ln -s $verbose ../proc/self/fd/0 dev/stdin
+ln -s $verbose ../proc/self/fd/1 dev/stdout
+ln -s $verbose ../proc/self/fd/2 dev/stderr
+Verbose 'Created /dev symlinks.'
+
 install -p -m755 $verbose /bin/ash.static .host/sh
 install -p -m755 $verbose /usr/bin/find.static .host/find
 install -p -m755 $verbose /usr/bin/cpio.static .host/cpio
