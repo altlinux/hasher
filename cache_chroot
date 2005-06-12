@@ -138,6 +138,10 @@ unpack_chroot_cache()
 		Verbose "Unpacked $f." ||
 		Fatal "Unpack of $f failed."
 	if [ -n "$save_fakeroot" ]; then
+		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
+		    chrootuid1 /bin/touch /.fakedata &&
+			Verbose "Created fakedata." ||
+			Fatal "Failed to create fakedata."
 		create_entry_fakeroot_header
 		cat >>"$entry" <<__EOF__
 cd /
@@ -163,6 +167,10 @@ create_chroot()
 	done
 	Verbose 'Unpacked initial package list.'
 	if [ -n "$save_fakeroot" ]; then
+		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
+		    chrootuid1 /bin/touch /.fakedata &&
+			Verbose "Created fakedata." ||
+			Fatal "Failed to create fakedata."
 		create_entry_fakeroot_header
 		cat >>"$entry" <<__EOF__
 cd /
