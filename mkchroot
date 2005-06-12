@@ -123,7 +123,6 @@ if [ -r "$postin" -a -x "$postin" ]; then
 fi
 Verbose 'Installed .host programs.'
 
-"$makedev" $number "$chroot" ||
+"$makedev" $number "$chroot" &&
+	Verbose "Created devices in \`$chroot/dev/'." ||
 	Fatal 'failed to make devices.'
-
-Verbose "Created devices in \`$chroot/dev/'."
