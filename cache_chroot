@@ -210,11 +210,11 @@ __EOF__
 	update_RPM_database --nodeps $initlist
 
 	create_entry_fakeroot_header
-	cat >>"$entry" <<__EOF__
-cat >$f
-__EOF__
 	for f in /etc/host.conf /etc/hosts /etc/resolv.conf; do
 		if [ -r "$f" -a -s "$f" ]; then
+			cat >>"$entry" <<__EOF__
+cat >$f
+__EOF__
 			wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 			    chrootuid1 <"$f" &&
 				Verbose "Installed $f file." ||
