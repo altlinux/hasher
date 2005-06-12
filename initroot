@@ -42,6 +42,7 @@ Valid options are:
   --excludedocs                 do not install documentation files;
   --repackage-source            repackage source along with binaries;
   --no-repackage-source         do not repackage source along with binaries;
+  --save-fakeroot               save fakeroot state;
   --number=NUMBER               subconfig identifier;
   --hasher-priv-dir=DIR         hasher-priv directory;
   --nprocs=NUMBER               number of CPUs to use;
@@ -56,7 +57,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l no-cache,no-contents-indices,excludedocs,repackage-source,no-repackage-source,pkg-init-list:,pkg-build-list:,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help,version -- "$@"` || show_usage
+TEMP=`getopt -n $PROG -o q,v,V,h -l no-cache,no-contents-indices,excludedocs,repackage-source,no-repackage-source,save-fakeroot,pkg-init-list:,pkg-build-list:,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help,version -- "$@"` || show_usage
 eval set -- "$TEMP"
 
 no_cache=
@@ -75,6 +76,8 @@ while :; do
 		--repackage-source) repackage_source=1
 			;;
 		--no-repackage-source) repackage_source=
+			;;
+		--save-fakeroot) save_fakeroot=1
 			;;
 		--number) shift; number="${1##-}"
 			[ -z "$(printf %s "$number" |tr -d [0-9])" ] ||
@@ -127,6 +130,10 @@ shift
 [ -d "$chroot" ] || Fatal "$chroot: cannot access chroot."
 [ -d "$aptbox" ] || Fatal "$aptbox: cannot access aptbox."
 [ -r "$APT_CONFIG" ] || Fatal "$APT_CONFIG: cannot access APT configuration."
+
+if [ -n "$save_fakeroot" ]; then
+	init_list="$init_list cpio"
+fi
 
 mkdir -p -m700 $verbose cache
 rm -rf $verbose \
@@ -231,9 +238,8 @@ if [ -n "$build_list" ]; then
 		Fatal "Failed to create \`$chroot/dev/log' socket."
 
 	# Create RPM build directory tree.
-	cat >"$entry" <<__EOF__
-$entry_header
-
+	create_entry_header
+	cat >>"$entry" <<__EOF__
 [ ! -d /etc/skel ] || cp -a $verbose /etc/skel/* /etc/skel/.[^.]* "\$HOME"/ ||:
 mkdir -p $verbose -m700 -- "\$TMPDIR"
 rpminit $verbose
@@ -247,10 +253,9 @@ ${contents_index_bin:+%_pkg_contents_index_bin /.host/contents_index_bin}
 ${repackage_source:+%_rpmbuild_packagesource 1}
 EOF
 __EOF__
-	chmod 755 "$entry"
 
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-	"$chrootuid2" $number "$chroot" /.host/entry &&
+	    chrootuid2 &&
 		Verbose "Created RPM build directory tree." ||
 		Fatal 'Failed to create RPM build directory tree.'
 fi # $build_list

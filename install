@@ -40,6 +40,7 @@ Valid options are:
   --number=NUMBER           subconfig identifier;
   --hasher-priv-dir=DIR     hasher-priv directory;
   --excludedocs             do not install documentation files;
+  --save-fakeroot           save fakeroot state;
   -q, --quiet               try to be more quiet;
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;
@@ -48,7 +49,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l number:,hasher-priv-dir:,excludedocs,quiet,verbose,help,version -- "$@"` || show_usage
+TEMP=`getopt -n $PROG -o q,v,V,h -l number:,hasher-priv-dir:,excludedocs,save-fakeroot,quiet,verbose,help,version -- "$@"` || show_usage
 eval set -- "$TEMP"
 
 while :; do
@@ -63,6 +64,8 @@ while :; do
 			shift
 			;;
 		--excludedocs) exclude_docs=--excludedocs
+			;;
+		--save-fakeroot) save_fakeroot=1
 			;;
 		-q|--quiet) quiet=-q
 			;;
@@ -103,9 +106,8 @@ copy_chroot_incoming $filelist
 
 check_tty
 
-cat >"$entry" <<__EOF__
-$entry_fakeroot_header
-
+create_entry_fakeroot_header
+cat >>"$entry" <<__EOF__
 ${exclude_docs:+export RPM_EXCLUDEDOCS=1}
 rpmi -i $rpm_verbose $hash $exclude_docs $(for f in $filelist; do printf %s "\"$(quote_arg "${f##*/}")\" "; done)
 ldconfig
@@ -116,9 +118,8 @@ if [ -x /.host/postin ]; then
 	/.host/postin
 fi
 __EOF__
-chmod 755 "$entry"
 
-"$chrootuid1" $number "$chroot" /.host/entry &&
+chrootuid1 &&
 	Verbose 'Packages installation complete.' ||
 	Fatal 'Packages installation failed.'
 
