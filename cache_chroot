@@ -48,7 +48,7 @@ cd /
 find $list |cpio --create --quiet --format=newc
 __EOF__
 
-	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
+	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long wlimit_bytes_out= \
 	    chrootuid1 >"$chroot_archive" &&
 		Verbose 'Chroot archivation complete.' ||
 		Fatal 'Chroot archivation failed.'
