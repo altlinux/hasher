@@ -113,6 +113,6 @@ trap exit_handler HUP PIPE INT QUIT TERM EXIT
 echo $$ >"$pidfile"
 
 export mountpoints
-use_pty=yes "$chrootuid2" $number "$chroot" /bin/runas -bash bash &&
+use_pty=yes chrootuid2 /bin/runas -bash bash &&
 	Verbose 'hasher shell finished.' ||
 	Fatal 'hasher shell failed.'
