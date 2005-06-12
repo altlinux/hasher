@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.16
+Version: 1.0.17
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,13 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README *.sh
 
 %changelog
+* Sun Jun 12 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.17-alt1
+- cache_chroot, cache_contents: save cache validation data
+  after cache regeneration.
+- mkchroot: create /dev symlinks.
+- hsh(1), hsh-shell(1), cache_chroot, initroot, install,
+  rebuild, rmchroot: implemented --save-fakeroot option.
+
 * Fri May 27 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.16-alt1
 - rebuild: pass sources as arguments to query-req-prog script.
 - cache_chroot: caller user and/or group may exist,
