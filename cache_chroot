@@ -274,7 +274,7 @@ useradd -M -u $uid2 -g $gid2 -d /usr/src builder
 __EOF__
 
 		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-		    chrootuid1 /bin/chmod 1777 /usr/src &&
+		    chrootuid1 /bin/chmod $verbose 1777 /usr/src &&
 		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 		    chrootuid1 &&
 			Verbose 'First time initialization complete.' ||
