@@ -152,6 +152,8 @@ __EOF__
 			Verbose "Unpacked $f for fakedata." ||
 			Fatal "Unpack of $f for fakedata failed."
 	fi
+	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
+	    chrootuid1 /bin/chmod $verbose 1777 /usr/src
 } # unpack_chroot_cache
 
 create_chroot()
