@@ -176,10 +176,12 @@ create_chroot()
 cd /
 cpio --extract --make-directories --sparse --quiet --unconditional
 __EOF__
-		rpm2cpio "$f" |wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
-		    chrootuid1 &&
-			Verbose "Unpacked ${f##*/} for fakedata." ||
-			Fatal "Unpack of ${f##*/} for fakedata failed."
+		for f in $initlist; do
+			rpm2cpio "$f" |wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
+			    chrootuid1 &&
+				Verbose "Unpacked ${f##*/} for fakedata." ||
+				Fatal "Unpack of ${f##*/} for fakedata failed."
+		done
 	fi
 
 	create_entry_fakeroot_header
