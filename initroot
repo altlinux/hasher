@@ -30,7 +30,7 @@ fi
 show_help()
 {
 	cat <<EOF
-initroot - fills chroot with initial set of packages.
+initroot - fill hasher chroot with initial set of packages.
 
 Usage: $PROG [options] <path-to-workdir>
 

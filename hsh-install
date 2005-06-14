@@ -30,7 +30,7 @@ fi
 show_help()
 {
 	cat <<EOF
-install - installs binary packages.
+$PROG - install binary packages into hasher chroot.
 
 Usage: $PROG [options] <path-to-workdir> <package>...
 

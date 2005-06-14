@@ -30,7 +30,7 @@ fi
 show_help()
 {
 	cat <<EOF
-rebuild - rebuilds source packages.
+rebuild - rebuild source packages.
 
 Usage: $PROG [options] <path-to-workdir> <source-package>
 

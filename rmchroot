@@ -30,7 +30,7 @@ fi
 show_help()
 {
 	cat <<EOF
-rmchroot - removes chroot created by mkchroot.
+rmchroot - remove hasher chroot created by mkchroot.
 
 Usage: $PROG [options] <path-to-workdir>
 

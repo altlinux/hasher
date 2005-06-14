@@ -30,7 +30,7 @@ fi
 show_help()
 {
 	cat <<EOF
-hsh - builds package using hasher utilities.
+hsh - build package using hasher utilities.
 
 Usage: $PROG [options] <path-to-workdir> <package>...
 

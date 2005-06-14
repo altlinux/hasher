@@ -30,7 +30,7 @@ fi
 show_help()
 {
 	cat <<EOF
-mkaptbox - creates initial aptbox in specified working directory.
+mkaptbox - create initial aptbox in specified working directory.
 
 Usage: $PROG [options] <path-to-workdir>
 

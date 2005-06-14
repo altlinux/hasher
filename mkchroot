@@ -30,7 +30,7 @@ fi
 show_help()
 {
 	cat <<EOF
-mkchroot - creates initial chroot.
+mkchroot - create initial chroot.
 
 Usage: $PROG [options] <path-to-workdir>
 
