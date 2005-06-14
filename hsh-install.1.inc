@@ -18,7 +18,7 @@
 .\" Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 [NAME]
-\fBhsh\-install\fR \- install binary packages into hasher chroot.
+\fBhsh\-install\fR \- install binary packages into hasher chroot
 
 [SEE ALSO]
 .BR hsh (1).
