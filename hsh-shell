@@ -93,24 +93,7 @@ shift
 
 check_helpers
 
-exit_handler()
-{
-	local rc=$?
-	trap - EXIT
-	rm -rf -- lockdir
-	exit $rc
-}
-
-pidfile="lockdir/pid"
-if ! mkdir -m700 $verbose -- lockdir; then
-	[ ! -s "$pidfile" ] ||
-		Info "Working directory \`$workdir' is locked, pid=`cat "$pidfile"`."
-	Fatal 'Unable to create lock directory.'
-fi
-
-trap exit_handler HUP PIPE INT QUIT TERM EXIT
-
-echo $$ >"$pidfile"
+install_exit_handler
 
 export mountpoints
 use_pty=yes chrootuid2 /bin/runas -bash bash &&

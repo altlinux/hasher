@@ -228,25 +228,6 @@ for f in "$@"; do
 		Fatal "$f: empty source file."
 done
 
-exit_handler()
-{
-	local rc=$?
-	trap - EXIT
-	rm -rf -- lockdir
-	exit $rc
-}
-
-pidfile="lockdir/pid"
-if ! mkdir -m700 $verbose -- lockdir; then
-	[ ! -s "$pidfile" ] ||
-		Info "Working directory \`$workdir' is locked, pid=`cat "$pidfile"`."
-	Fatal 'Unable to create lock directory.'
-fi
-
-trap exit_handler HUP PIPE INT QUIT TERM EXIT
-
-echo $$ >"$pidfile"
-
 cleanup_workdir()
 {
 	if [ -d aptbox ]; then
@@ -338,6 +319,8 @@ handle_package()
 		${rpmargs:+--args="$rpmargs"} \
 		-- "$f"
 }
+
+install_exit_handler
 
 if [ -n "$cleanup_only" ]; then
 	cleanup_workdir
