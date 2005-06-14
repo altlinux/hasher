@@ -21,8 +21,8 @@
 
 PROJECT = hasher
 VERSION = $(shell grep ^Version: hasher.spec |head -1 |awk '{print $$2}')
-HELPERS = functions cache_chroot cache_contents hsh hsh-install hsh-shell initroot mkaptbox mkchroot rebuild rmchroot
-PROGRAMS = hsh hsh-install hsh-shell mkaptbox
+HELPERS = functions cache_chroot cache_contents hsh hsh-install hsh-run hsh-shell initroot mkaptbox mkchroot rebuild rmchroot
+PROGRAMS = hsh hsh-install hsh-run hsh-shell mkaptbox
 MAN1PAGES = $(PROGRAMS:=.1)
 MAN7PAGES = $(PROJECT).7
 TARGETS = functions $(MAN1PAGES) $(MAN7PAGES)

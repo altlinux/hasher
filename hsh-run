@@ -1,0 +1,124 @@
+#!/bin/sh -e
+#
+# $Id$
+# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
+# 
+# Run specified program within hasher chroot.
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+if [ "$0" = ./hsh-run ]; then
+	. ./functions
+	hasher_dir="$(/bin/pwd)"
+else
+	. /usr/share/hasher/functions
+fi
+
+show_help()
+{
+	cat <<EOF
+hsh-run - run specified program within hasher chroot.
+
+Usage: $PROG [options] <path-to-workdir> <program> [args]
+
+<path-to-workdir> must be valid hasher directory.
+
+Valid options are:
+  --number=NUMBER           subconfig identifier;
+  --hasher-priv-dir=DIR     hasher-priv directory;
+  --builder                 run program as builder;
+  --rooter                  run program as pseudoroot;
+  --save-fakeroot           save fakeroot state;
+  -q, --quiet               try to be more quiet;
+  -v, --verbose             print a message for each action;
+  -V, --version             print program version and exit;
+  -h, --help                show this text.
+EOF
+	exit
+}
+
+TEMP=`getopt -n $PROG -o q,v,V,h -l number:,hasher-priv-dir:,builder,rooter,save-fakeroot,quiet,verbose,help,version -- "$@"` || show_usage
+eval set -- "$TEMP"
+
+run_as_rooter=
+
+while :; do
+	case "$1" in
+		--number) shift; number="${1##-}"
+			[ -z "$(printf %s "$number" |tr -d [0-9])" ] ||
+				Fatal "--number: $number: invalid number."
+			number="-$number"
+			;;
+		--hasher-priv-dir)
+			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
+			shift
+			;;
+		--builder) run_as_rooter=
+			;;
+		--rooter) run_as_rooter=1
+			;;
+		--save-fakeroot) save_fakeroot=1
+			;;
+		-q|--quiet) quiet=-q
+			;;
+		-v|--verbose) verbose=-v
+			;;
+		-V|--version) print_version hsh-run
+			;;
+		-h|--help) show_help
+			;;
+		--) shift; break
+			;;
+		*) Fatal "Unrecognized option: $1"
+			;;
+	esac
+	shift
+done
+
+# At least two arguments, please.
+[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
+
+set_workdir "$1"
+shift
+
+run_program="$1"
+shift
+
+[ -z "${run_program##/*}" ] || run_program="$saved_cwd/$run_program"
+[ -r "$run_program" ] ||
+	Fatal "$run_program: cannot access program."
+
+check_helpers
+lock_workdir
+
+install -pm755 $verbose "$run_program" "$chroot/.host/hsh-run"
+
+if [ -n "$run_as_rooter" ]; then
+	create_entry_fakeroot_header
+else
+	create_entry_header
+fi
+
+cat >>"$entry" <<__EOF__
+exec /.host/hsh-run $(for n; do printf %s "\"$(quote_arg "$n")\" "; done)
+__EOF__
+
+if [ -n "$run_as_rooter" ]; then
+	chrootuid1
+else
+	chrootuid2
+fi
+

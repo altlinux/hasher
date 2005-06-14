@@ -52,7 +52,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
 - mkchroot: create /dev symlinks.
 - hsh(1), hsh-shell(1), cache_chroot, initroot, install,
   rebuild, rmchroot: implemented --save-fakeroot option.
-- hsh-install(1): New program.
+- hsh-install(1), hsh-run(1): New programs.
 
 * Fri May 27 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.16-alt1
 - rebuild: pass sources as arguments to query-req-prog script.
