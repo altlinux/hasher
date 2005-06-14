@@ -402,7 +402,7 @@ lock_workdir()
 			pid="$(head -c32 "$pidfile")"
 			if kill -0 -- "$pid" 2>/dev/null; then
 				Info "Working directory \`$workdir' is locked, pid=$pid."
-				ps hp "$pidfile" 2>/dev/null
+				ps hp "$pid" 2>/dev/null
 			else
 				Info "Working directory \`$workdir' is locked, stale pid=$pid."
 			fi
