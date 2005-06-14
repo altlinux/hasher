@@ -34,7 +34,7 @@ install - installs binary packages.
 
 Usage: $PROG [options] <path-to-workdir> <package>...
 
-<path-to-workdir> must be valid writable directory.
+<path-to-workdir> must be valid hasher directory.
 
 Valid options are:
   --number=NUMBER           subconfig identifier;
