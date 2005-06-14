@@ -30,7 +30,7 @@ fi
 show_help()
 {
 	cat <<EOF
-$PROG - install binary packages into hasher chroot.
+hsh-install - install binary packages into hasher chroot.
 
 Usage: $PROG [options] <path-to-workdir> <package>...
 
@@ -71,7 +71,7 @@ while :; do
 			;;
 		-v|--verbose) verbose=-v
 			;;
-		-V|--version) print_version install
+		-V|--version) print_version hsh-install
 			;;
 		-h|--help) show_help
 			;;
