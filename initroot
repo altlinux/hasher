@@ -34,7 +34,7 @@ initroot - fills chroot with initial set of packages.
 
 Usage: $PROG [options] <path-to-workdir>
 
-<path-to-workdir> must be valid writable directory.
+<path-to-workdir> must be valid hasher directory.
 
 Valid options are:
   --no-cache                    do not use cache;
