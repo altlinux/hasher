@@ -320,7 +320,7 @@ handle_package()
 		-- "$f"
 }
 
-install_exit_handler
+lock_workdir
 
 if [ -n "$cleanup_only" ]; then
 	cleanup_workdir

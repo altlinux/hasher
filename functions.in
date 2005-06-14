@@ -392,7 +392,7 @@ hasher_exit_handler()
 	exit $rc
 }
 
-install_exit_handler()
+lock_workdir()
 {
 	local lockdir="$workdir/lockdir"
 	local pidfile="$lockdir/pid"
@@ -407,7 +407,7 @@ install_exit_handler()
 				Info "Working directory \`$workdir' is locked, stale pid=$pid."
 			fi
 		fi
-		Fatal 'Unable to create lock directory.'
+		Fatal 'Unable to lock working directory.'
 	fi
 
 	trap hasher_exit_handler HUP PIPE INT QUIT TERM EXIT

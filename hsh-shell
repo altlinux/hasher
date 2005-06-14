@@ -93,7 +93,7 @@ shift
 
 check_helpers
 
-install_exit_handler
+lock_workdir
 
 export mountpoints
 use_pty=yes chrootuid2 /bin/runas -bash bash &&

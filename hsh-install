@@ -96,7 +96,7 @@ check_helpers
 [ -r "$APT_CONFIG" ] || Fatal "$APT_CONFIG: cannot access APT configuration."
 
 if [ "$PROG" = hsh-install ]; then
-	install_exit_handler
+	lock_workdir
 fi
 
 filelist="$(print_uris "$@")" ||
