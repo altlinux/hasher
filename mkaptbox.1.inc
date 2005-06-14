@@ -18,7 +18,7 @@
 .\" Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 [NAME]
-\fBmkaptbox\fR \- creates initial aptbox
+\fBmkaptbox\fR \- create initial aptbox
 
 [SEE ALSO]
 .BR hsh (1).

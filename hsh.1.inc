@@ -18,7 +18,7 @@
 .\" Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 [NAME]
-\fBhsh\fR \- builds package using hasher utilities
+\fBhsh\fR \- build package using hasher utilities
 
 [OPTIONS]
 .TP
