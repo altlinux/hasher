@@ -304,7 +304,7 @@ find /usr/src/RPM/RPMS/ -mindepth 2 -maxdepth 2 -type f -name \*.rpm -print0 |
 	xargs -r0 mv --reply=yes $verbose --target-directory=/.out/ --
 __EOF__
 
-mountpoints="$required_mountpoints" wlimit_bytes_written= \
+mountpoints="$required_mountpoints" wlimit_time_elapsed= wlimit_time_idle= wlimit_bytes_written= \
     chrootuid2 &&
 	Verbose "rebuild of \`$sname' complete." ||
 	Fatal "rebuild of \`$sname' failed."
