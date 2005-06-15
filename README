@@ -53,6 +53,8 @@ $Id$
   following packages:
     fakeroot >= 0:0.7.3
       (required for proper TCB support);
+    fakeroot >= 0:1.2-alt3
+      (required for --safe-fakeroot support);
     rpm-build >= 0:4.0.4-alt21
       (required for proper package contents indices support);
     sisyphus_check>=0:0.7.3
