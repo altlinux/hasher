@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.17
+Version: 1.0.18
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,10 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README *.sh
 
 %changelog
+* Fri Jun 17 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.18-alt1
+- cache_chroot (create_chroot):
+  Fixed grave chroot initialization bug introduced in 1.0.17.
+
 * Sun Jun 12 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.17-alt1
 - cache_chroot, cache_contents: save cache validation data
   after cache regeneration.
