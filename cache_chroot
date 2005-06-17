@@ -223,9 +223,9 @@ __EOF__
 	purge_chroot_in
 	update_RPM_database --nodeps $initlist
 
-	create_entry_fakeroot_header
 	for f in /etc/host.conf /etc/hosts /etc/resolv.conf; do
 		if [ -r "$f" -a -s "$f" ]; then
+			create_entry_fakeroot_header
 			cat >>"$entry" <<__EOF__
 cat >$f
 __EOF__
