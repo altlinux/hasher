@@ -113,10 +113,9 @@ while :; do
 			;;
 		--save-fakeroot) save_fakeroot=1
 			;;
-		--number) shift; number="${1##-}"
-			[ -z "$(printf %s "$number" |tr -d [0-9])" ] ||
-				Fatal "--number: $number: invalid number."
-			number="-$number"
+		--number)
+			number="-$(opt_check_number "$1" "$2")"
+			shift
 			;;
 		--hasher-priv-dir)
 			hasher_priv_dir="$(opt_check_dir "$1" "$2")"

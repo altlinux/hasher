@@ -143,14 +143,13 @@ while :; do
 			;;
 		--build-args) shift; rpmargs="$1"
 			;;
-		--number) shift; number="${1##-}"
-			[ -z "$(printf %s "$number" |tr -d [0-9])" ] ||
-				Fatal "--number: $number: invalid number."
-			number="-$number"
+		--number)
+			number="-$(opt_check_number "$1" "$2")"
+			shift
 			;;
-		--nprocs) shift; nprocs="$1"
-			[ -z "$(printf %s "$nprocs" |tr -d [0-9])" ] ||
-				Fatal "--nprocs: $nprocs: invalid number."
+		--nprocs)
+			nprocs="$(opt_check_number "$1" "$2")"
+			shift
 			;;
 		--install-langs) shift; install_langs="$1"
 			;;
