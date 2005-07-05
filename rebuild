@@ -122,17 +122,9 @@ while :; do
 			;;
 		--with-stuff) no_stuff=
 			;;
-		-h|--help) show_help
-			;;
-		-q|--quiet) quiet=-q
-			;;
-		-v|--verbose) verbose=-v
-			;;
-		-V|--version) print_version rebuild
-			;;
 		--) shift; break
 			;;
-		*) Fatal "Unrecognized option: $1"
+		*) parse_common_options rebuild "$1"
 			;;
 	esac
 	shift

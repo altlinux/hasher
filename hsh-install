@@ -67,17 +67,9 @@ while :; do
 			;;
 		--save-fakeroot) save_fakeroot=1
 			;;
-		-q|--quiet) quiet=-q
-			;;
-		-v|--verbose) verbose=-v
-			;;
-		-V|--version) print_version hsh-install
-			;;
-		-h|--help) show_help
-			;;
 		--) shift; break
 			;;
-		*) Fatal "Unrecognized option: $1"
+		*) parse_common_options hsh-install "$1"
 			;;
 	esac
 	shift

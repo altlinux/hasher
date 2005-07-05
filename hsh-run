@@ -72,17 +72,9 @@ while :; do
 			;;
 		--save-fakeroot) save_fakeroot=1
 			;;
-		-h|--help) show_help
-			;;
-		-q|--quiet) quiet=-q
-			;;
-		-v|--verbose) verbose=-v
-			;;
-		-V|--version) print_version hsh-run
-			;;
 		--) shift; break
 			;;
-		*) Fatal "Unrecognized option: $1"
+		*) parse_common_options hsh-run "$1"
 			;;
 	esac
 	shift

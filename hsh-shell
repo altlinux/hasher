@@ -79,17 +79,9 @@ while :; do
 			;;
 		-Y) x11_forwarding=trusted
 			;;
-		-h|--help) show_help
-			;;
-		-q|--quiet) quiet=-q
-			;;
-		-v|--verbose) verbose=-v
-			;;
-		-V|--version) print_version hsh-shell
-			;;
 		--) shift; break
 			;;
-		*) Fatal "Unrecognized option: $1"
+		*) parse_common_options hsh-shell "$1"
 			;;
 	esac
 	shift

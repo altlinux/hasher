@@ -176,21 +176,13 @@ while :; do
 			;;
 		--with-stuff) no_stuff=
 			;;
-		-h|--help) show_help
-			;;
-		-q|--quiet) quiet=-q
-			;;
-		-v|--verbose) verbose=-v
-			;;
-		-V|--version) print_version hsh
-			;;
-		--contents-index-all|--contents-index-bin)
+		--contents-index-*)
 			Info "Warning: obsolete option $1 ignored."
 			shift
 			;;
 		--) shift; break
 			;;
-		*) Fatal "Unrecognized option: $1"
+		*) parse_common_options hsh "$1"
 			;;
 	esac
 	shift

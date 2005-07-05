@@ -100,21 +100,13 @@ while :; do
 			;;
 		--save-fakeroot) save_fakeroot=1
 			;;
-		-h|--help) show_help
-			;;
-		-q|--quiet) quiet=-q
-			;;
-		-v|--verbose) verbose=-v
-			;;
-		-V|--version) print_version initroot
-			;;
-		--contents-index-all|--contents-index-bin)
+		--contents-index-*)
 			Info "Warning: obsolete option $1 ignored."
 			shift
 			;;
 		--) shift; break
 			;;
-		*) Fatal "Unrecognized option: $1"
+		*) parse_common_options initroot "$1"
 			;;
 	esac
 	shift
