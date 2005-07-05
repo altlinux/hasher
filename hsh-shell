@@ -149,9 +149,9 @@ check_helpers
 
 lock_workdir
 
-prepare_x11_forwarding && x11_forwarding=yes || x11_forwarding=
+prepare_x11_forwarding || x11_forwarding=
 
-export mountpoints x11_forwarding
+export mountpoints
 use_pty=yes chrootuid2 /bin/runas -bash bash &&
 	Verbose 'hasher shell finished.' ||
 	Fatal 'hasher shell failed.'
