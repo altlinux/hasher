@@ -22,6 +22,7 @@
 
 mountpoints=
 x11_forwarding=
+x11_timeout=60
 
 if [ "$0" = ./hsh-shell ]; then
 	. ./functions
@@ -43,6 +44,7 @@ Valid options are:
   --hasher-priv-dir=DIR     hasher-priv directory;
   --mountpoints=LIST        comma-separated list of mount points;
   --number=NUMBER           subconfig identifier;
+  --x11-timeout=SECONDS     how long X11 authorization will be valid;
   -x                        disable X11 forwarding;
   -X                        enable X11 forwarding;
   -Y                        enable trusted X11 forwarding;
@@ -57,7 +59,54 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l hasher-priv-dir:,mountpoints:,number:,help,quiet,verbose,version -- "$@"` ||
+parse_xauth_entry()
+{
+	XAUTH_DISPLAY="$1" && shift ||:
+	XAUTH_PROTO="$1" && shift ||:
+	XAUTH_KEY="$1" && shift ||:
+
+	if [ -z "$XAUTH_DISPLAY" -o -n "${XAUTH_DISPLAY##*:*}" \
+	  -o -z "$XAUTH_PROTO" -o -z "$XAUTH_KEY" ]; then
+		Info "Invalid auth entry for DISPLAY \`$DISPLAY', disabling X11 forwarding."
+		return 1
+	fi
+}
+
+prepare_x11_forwarding()
+{
+	[ -n "$x11_forwarding" ] || return 0
+
+	if [ -z "$DISPLAY" ]; then
+		Info 'DISPLAY not set, disabling X11 forwarding.'
+		return 1
+	fi
+
+	if [ -n "${DISPLAY##*:*}" ]; then
+		Info 'Invalid DISPLAY set, disabling X11 forwarding.'
+		return 1
+	fi
+
+	local xentry
+	if [ "$x11_forwarding" = trusted ]; then
+		xentry="$(xauth list "$DISPLAY")" ||
+			return 1
+	elif [ "$x11_forwarding" = untrusted ]; then
+		local xfile="$workdir/lockdir/xauth"
+		touch "$xfile" &&
+		xauth -f "$xfile" generate "$DISPLAY" . untrusted timeout "$x11_timeout" ||
+			return 1
+		xentry="$(xauth -f "$xfile" list "$DISPLAY")" ||
+			return 1
+	else
+		Fatal 'Invalid $x11_forwarding value.'
+	fi
+
+	parse_xauth_entry $xentry || return 1
+
+	export XAUTH_DISPLAY XAUTH_PROTO XAUTH_KEY
+}
+
+TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l hasher-priv-dir:,mountpoints:,number:,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -73,9 +122,11 @@ while :; do
 			number="-$(opt_check_number "$1" "$2")"
 			shift
 			;;
+		--x11-timeout) shift; x11_timeout="$1"
+			;;
 		-x) x11_forwarding=
 			;;
-		-X) x11_forwarding=x11
+		-X) x11_forwarding=untrusted
 			;;
 		-Y) x11_forwarding=trusted
 			;;
@@ -97,6 +148,8 @@ shift
 check_helpers
 
 lock_workdir
+
+prepare_x11_forwarding && x11_forwarding=yes || x11_forwarding=
 
 export mountpoints x11_forwarding
 use_pty=yes chrootuid2 /bin/runas -bash bash &&
