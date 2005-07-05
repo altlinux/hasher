@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.18
+Version: 1.0.19
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,11 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README *.sh
 
 %changelog
+* Tue Jul 05 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.19-alt1
+- hsh-shell(1): added options to control X11 forwarding.
+- Fixed build with make-3.81beta3.
+- Cleaned up options parser.
+
 * Fri Jun 17 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.18-alt1
 - cache_chroot (create_chroot):
   Fixed grave chroot initialization bug introduced in 1.0.17.
