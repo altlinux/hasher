@@ -20,6 +20,9 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 
+mountpoints=
+x11_forwarding=
+
 if [ "$0" = ./hsh-shell ]; then
 	. ./functions
 	hasher_dir="$(/bin/pwd)"
@@ -37,9 +40,12 @@ Usage: $PROG [options] <path-to-workdir>
 <path-to-workdir> must be valid hasher working directory.
 
 Valid options are:
-  --number=NUMBER           subconfig identifier;
-  --mountpoints=LIST        comma-separated list of mount points;
   --hasher-priv-dir=DIR     hasher-priv directory;
+  --mountpoints=LIST        comma-separated list of mount points;
+  --number=NUMBER           subconfig identifier;
+  -x                        disable X11 forwarding;
+  -X                        enable X11 forwarding;
+  -Y                        enable trusted X11 forwarding;
   -q, --quiet               try to be more quiet;
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;
@@ -51,29 +57,35 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l number:,mountpoints:,hasher-priv-dir:,quiet,verbose,help,version -- "$@"` || show_usage
+TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l hasher-priv-dir:,mountpoints:,number:,help,quiet,verbose,version -- "$@"` ||
+	show_usage
 eval set -- "$TEMP"
 
-mountpoints=
 while :; do
 	case "$1" in
-		--number)
-			number="-$(opt_check_number "$1" "$2")"
+		--hasher-priv-dir)
+			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
 			shift
 			;;
 		--mountpoints) shift; mountpoints="$1"
 			;;
-		--hasher-priv-dir)
-			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
+		--number)
+			number="-$(opt_check_number "$1" "$2")"
 			shift
+			;;
+		-x) x11_forwarding=
+			;;
+		-X) x11_forwarding=x11
+			;;
+		-Y) x11_forwarding=trusted
+			;;
+		-h|--help) show_help
 			;;
 		-q|--quiet) quiet=-q
 			;;
 		-v|--verbose) verbose=-v
 			;;
 		-V|--version) print_version hsh-shell
-			;;
-		-h|--help) show_help
 			;;
 		--) shift; break
 			;;
@@ -94,7 +106,7 @@ check_helpers
 
 lock_workdir
 
-export mountpoints
+export mountpoints x11_forwarding
 use_pty=yes chrootuid2 /bin/runas -bash bash &&
 	Verbose 'hasher shell finished.' ||
 	Fatal 'hasher shell failed.'
