@@ -37,15 +37,15 @@ Usage: $PROG [options] <path-to-workdir>
 <path-to-workdir> must be valid writable directory.
 
 Valid options are:
-  --with-stuff              configure sources.list for the work repository;
-  --without-stuff           do not configure sources.list for the work repository;
-  --target=ARCH             target architecture of the work repository;
-  --repo=DIR                path to work repository directory;
   --apt-config=FILE         path to custom apt.conf file;
   --apt-prefix=DIR          path to apt directory prefix (e.g. /usr);
-  --no-update               do not run "apt-get update" after creation;
-  -u, --update              run "apt-get update" after creation;
   -f, --force               force aptbox creation;
+  --no-update               do not run "apt-get update" after creation;
+  --repo=DIR                path to work repository directory;
+  --target=ARCH             target architecture of the work repository;
+  -u, --update              run "apt-get update" after creation;
+  --without-stuff           do not configure sources.list for the work repository;
+  --with-stuff              configure sources.list for the work repository;
   -q, --quiet               try to be more quiet;
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;
@@ -57,24 +57,15 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,q,v,V,h -l with-stuff,without-stuff,no-stuff,target:,repo:,apt-config:,apt-prefix:,no-update,update,force,quiet,verbose,help,version -- "$@"` || show_usage
+TEMP=`getopt -n $PROG -o f,u,h,q,v,V -l apt-config:,apt-prefix:,force,no-stuff,no-update,repo:,target:,update,without-stuff,with-stuff,help,quiet,verbose,version -- "$@"` ||
+	show_usage
 eval set -- "$TEMP"
 
+apt_config=
 force=
 update=1
-apt_config=
 while :; do
 	case "$1" in
-		--with-stuff) no_stuff=
-			;;
-		--without-stuff|--no-stuff) no_stuff=1
-			;;
-		--target) shift; target="$1"
-			[ -z "${target##[A-Za-z]*}" ] ||
-				Fatal "--target: $target: invalid architecture."
-			;;
-		--repo) shift; repo="$1"
-			;;
 		--apt-config)
 			apt_config="$(opt_check_read "$1" "$2")"
 			shift
@@ -83,19 +74,29 @@ while :; do
 			apt_prefix="$(opt_check_dir "$1" "$2")"
 			shift
 			;;
+		-f|--force) force=1
+			;;
 		--no-update) update=
+			;;
+		--repo) shift; repo="$1"
+			;;
+		--target) shift; target="$1"
+			[ -z "${target##[A-Za-z]*}" ] ||
+				Fatal "--target: $target: invalid architecture."
 			;;
 		-u|--update) update=1
 			;;
-		-f|--force) force=1
+		--without-stuff|--no-stuff) no_stuff=1
+			;;
+		--with-stuff) no_stuff=
+			;;
+		-h|--help) show_help
 			;;
 		-q|--quiet) quiet=-q
 			;;
 		-v|--verbose) verbose=-v
 			;;
 		-V|--version) print_version mkaptbox
-			;;
-		-h|--help) show_help
 			;;
 		--) shift; break
 			;;

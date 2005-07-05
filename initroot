@@ -37,18 +37,18 @@ Usage: $PROG [options] <path-to-workdir>
 <path-to-workdir> must be valid hasher directory.
 
 Valid options are:
+  --excludedocs                 do not install documentation files;
+  --hasher-priv-dir=DIR         hasher-priv directory;
+  --install-langs=LIST          colon-separated list of languages to install;
   --no-cache                    do not use cache;
   --no-contents-indices         do not use content indices;
-  --excludedocs                 do not install documentation files;
-  --repackage-source            repackage source along with binaries;
   --no-repackage-source         do not repackage source along with binaries;
-  --save-fakeroot               save fakeroot state;
-  --number=NUMBER               subconfig identifier;
-  --hasher-priv-dir=DIR         hasher-priv directory;
   --nprocs=NUMBER               number of CPUs to use;
-  --install-langs=LIST          colon-separated list of languages to install;
-  --pkg-init-list=LIST          override default initial package file list;
+  --number=NUMBER               subconfig identifier;
   --pkg-build-list=LIST         override default build package file list;
+  --pkg-init-list=LIST          override default initial package file list;
+  --repackage-source            repackage source along with binaries;
+  --save-fakeroot               save fakeroot state;
   -q, --quiet                   try to be more quiet;
   -v, --verbose                 print a message for each action;
   -V, --version                 print program version and exit;
@@ -57,55 +57,56 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l no-cache,no-contents-indices,excludedocs,repackage-source,no-repackage-source,save-fakeroot,pkg-init-list:,pkg-build-list:,number:,hasher-priv-dir:,nprocs:,install-langs:,contents-index-all:,contents-index-bin:,quiet,verbose,help,version -- "$@"` || show_usage
+TEMP=`getopt -n $PROG -o h,q,v,V -l contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-repackage-source,nprocs:,number:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
+	show_usage
 eval set -- "$TEMP"
 
+build_list='basesystem rpm-build>=0:4.0.4-alt21 kernel-headers-common>=0:1.1.4-alt1 sisyphus_check>=0:0.7.3 time'
+init_list='setup filesystem rpm fakeroot>=0:0.7.3'
+install_langs=all
 no_cache=
 no_contents_indices=
-init_list='setup filesystem rpm fakeroot>=0:0.7.3'
-build_list='basesystem rpm-build>=0:4.0.4-alt21 kernel-headers-common>=0:1.1.4-alt1 sisyphus_check>=0:0.7.3 time'
 nprocs=
-install_langs=all
 repackage_source=1
 while :; do
 	case "$1" in
-		--no-cache) no_cache=1
-			;;
-		--no-contents-indices) no_contents_indices=1
-			;;
-		--repackage-source) repackage_source=1
-			;;
-		--no-repackage-source) repackage_source=
-			;;
-		--save-fakeroot) save_fakeroot=1
-			;;
-		--number)
-			number="-$(opt_check_number "$1" "$2")"
-			shift
-			;;
-		--nprocs) shift; nprocs="$1"
-			[ -z "$(printf %s "$nprocs" |tr -d [0-9])" ] ||
-				Fatal "--nprocs: $nprocs: invalid number."
-			;;
-		--install-langs) shift; install_langs="$1"
+		--excludedocs) exclude_docs=--excludedocs
 			;;
 		--hasher-priv-dir)
 			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
 			shift
 			;;
-		--pkg-init-list) shift; init_list="$1"
+		--install-langs) shift; install_langs="$1"
+			;;
+		--no-cache) no_cache=1
+			;;
+		--no-contents-indices) no_contents_indices=1
+			;;
+		--no-repackage-source) repackage_source=
+			;;
+		--nprocs)
+			nprocs="$(opt_check_number "$1" "$2")"
+			shift
+			;;
+		--number)
+			number="-$(opt_check_number "$1" "$2")"
+			shift
 			;;
 		--pkg-build-list) shift; build_list="$1"
 			;;
-		--excludedocs) exclude_docs=--excludedocs
+		--pkg-init-list) shift; init_list="$1"
+			;;
+		--repackage-source) repackage_source=1
+			;;
+		--save-fakeroot) save_fakeroot=1
+			;;
+		-h|--help) show_help
 			;;
 		-q|--quiet) quiet=-q
 			;;
 		-v|--verbose) verbose=-v
 			;;
 		-V|--version) print_version initroot
-			;;
-		-h|--help) show_help
 			;;
 		--contents-index-all|--contents-index-bin)
 			Info "Warning: obsolete option $1 ignored."

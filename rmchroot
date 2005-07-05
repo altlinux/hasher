@@ -37,8 +37,8 @@ Usage: $PROG [options] <path-to-workdir>
 <path-to-workdir> must be valid hasher directory.
 
 Valid options are:
-  --number=NUMBER           subconfig identifier;
   --hasher-priv-dir=DIR     hasher-priv directory;
+  --number=NUMBER           subconfig identifier;
   -q, --quiet               try to be more quiet;
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;
@@ -47,26 +47,27 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l number:,hasher-priv-dir:,quiet,verbose,help,version -- "$@"` || show_usage
+TEMP=`getopt -n $PROG -o h,q,v,V -l hasher-priv-dir:,number:,help,quiet,verbose,version -- "$@"` ||
+	show_usage
 eval set -- "$TEMP"
 
 while :; do
 	case "$1" in
+		--hasher-priv-dir)
+			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
+			shift
+			;;
 		--number)
 			number="-$(opt_check_number "$1" "$2")"
 			shift
 			;;
-		--hasher-priv-dir)
-			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
-			shift
+		-h|--help) show_help
 			;;
 		-q|--quiet) quiet=-q
 			;;
 		-v|--verbose) verbose=-v
 			;;
 		-V|--version) print_version rmchroot
-			;;
-		-h|--help) show_help
 			;;
 		--) shift; break
 			;;

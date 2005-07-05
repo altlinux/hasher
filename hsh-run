@@ -37,9 +37,9 @@ Usage: $PROG [options] <path-to-workdir> <program> [args]
 <path-to-workdir> must be valid hasher directory.
 
 Valid options are:
-  --number=NUMBER           subconfig identifier;
-  --hasher-priv-dir=DIR     hasher-priv directory;
   --builder                 run program as builder;
+  --hasher-priv-dir=DIR     hasher-priv directory;
+  --number=NUMBER           subconfig identifier;
   --rooter                  run program as pseudoroot;
   --save-fakeroot           save fakeroot state;
   -q, --quiet               try to be more quiet;
@@ -50,34 +50,35 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o q,v,V,h -l number:,hasher-priv-dir:,builder,rooter,save-fakeroot,quiet,verbose,help,version -- "$@"` || show_usage
+TEMP=`getopt -n $PROG -o h,q,v,V -l builder,hasher-priv-dir:,number:,rooter,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
+	show_usage
 eval set -- "$TEMP"
 
 run_as_rooter=
 
 while :; do
 	case "$1" in
-		--number)
-			number="-$(opt_check_number "$1" "$2")"
-			shift
+		--builder) run_as_rooter=
 			;;
 		--hasher-priv-dir)
 			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
 			shift
 			;;
-		--builder) run_as_rooter=
+		--number)
+			number="-$(opt_check_number "$1" "$2")"
+			shift
 			;;
 		--rooter) run_as_rooter=1
 			;;
 		--save-fakeroot) save_fakeroot=1
+			;;
+		-h|--help) show_help
 			;;
 		-q|--quiet) quiet=-q
 			;;
 		-v|--verbose) verbose=-v
 			;;
 		-V|--version) print_version hsh-run
-			;;
-		-h|--help) show_help
 			;;
 		--) shift; break
 			;;
