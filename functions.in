@@ -165,6 +165,25 @@ opt_check_number()
 	printf %s "$2"
 }
 
+parse_common_options()
+{
+	local prog
+	prog="$1" && shift
+
+	case "$1" in
+		-h|--help) show_help
+			;;
+		-q|--quiet) quiet=-q
+			;;
+		-v|--verbose) verbose=-v
+			;;
+		-V|--version) print_version "$prog"
+			;;
+		*) Fatal "Unrecognized option: $1"
+			;;
+	esac
+}
+
 set_apt_vars()
 {
 	[ -n "$apt_prefix" ] || return 0
@@ -406,7 +425,7 @@ hasher_exit_handler()
 {
 	local rc=$?
 	trap - EXIT
-	rm -rf -- "$workdir/lockdir"
+	rm -rf $verbose -- "$workdir/lockdir"
 	exit $rc
 }
 
