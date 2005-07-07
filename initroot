@@ -233,7 +233,7 @@ if [ -n "$build_list" ]; then
 	create_entry_header
 	cat >>"$entry" <<__EOF__
 [ ! -d /etc/skel ] || cp -a $verbose /etc/skel/* /etc/skel/.[^.]* "\$HOME"/ ||:
-mkdir -p $verbose -m700 -- "\$TMPDIR"
+mkdir -p $verbose -m700 -- "\$TMPDIR" /tmp/.ICE-unix /tmp/.X11-unix /tmp/.esd /tmp/.font-unix
 rpminit $verbose
 cat >>/usr/src/.rpmmacros <<\EOF
 %packager Automated package hasher <hasher@localhost>
