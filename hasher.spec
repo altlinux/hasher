@@ -45,6 +45,8 @@ See %_docdir/%name-%version/QUICKSTART for details.
 
 %changelog
 * Tue Jul 05 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.19-alt1
+- initroot: added creation of necessary X11-related directories
+  within /tmp.
 - hsh-shell(1): added options to control X11 forwarding.
 - Fixed build with make-3.81beta3.
 - Cleaned up options parser.
