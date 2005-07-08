@@ -70,6 +70,9 @@ parse_xauth_entry()
 		Info "Invalid auth entry for DISPLAY \`$DISPLAY', disabling X11 forwarding."
 		return 1
 	fi
+
+	# Workaround for broken xauth entries.
+	XAUTH_DISPLAY="$DISPLAY"
 }
 
 prepare_x11_forwarding()
