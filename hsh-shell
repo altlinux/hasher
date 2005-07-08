@@ -88,7 +88,11 @@ prepare_x11_forwarding()
 
 	local xentry
 	if [ "$x11_forwarding" = trusted ]; then
-		xentry="$(xauth list "$DISPLAY")" ||
+		local display
+		[ -n "${DISPLAY##localhost:*}" ] &&
+			display="$DISPLAY" ||
+			display="unix:${DISPLAY#localhost:}"
+		xentry="$(xauth list "$display")" ||
 			return 1
 	elif [ "$x11_forwarding" = untrusted ]; then
 		local xfile="$workdir/lockdir/xauth"
