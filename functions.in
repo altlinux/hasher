@@ -484,6 +484,60 @@ print_uris()
 		Verbose "calculated package file list."
 }
 
+parse_xauth_entry()
+{
+	XAUTH_DISPLAY="$1" && shift ||:
+	XAUTH_PROTO="$1" && shift ||:
+	XAUTH_KEY="$1" && shift ||:
+
+	if [ -z "$XAUTH_DISPLAY" -o -n "${XAUTH_DISPLAY##*:*}" \
+	  -o -z "$XAUTH_PROTO" -o -z "$XAUTH_KEY" ]; then
+		Info "Invalid auth entry for DISPLAY \`$DISPLAY', disabling X11 forwarding."
+		return 1
+	fi
+
+	# Workaround for broken xauth entries.
+	XAUTH_DISPLAY="$DISPLAY"
+}
+
+prepare_x11_forwarding()
+{
+	[ -n "$x11_forwarding" ] || return 0
+
+	if [ -z "$DISPLAY" ]; then
+		Info 'DISPLAY not set, disabling X11 forwarding.'
+		return 1
+	fi
+
+	if [ -n "${DISPLAY##*:*}" ]; then
+		Info 'Invalid DISPLAY set, disabling X11 forwarding.'
+		return 1
+	fi
+
+	local xentry
+	if [ "$x11_forwarding" = trusted ]; then
+		local display
+		[ -n "${DISPLAY##localhost:*}" ] &&
+			display="$DISPLAY" ||
+			display="unix:${DISPLAY#localhost:}"
+		xentry="$(xauth list "$display")" ||
+			return 1
+	elif [ "$x11_forwarding" = untrusted ]; then
+		local xfile="$workdir/lockdir/xauth"
+		touch "$xfile" &&
+		xauth -f "$xfile" generate "$DISPLAY" . untrusted timeout "$x11_timeout" ||
+			return 1
+		xentry="$(xauth -f "$xfile" list "$DISPLAY")" ||
+			return 1
+	else
+		Fatal 'Invalid $x11_forwarding value.'
+	fi
+
+	parse_xauth_entry $xentry || return 1
+
+	export XAUTH_DISPLAY XAUTH_PROTO XAUTH_KEY
+}
+
 # quote argument for /.host/entry.
 quote_arg()
 {
