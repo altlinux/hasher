@@ -20,6 +20,10 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 
+mountpoints=
+x11_forwarding=
+x11_timeout=60
+
 if [ "$0" = ./hsh-run ]; then
 	. ./functions
 	hasher_dir="$(/bin/pwd)"
@@ -38,10 +42,16 @@ Usage: $PROG [options] <path-to-workdir> <program> [args]
 
 Valid options are:
   --builder                 run program as builder;
+  --execute=PATH            copy given script to workdir and execute it;
   --hasher-priv-dir=DIR     hasher-priv directory;
+  --mountpoints=LIST        comma-separated list of mount points;
   --number=NUMBER           subconfig identifier;
   --rooter                  run program as pseudoroot;
   --save-fakeroot           save fakeroot state;
+  --x11-timeout=SECONDS     how long X11 authorization will be valid;
+  -x                        disable X11 forwarding;
+  -X                        enable X11 forwarding;
+  -Y                        enable trusted X11 forwarding;
   -q, --quiet               try to be more quiet;
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;
@@ -50,19 +60,26 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l builder,hasher-priv-dir:,number:,rooter,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,execute:,hasher-priv-dir:,mountpoints:,number:,rooter,save-fakeroot,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
 run_as_rooter=
+run_script=
 
 while :; do
 	case "$1" in
 		--builder) run_as_rooter=
 			;;
+		--execute)
+			run_script="$(opt_check_read "$1" "$2")"
+			shift
+			;;
 		--hasher-priv-dir)
 			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
 			shift
+			;;
+		--mountpoints) shift; mountpoints="$1"
 			;;
 		--number)
 			number="-$(opt_check_number "$1" "$2")"
@@ -72,6 +89,14 @@ while :; do
 			;;
 		--save-fakeroot) save_fakeroot=1
 			;;
+		--x11-timeout) shift; x11_timeout="$1"
+			;;
+		-x) x11_forwarding=
+			;;
+		-X) x11_forwarding=untrusted
+			;;
+		-Y) x11_forwarding=trusted
+			;;
 		--) shift; break
 			;;
 		*) parse_common_options hsh-run "$1"
@@ -80,23 +105,23 @@ while :; do
 	shift
 done
 
-# At least two arguments, please.
-[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
+# At least one argument, please.
+[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
 
 set_workdir "$1"
 shift
 
-run_program="$1"
-shift
-
-[ -z "${run_program##/*}" ] || run_program="$saved_cwd/$run_program"
-[ -r "$run_program" ] ||
-	Fatal "$run_program: cannot access program."
+# Either --execute or one more argument, please.
+[ "$#" -ge 1 -o -n "$run_script" ] ||
+	show_usage 'Insufficient arguments.'
 
 check_helpers
 lock_workdir
 
-install -pm755 $verbose "$run_program" "$chroot/.host/hsh-run"
+prepare_x11_forwarding || x11_forwarding=
+
+[ -z "$run_script" ] ||
+	install -pm755 $verbose "$run_script" "$chroot/.host/hsh-run"
 
 if [ -n "$run_as_rooter" ]; then
 	create_entry_fakeroot_header
@@ -105,8 +130,10 @@ else
 fi
 
 cat >>"$entry" <<__EOF__
-exec /.host/hsh-run $(for n; do printf %s "\"$(quote_arg "$n")\" "; done)
+exec ${run_script:+/.host/hsh-run} $(for n; do printf %s "\"$(quote_arg "$n")\" "; done)
 __EOF__
+
+export mountpoints
 
 if [ -n "$run_as_rooter" ]; then
 	chrootuid1
