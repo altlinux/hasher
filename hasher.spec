@@ -45,7 +45,11 @@ See %_docdir/%name-%version/QUICKSTART for details.
 
 %changelog
 * Tue Jul 05 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.19-alt1
-- hsh-shell(1): added options to control X11 forwarding.
+- hsh-run(1): changed usage semantics.
+- functions:
+  new functions: parse_xauth_entry, prepare_x11_forwarding.
+- hsh-run(1), hsh-shell(1):
+  added options to control X11 forwarding.
 - Fixed build with make-3.81beta3.
 - Cleaned up options parser.
 
