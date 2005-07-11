@@ -44,7 +44,10 @@ Valid options are:
   -q, --quiet               try to be more quiet;
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;
-  -h, --help                show this text.
+  -h, --help                show this text and exit.
+    
+Report bugs to http://bugs.altlinux.ru/
+
 EOF
 	exit
 }
