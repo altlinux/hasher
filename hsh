@@ -147,7 +147,7 @@ while :; do
 			shift
 			;;
 		--number)
-			number="-$(opt_check_number "$1" "$2")"
+			number="$(opt_check_number "$1" "$2")"
 			shift
 			;;
 		--pkg-build-list) shift; build_list="$1 "

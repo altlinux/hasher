@@ -61,7 +61,7 @@ while :; do
 			shift
 			;;
 		--number)
-			number="-$(opt_check_number "$1" "$2")"
+			number="$(opt_check_number "$1" "$2")"
 			shift
 			;;
 		--) shift; break
@@ -85,10 +85,10 @@ shift
 
 check_helpers
 
-ugid1="$("$getugid1" $number)" ||
+ugid1="$("$getugid1" ${number:+-$number})" ||
 	Fatal "getugid1 failed."
 gid1="$(printf %s "$ugid1" |cut -d: -f2)"
-ugid2="$("$getugid2" $number)" ||
+ugid2="$("$getugid2" ${number:+-$number})" ||
 	Fatal "getugid2 failed."
 gid2="$(printf %s "$ugid2" |cut -d: -f2)"
 
@@ -118,6 +118,6 @@ if [ -r "$postin" -a -x "$postin" ]; then
 fi
 Verbose 'Installed .host programs.'
 
-"$makedev" $number "$chroot" &&
+"$makedev" ${number:+-$number} "$chroot" &&
 	Verbose "Created devices in \`$chroot/dev/'." ||
 	Fatal 'failed to make devices.'

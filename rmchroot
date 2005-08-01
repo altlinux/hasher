@@ -61,7 +61,7 @@ while :; do
 			shift
 			;;
 		--number)
-			number="-$(opt_check_number "$1" "$2")"
+			number="$(opt_check_number "$1" "$2")"
 			shift
 			;;
 		--) shift; break
@@ -89,13 +89,13 @@ install -pD -m755 $verbose /usr/bin/find.static .host/find
 Verbose 'Installed .host programs.'
 
 if [ ! -c "dev/null" ]; then
-	ugid1="$("$getugid1" $number)" ||
+	ugid1="$("$getugid1" ${number:+-$number})" ||
 		Fatal 'getugid1 failed.'
 	gid1="$(printf %s "$ugid1" |cut -d: -f2)"
 
 	mkdir -p -m755 $verbose dev
 	chgrp "$gid1" $verbose . dev
-	"$makedev" $number "$chroot" ||
+	"$makedev" ${number:+-$number} "$chroot" ||
 		Fatal 'Failed to make devices.'
 	Verbose "Created devices in \`$chroot/dev/'."
 fi

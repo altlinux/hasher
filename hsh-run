@@ -85,7 +85,7 @@ while :; do
 		--mountpoints) shift; mountpoints="$1"
 			;;
 		--number)
-			number="-$(opt_check_number "$1" "$2")"
+			number="$(opt_check_number "$1" "$2")"
 			shift
 			;;
 		--rooter) run_as_rooter=1

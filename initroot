@@ -92,7 +92,7 @@ while :; do
 			shift
 			;;
 		--number)
-			number="-$(opt_check_number "$1" "$2")"
+			number="$(opt_check_number "$1" "$2")"
 			shift
 			;;
 		--pkg-build-list) shift; build_list="$1"
@@ -141,12 +141,12 @@ check_helpers
 uid0="$(id -u)"
 gid0="$(id -g)"
 
-ugid1="$("$getugid1" $number)" ||
+ugid1="$("$getugid1" ${number:+-$number})" ||
 	Fatal 'getugid1 failed.'
 uid1="$(printf %s "$ugid1" |cut -d: -f1)"
 gid1="$(printf %s "$ugid1" |cut -d: -f2)"
 
-ugid2="$("$getugid2" $number)" ||
+ugid2="$("$getugid2" ${number:+-$number})" ||
 	Fatal 'getugid2 failed.'
 uid2="$(printf %s "$ugid2" |cut -d: -f1)"
 gid2="$(printf %s "$ugid2" |cut -d: -f2)"

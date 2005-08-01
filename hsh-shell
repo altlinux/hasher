@@ -72,7 +72,7 @@ while :; do
 		--mountpoints) shift; mountpoints="$1"
 			;;
 		--number)
-			number="-$(opt_check_number "$1" "$2")"
+			number="$(opt_check_number "$1" "$2")"
 			shift
 			;;
 		--x11-timeout) shift; x11_timeout="$1"

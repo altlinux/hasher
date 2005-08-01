@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.19
+Version: 1.0.20
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,10 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README *.sh
 
 %changelog
+* Mon Aug 01 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.20-alt1
+- Fixed --number option support which was broken as result of
+  previous cleanup.
+
 * Tue Jul 05 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.19-alt1
 - hsh-run(1): changed usage semantics.
 - functions:

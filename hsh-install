@@ -65,7 +65,7 @@ while :; do
 			shift
 			;;
 		--number)
-			number="-$(opt_check_number "$1" "$2")"
+			number="$(opt_check_number "$1" "$2")"
 			shift
 			;;
 		--save-fakeroot) save_fakeroot=1

@@ -100,7 +100,7 @@ while :; do
 			[ -n "$1" ] && no_sisyphus_check_out="$1" || no_sisyphus_check_out=all
 			;;
 		--number)
-			number="-$(opt_check_number "$1" "$2")"
+			number="$(opt_check_number "$1" "$2")"
 			shift
 			;;
 		--query-repackage) query_repackage=1
