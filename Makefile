@@ -21,8 +21,8 @@
 
 PROJECT = hasher
 VERSION = $(shell grep ^Version: hasher.spec |head -1 |awk '{print $$2}')
-HELPERS = functions cache_chroot cache_contents hsh hsh-install hsh-run hsh-shell initroot mkaptbox mkchroot rebuild rmchroot
-PROGRAMS = hsh hsh-install hsh-run hsh-shell mkaptbox
+HELPERS = functions cache_chroot cache_contents hsh hsh-install hsh-run initroot mkaptbox mkchroot rebuild rmchroot
+PROGRAMS = hsh hsh-install hsh-run mkaptbox
 MAN1PAGES = $(PROGRAMS:=.1)
 MAN7PAGES = $(PROJECT).7
 TARGETS = functions $(MAN1PAGES) $(MAN7PAGES)
@@ -74,6 +74,9 @@ install: all
 	$(INSTALL) -p -m644 $(MAN7PAGES) $(DESTDIR)$(man7dir)/
 	$(MKDIR_P) -m755 $(DESTDIR)$(bindir)
 	$(LN_S) $(PROGRAMS:%=$(binreldir)/%) $(DESTDIR)$(bindir)/
+	$(LN_S) hsh-run $(DESTDIR)$(helperdir)/hsh-shell
+	$(LN_S) hsh-run.1 $(DESTDIR)$(man1dir)/hsh-shell.1
+	$(LN_S) $(binreldir)/hsh-shell $(DESTDIR)$(bindir)/
 
 clean:
 	$(RM) $(TARGETS) *~

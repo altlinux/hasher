@@ -79,7 +79,6 @@ by initroot.
 .BR mkaptbox (1),
 .BR hsh\-install (1),
 .BR hsh\-run (1),
-.BR hsh\-shell (1),
 .BR hasher\-useradd.conf (5),
 .BR hasher (7),
 .BR hasher\-useradd (8).
