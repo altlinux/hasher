@@ -24,7 +24,7 @@ mountpoints=
 x11_forwarding=
 x11_timeout=60
 
-if [ "$0" = ./hsh-run ]; then
+if [ "${0%/*}" = . ]; then
 	. ./functions
 	hasher_dir="$(/bin/pwd)"
 else
@@ -40,14 +40,18 @@ Usage: $PROG [options] <path-to-workdir> <program> [args]
 
 <path-to-workdir> must be valid hasher directory.
 
+In addition, hsh-shell is the same as hsh-run --shell.
+
 Valid options are:
   --builder                 run program as builder;
   --execute=PATH            copy given script to workdir and execute it;
   --hasher-priv-dir=DIR     hasher-priv directory;
   --mountpoints=LIST        comma-separated list of mount points;
   --number=NUMBER           subconfig identifier;
+  --pty                     redirect standard descriptors to controlling pty;
   --rooter                  run program as pseudoroot;
   --save-fakeroot           save fakeroot state;
+  --shell                   run interactive shell;
   --x11-timeout=SECONDS     how long X11 authorization will be valid;
   -x                        disable X11 forwarding;
   -X                        enable X11 forwarding;
@@ -63,12 +67,19 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,execute:,hasher-priv-dir:,mountpoints:,number:,rooter,save-fakeroot,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,execute:,hasher-priv-dir:,mountpoints:,number:,pty,rooter,save-fakeroot,shell,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
 run_as_rooter=
 run_script=
+run_shell=
+
+if [ "${0##*/}" = hsh-shell ]; then
+	run_shell=1
+	use_pty=yes
+	export use_pty
+fi
 
 while :; do
 	case "$1" in
@@ -88,9 +99,13 @@ while :; do
 			number="$(opt_check_number "$1" "$2")"
 			shift
 			;;
+		--pty) use_pty=yes; export use_pty
+			;;
 		--rooter) run_as_rooter=1
 			;;
 		--save-fakeroot) save_fakeroot=1
+			;;
+		--shell) run_shell=1; use_pty=yes; export use_pty
 			;;
 		--x11-timeout) shift; x11_timeout="$1"
 			;;
@@ -113,6 +128,15 @@ done
 
 set_workdir "$1"
 shift
+
+if [ -n "$run_script" -a -n "$run_shell" ]; then
+	show_usage '--execute and --shell are mutually exclusive options.'
+fi
+
+if [ -n "$run_shell" ]; then
+	[ "$#" -eq 0 ] || show_usage 'Too many arguments.'
+	set -- -a -bash bash
+fi
 
 # Either --execute or one more argument, please.
 [ "$#" -ge 1 -o -n "$run_script" ] ||
@@ -143,4 +167,3 @@ if [ -n "$run_as_rooter" ]; then
 else
 	chrootuid2
 fi
-
