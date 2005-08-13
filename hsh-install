@@ -36,7 +36,7 @@ Usage: $PROG [options] <path-to-workdir> <package>...
 
 <path-to-workdir> must be valid hasher directory.
 
-Valid options are:
+Options:
   --excludedocs             do not install documentation files;
   --hasher-priv-dir=DIR     hasher-priv directory;
   --number=NUMBER           subconfig identifier;

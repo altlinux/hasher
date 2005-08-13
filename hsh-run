@@ -42,7 +42,7 @@ Usage: $PROG [options] <path-to-workdir> <program> [args]
 
 In addition, hsh-shell is the same as hsh-run --shell.
 
-Valid options are:
+Options:
   --builder                 run program as builder;
   --execute=PATH            copy given script to workdir and execute it;
   --hasher-priv-dir=DIR     hasher-priv directory;

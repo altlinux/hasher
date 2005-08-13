@@ -36,7 +36,7 @@ Usage: $PROG [options] <path-to-workdir>
 
 <path-to-workdir> must be valid writable directory.
 
-Valid options are:
+Options:
   --apt-config=FILE         path to custom apt.conf file;
   --apt-prefix=DIR          path to apt directory prefix (e.g. /usr);
   -f, --force               force aptbox creation;
