@@ -27,7 +27,6 @@ MAN1PAGES = $(PROGRAMS:=.1)
 MAN7PAGES = $(PROJECT).7
 TARGETS = functions $(MAN1PAGES) $(MAN7PAGES)
 
-deftarget = $(shell uname -m)
 bindir = /usr/bin
 datadir = /usr/share
 libexecdir = /usr/libexec
@@ -55,7 +54,6 @@ $(MAN7PAGES):
 %: %.in
 	sed \
 		-e 's,@VERSION@,$(VERSION),g' \
-		-e 's,@deftarget@,$(deftarget),g' \
 		-e 's,@libexecdir@,$(libexecdir),g' \
 		<$< >$@
 	$(TOUCH_R) $< $@
