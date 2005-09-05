@@ -81,7 +81,7 @@ hasher_priv_dir=
 number=
 
 # target architecture.
-def_target=@deftarget@
+def_target="$(uname -m)"
 target=
 
 # repo directory.
