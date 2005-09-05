@@ -1,13 +1,14 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.21
+Version: 1.0.22
 Release: alt1
 
 Summary: Modern safe package building technology
 License: GPL
 Group: Development/Other
 Url: ftp://ftp.altlinux.org/pub/people/ldv/hasher
+BuildArch: noarch
 
 Source: %url/%name-%version.tar.bz2
 
@@ -32,7 +33,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %setup -q
 
 %build
-%make_build libdir=%_libdir deftarget="$RPM_ARCH"
+%make_build libdir=%_libdir
 
 %install
 %make_install install DESTDIR=$RPM_BUILD_ROOT
@@ -44,6 +45,11 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README *.sh
 
 %changelog
+* Mon Sep 05 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.22-alt1
+- Changed default target to $(uname -m).
+- Made the package noarch again.
+- Updated FSF postal address.
+
 * Sat Aug 13 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.21-alt1
 - hsh-run: new options: --pty, --shell.
 - hsh-shell: obsoleted by "hsh-run --shell".
