@@ -514,7 +514,7 @@ prepare_x11_forwarding()
 		return 1
 	fi
 
-	local xentry
+	local xauth=xauth xentry
 	if [ "$x11_forwarding" = trusted ]; then
 		local display
 		[ -n "${DISPLAY##localhost:*}" ] &&
@@ -525,7 +525,7 @@ prepare_x11_forwarding()
 	elif [ "$x11_forwarding" = untrusted ]; then
 		local xfile="$workdir/lockdir/xauth"
 		touch "$xfile" &&
-		xauth -f "$xfile" generate "$DISPLAY" . untrusted timeout "$x11_timeout" ||
+		$xauth -f "$xfile" generate "$DISPLAY" . untrusted timeout "$x11_timeout" ||
 			return 1
 		xentry="$(xauth -f "$xfile" list "$DISPLAY")" ||
 			return 1
