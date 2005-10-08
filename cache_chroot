@@ -238,7 +238,7 @@ __EOF__
 
 	# At this stage, RPM inside chroot is fully functional.
 
-	if [ "$buildlist" ]; then
+	if [ -n "$buildlist" ]; then
 		copy_chroot_incoming $buildlist
 
 		create_entry_fakeroot_header
@@ -246,8 +246,10 @@ __EOF__
 export DURING_INSTALL=1
 ${exclude_docs:+export RPM_EXCLUDEDOCS=1}
 # WORKAROUND: dev shouldn't be installed
-rpmi -i $rpm_verbose $hash $exclude_docs --nodeps $(for f in $buildlist; do f="${f##*/}"; [ -z "${f##dev[-_][0-9]*}" ] || printf %s "\"$(quote_arg "$f")\" "; done)
-rpmi -i $verbose $exclude_docs --nodeps --justdb $(for f in $buildlist; do f="${f##*/}"; [ -n "${f##dev[-_][0-9]*}" ] || printf %s "\"$(quote_arg "$f")\" "; done)
+nodev_list="$(for f in $buildlist; do f="${f##*/}"; [ -z "${f##dev[-_][0-9]*}" ] || printf %s "\"$(quote_arg "$f")\" "; done)"
+[ -z "\$nodev_list" ] || rpmi -i $rpm_verbose $hash $exclude_docs --nodeps  \$nodev_list
+dev_list="$(for f in $buildlist; do f="${f##*/}"; [ -n "${f##dev[-_][0-9]*}" ] || printf %s "\"$(quote_arg "$f")\" "; done)"
+[ -z "\$dev_list" ] || rpmi -i $verbose $exclude_docs --nodeps --justdb \$dev_list
 # /WORKAROUND
 __EOF__
 
