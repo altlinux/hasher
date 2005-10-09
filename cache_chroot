@@ -242,16 +242,29 @@ __EOF__
 		copy_chroot_incoming $buildlist
 
 		create_entry_fakeroot_header
-		local pkg_skip_pattern='dev[-_][0-9]*'
 		cat >>"$entry" <<__EOF__
+set -f
 export DURING_INSTALL=1
 ${exclude_docs:+export RPM_EXCLUDEDOCS=1}
-# WORKAROUND: dev shouldn't be installed
-inst_list="$(for f in $buildlist; do f="${f##*/}"; [ -z "${f##$pkg_skip_pattern}" ] || printf %s "\"$(quote_arg "$f")\" "; done)"
+# Exclude packages which should not be installed
+inst_list="$(for f in $buildlist; do
+	f="${f##*/}"
+	for p in $noinstall_pattern_list; do
+		[ -n "${f##$p}" ] || continue 2
+	done
+	printf %s "\"$(quote_arg "$f")\" "
+done)"
 [ -z "\$inst_list" ] || rpmi -i $rpm_verbose $hash $exclude_docs --nodeps  \$inst_list
-noinst_list="$(for f in $buildlist; do f="${f##*/}"; [ -n "${f##$pkg_skip_pattern}" ] || printf %s "\"$(quote_arg "$f")\" "; done)"
+noinst_list="$(for f in $buildlist; do
+	f="${f##*/}"
+	for p in $noinstall_pattern_list; do
+		if [ -n "${f##$p}" ]; then
+			printf %s "\"$(quote_arg "$f")\" "
+			continue 2
+		fi
+	done
+done)"
 [ -z "\$noinst_list" ] || rpmi -i $verbose $exclude_docs --nodeps --justdb \$noinst_list
-# /WORKAROUND
 __EOF__
 
 		wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_short \
