@@ -47,7 +47,7 @@ Valid options are:
   --number=NUMBER               subconfig identifier;
   --pkg-build-list=LIST         override default build package file list;
   --pkg-init-list=LIST          override default initial package file list;
-  --pkg-noinstall-pattern-list  override default noinitial package pattern list;
+  --pkg-noinstall-pattern-list  override default noinstall package pattern list;
   --repackage-source            repackage source along with binaries;
   --save-fakeroot               save fakeroot state;
   -q, --quiet                   try to be more quiet;
