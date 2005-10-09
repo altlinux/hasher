@@ -47,6 +47,7 @@ Valid options are:
   --number=NUMBER               subconfig identifier;
   --pkg-build-list=LIST         override default build package file list;
   --pkg-init-list=LIST          override default initial package file list;
+  --pkg-noinstall-pattern-list  override default noinitial package pattern list;
   --repackage-source            repackage source along with binaries;
   --save-fakeroot               save fakeroot state;
   -q, --quiet                   try to be more quiet;
@@ -66,6 +67,7 @@ eval set -- "$TEMP"
 
 build_list='basesystem rpm-build>=0:4.0.4-alt21 kernel-headers-common>=0:1.1.4-alt1 sisyphus_check>=0:0.7.3 time'
 init_list='setup filesystem rpm fakeroot>=0:0.7.3'
+noinstall_pattern_list='dev[-_][0-9]*'
 install_langs=all
 no_cache=
 no_contents_indices=
@@ -98,6 +100,8 @@ while :; do
 		--pkg-build-list) shift; build_list="$1"
 			;;
 		--pkg-init-list) shift; init_list="$1"
+			;;
+		--pkg-noinstall-pattern-list) shift; noinstall_pattern_list="$1"
 			;;
 		--repackage-source) repackage_source=1
 			;;
