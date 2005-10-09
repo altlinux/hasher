@@ -1,13 +1,14 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.22
+Version: 1.0.23
 Release: alt1
 
 Summary: Modern safe package building technology
 License: GPL
 Group: Development/Other
 Url: ftp://ftp.altlinux.org/pub/people/ldv/hasher
+Packager: Dmitry V. Levin <ldv@altlinux.org>
 BuildArch: noarch
 
 Source: %url/%name-%version.tar.bz2
@@ -36,7 +37,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %make_build libdir=%_libdir
 
 %install
-%make_install install DESTDIR=$RPM_BUILD_ROOT
+%make_install install DESTDIR=%buildroot
 
 %files
 %_bindir/*
@@ -45,6 +46,11 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README *.sh
 
 %changelog
+* Sun Oct 09 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.23-alt1
+- initroot: new option: --pkg-noinstall-pattern-list.
+- cache_chroot: fixed workaround for the dev package,
+  implemented new initroot's option support.
+
 * Mon Sep 05 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.22-alt1
 - Changed default target to $(uname -m).
 - Made the package noarch again.
