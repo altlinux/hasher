@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh -ef
 #
 # $Id$
 # Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
@@ -126,7 +126,7 @@ unpack_chroot_cache()
 
 	# rpmdb
 	f="cache/chroot/rpmdb.tar"
-	rm -f aptbox/var/lib/rpm/*
+	find aptbox/var/lib/rpm/ -mindepth 1 -delete
 	tar -xf "$f" -C aptbox/var/lib/rpm/ &&
 		Verbose "Unpacked $f." ||
 		Fatal "Unpack of $f failed."
