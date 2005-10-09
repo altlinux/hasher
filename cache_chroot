@@ -250,16 +250,18 @@ ${exclude_docs:+export RPM_EXCLUDEDOCS=1}
 inst_list="$(for f in $buildlist; do
 	f="${f##*/}"
 	for p in $noinstall_pattern_list; do
-		[ -n "${f##$p}" ] || continue 2
+		if [ -z "${f##$p}" ]; then
+			continue 2
+		fi
 	done
-	printf %s "\"$(quote_arg "$f")\" "
+	printf %s "$(quote_arg "$f") "
 done)"
-[ -z "\$inst_list" ] || rpmi -i $rpm_verbose $hash $exclude_docs --nodeps  \$inst_list
+[ -z "\$inst_list" ] || rpmi -i $rpm_verbose $hash $exclude_docs --nodeps \$inst_list
 noinst_list="$(for f in $buildlist; do
 	f="${f##*/}"
 	for p in $noinstall_pattern_list; do
-		if [ -n "${f##$p}" ]; then
-			printf %s "\"$(quote_arg "$f")\" "
+		if [ -z "${f##$p}" ]; then
+			printf %s "$(quote_arg "$f") "
 			continue 2
 		fi
 	done
