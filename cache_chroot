@@ -282,7 +282,9 @@ __EOF__
 		create_entry_fakeroot_header
 		cat >>"$entry" <<__EOF__
 ldconfig
-adjust_kernel_headers
+if type adjust_kernel_headers >/dev/null 2>&1; then
+	adjust_kernel_headers
+fi
 groupadd -g $gid0 caller ||:
 useradd -M -u $uid0 -g $gid0 -d / caller ||:
 groupadd -g $gid1 rooter

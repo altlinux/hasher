@@ -110,8 +110,8 @@ cat >>"$entry" <<__EOF__
 ${exclude_docs:+export RPM_EXCLUDEDOCS=1}
 rpmi -i $rpm_verbose $hash $exclude_docs $(for f in $filelist; do printf %s "\"$(quote_arg "${f##*/}")\" "; done)
 ldconfig
-if [ -x /usr/sbin/adjust_kernel_headers ]; then
-	/usr/sbin/adjust_kernel_headers --first
+if type adjust_kernel_headers >/dev/null 2>&1; then
+	adjust_kernel_headers --first
 fi
 if [ -x /.host/postin ]; then
 	/.host/postin
