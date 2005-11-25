@@ -70,9 +70,6 @@ umask 022
 # save current work directory.
 saved_cwd="$(/bin/pwd)"
 
-# hasher directory.
-hasher_dir=/usr/share/hasher
-
 # hasher-priv directory.
 def_hasher_priv_dir=@libexecdir@/hasher-priv
 hasher_priv_dir=
@@ -240,7 +237,7 @@ set_workdir()
 	if printf %s "$workdir" |grep -qs '[`"$\]'; then
 		Fatal "$workdir: illegal symbols in pathname."
 	fi
-	[ -w . ] || Fatal "unwritable working directory."
+	[ -w . ] || Fatal "$workdir: unwritable working directory."
 
 	Verbose "changed working directory to \`$workdir'"
 	aptbox="$workdir/aptbox"
@@ -312,27 +309,27 @@ check_tty()
 check_helpers()
 {
 	[ -d "${hasher_priv_dir:-$def_hasher_priv_dir}" ] ||
-		Fatal "cannot access hasher-priv helper directory."
+		Fatal "${hasher_priv_dir:-$def_hasher_priv_dir}: cannot access hasher-priv helper directory."
 
 	getugid1="${hasher_priv_dir:-$def_hasher_priv_dir}/getugid1.sh"
 	[ -x "$getugid1" ] ||
-		Fatal "cannot access getugid1 helper."
+		Fatal "$getugid1: cannot access getugid1 helper."
 
 	getugid2="${hasher_priv_dir:-$def_hasher_priv_dir}/getugid2.sh"
 	[ -x "$getugid2" ] ||
-		Fatal "cannot access getugid2 helper."
+		Fatal "$getugid2: cannot access getugid2 helper."
 
 	chrootuid1="${hasher_priv_dir:-$def_hasher_priv_dir}/chrootuid1.sh"
 	[ -x "$chrootuid1" ] ||
-		Fatal "cannot access chrootuid1 helper."
+		Fatal "$chrootuid1: cannot access chrootuid1 helper."
 
 	chrootuid2="${hasher_priv_dir:-$def_hasher_priv_dir}/chrootuid2.sh"
 	[ -x "$chrootuid2" ] ||
-		Fatal "cannot access chrootuid2 helper."
+		Fatal "$chrootuid2: cannot access chrootuid2 helper."
 
 	makedev="${hasher_priv_dir:-$def_hasher_priv_dir}/makedev.sh"
 	[ -x "$makedev" ] ||
-		Fatal "cannot access makedev helper."
+		Fatal "$makedev: cannot access makedev helper."
 }
 
 # assumed: cwd == workdir
@@ -352,7 +349,7 @@ copy_chroot_incoming()
 {
 	purge_chroot_in
 	install -p -m644 $verbose -- "$@" chroot/.in/ ||
-		Fatal "failed to copy files."
+		Fatal 'failed to copy files.'
 }
 
 # assumed: cwd == workdir
@@ -366,16 +363,16 @@ update_repo()
 {
 	[ -z "$no_stuff" ] || return 0
 	"$prog_genbasedir" --topdir=${repo:-$def_repo} --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher &&
-		Verbose "updated hasher repository indices." ||
-		Fatal "failed to update hasher repository indices."
+		Verbose 'updated hasher repository indices.' ||
+		Fatal 'failed to update hasher repository indices.'
 }
 
 # assumed: defined variables: hash
 update_RPM_database()
 {
 	rpmi -i $verbose $hash --dbpath "$aptbox/var/lib/rpm" $exclude_docs --ignoresize --noorder --noscripts --notriggers --justdb "$@"
-		Verbose "RPM database updated." ||
-		Fatal "RPM database update failed."
+		Verbose 'RPM database updated.' ||
+		Fatal 'RPM database update failed.'
 }
 
 # execute as pseudoroot.
@@ -453,13 +450,15 @@ lock_workdir()
 }
 
 # assumed: defined APT_CONFIG, prog_apt_get
+APT_Get_PrintLocalFile=
 print_uris()
 {
-	[ -n "$APT_CONFIG" ] || Fatal "APT_CONFIG undefined."
+	[ -n "$APT_CONFIG" ] || Fatal 'APT_CONFIG undefined.'
+
 	local out
 	if ! out="$("$prog_apt_get" -q -y --print-uris install -- "$@" 2>&1)"; then
 		printf %s\\n "$out" >&2
-		Fatal "failed to calculate package file list."
+		Fatal 'failed to calculate package file list.'
 	fi
 
 	local pattern0="'\\([a-z]\\+\\):\\([^']\\+\\)' .*"
@@ -468,20 +467,54 @@ print_uris()
 	local all_uris
 	if ! all_uris="$(printf %s "$out" |sed -ne "s/^$pattern0/\\2/pg")"; then
 		printf %s\\n "$out" >&2
-		Fatal "failed to filter package file list."
+		Fatal 'failed to filter package file list.'
 	fi
+
 	local uris
 	if ! uris="$(printf %s "$out" |sed -ne "s/^$pattern1/\\2/pg")"; then
 		printf %s\\n "$out" >&2
-		Fatal "failed to filter package file list."
+		Fatal 'failed to filter package file list.'
 	fi
 
 	if [ "$all_uris" != "$uris" ]; then
-		printf %s\\n "$out" >&2
-		Fatal "calculated package file list is not local."
+		if [ -z "$APT_Get_PrintLocalFile" ]; then
+			if ! out="$("$prog_apt_get" -o APT::Get::PrintLocalFile=yes -q -y --print-uris install -- "$@" 2>&1)"; then
+				printf %s\\n "$out" >&2
+				Fatal 'calculated package file list is not local and apt-get does not support APT::Get::PrintLocalFile option.'
+			fi
+
+			if ! uris="$(printf %s "$out" |sed -ne "s/^$pattern0/\\2/pg")" ||
+			   [ -n "$uris" ]; then
+				printf %s\\n "$out" >&2
+				Fatal 'calculated package file list is not local and apt-get does not support APT::Get::PrintLocalFile option.'
+			fi
+
+			APT_Get_PrintLocalFile=1
+		fi
+
+		if [ -n "$verbose" ]; then
+			"$prog_apt_get" -y -d install -- "$@" >&2 ||
+				Fatal 'failed to download packages from calculated package file list.'
+		else
+			if ! out="$("$prog_apt_get" -y -d install -- "$@" 2>&1)"; then
+				printf %s\\n "$out" >&2
+				Fatal 'failed to download packages from calculated package file list.'
+			fi
+		fi
+
+		if ! out="$("$prog_apt_get" -o APT::Get::PrintLocalFile=yes -q -y --print-uris install -- "$@" 2>&1)"; then
+			printf %s\\n "$out" >&2
+			Fatal 'failed to calculate local package file list.'
+		fi
+
+		if ! uris="$(printf %s "$out" |grep ^/)" || [ -z "$uris" ]; then
+			printf %s\\n "$out" >&2
+			Fatal 'failed to calculate local package file list.'
+		fi
 	fi
+
 	printf %s "$uris" &&
-		Verbose "calculated package file list."
+		Verbose 'calculated package file list.'
 }
 
 parse_xauth_entry()
