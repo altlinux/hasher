@@ -20,12 +20,10 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-if [ "$0" = ./initroot ]; then
-	. ./functions
-	hasher_dir="$(/bin/pwd)"
-else
-	. /usr/share/hasher/functions
-fi
+hasher_dir="$(dirname "$0")"
+[ "$hasher_dir" != "." ] || hasher_dir="$(/bin/pwd)"
+[ -r "$hasher_dir/functions" ] || hasher_dir="/usr/share/hasher"
+. "$hasher_dir/functions"
 
 show_help()
 {
