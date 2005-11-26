@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.23
+Version: 1.0.24
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -46,6 +46,16 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README *.sh
 
 %changelog
+* Sat Nov 26 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.24-alt1
+- rebuild: s/--reply=yes/-f/ (closes #8325).
+- cache_chroot, hsh-install: Corrected check for
+  adjust_kernel_headers presense before execution.
+- Fixed hasher_dir initialization, to make execution of hasher
+  placed to custom directory work as designed.
+- functions (print_uris): Implemented package download using
+  APT::Get::PrintLocalFile option (closes #8121).
+- rebuild: Pass target to /.host/rebuild.
+
 * Sun Oct 09 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.23-alt1
 - initroot: new option: --pkg-noinstall-pattern-list.
 - cache_chroot: fixed workaround for the dev package,
