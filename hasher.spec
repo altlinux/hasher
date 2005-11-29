@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.24
+Version: 1.0.25
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -34,7 +34,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %setup -q
 
 %build
-%make_build libdir=%_libdir
+%make_build
 
 %install
 %make_install install DESTDIR=%buildroot
@@ -46,6 +46,13 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README *.sh
 
 %changelog
+* Tue Nov 29 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.25-alt1
+- initroot: Adopted "prepare /proc and /sys for potential mount"
+  code to work in --save-fakeroot mode.
+- hsh: New options: --eager-cleanup/--lazy-cleanup
+  (option names suggested by Alexey Rusakov).
+  Changed default operation mode to --eager-cleanup.
+
 * Sat Nov 26 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.24-alt1
 - rebuild: s/--reply=yes/-f/ (closes #8325).
 - cache_chroot, hsh-install: Corrected check for
