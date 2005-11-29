@@ -188,7 +188,6 @@ __EOF__
 
 	create_entry_fakeroot_header
 	cat >>"$entry" <<__EOF__
-export DURING_INSTALL=1
 # WORKAROUND: mtab is missing in setup-2.2.2-alt1
 touch /etc/mtab
 # /WORKAROUND
