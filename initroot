@@ -215,11 +215,34 @@ else
 fi
 
 # Prepare /proc and /sys for potential mount.
-rmdir $verbose chroot/proc chroot/sys &&
+if [ -n "$save_fakeroot" ]; then
+	create_entry_fakeroot_header
+	cat >>"$entry" <<__EOF__
+rmdir $verbose /proc /sys
+__EOF__
+	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
+	    chrootuid1 &&
+		Verbose "Removed old mount points." ||
+		Fatal "Failed to remove old mount points."
+else
+	rmdir $verbose chroot/proc chroot/sys &&
+		Verbose "Removed old mount points." ||
+		Fatal "Failed to remove old mount points."
+fi
 mkdir -m755 $verbose chroot/proc chroot/sys &&
 chgrp "$gid1" $verbose chroot/proc chroot/sys &&
 	Verbose 'Prepared mount points.' ||
 	Fatal 'Failed to prepare mount points.'
+if [ -n "$save_fakeroot" ]; then
+	create_entry_fakeroot_header
+	cat >>"$entry" <<__EOF__
+chgrp $verbose proc /proc
+__EOF__
+	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
+	    chrootuid1 &&
+		Verbose 'Updated faked /proc permissions.' ||
+		Fatal 'Failed to update faked /proc permissions.'
+fi
 
 check_contents_cache
 
