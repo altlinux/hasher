@@ -85,6 +85,10 @@ target=
 def_repo=repo
 repo=
 
+# cleanup build environment after each
+# successful build or before each new build
+lazy_cleanup=
+
 # RPM --excludedocs
 exclude_docs=
 
