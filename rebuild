@@ -197,7 +197,7 @@ if [ -z "$nodeps" ]; then
 #!/bin/sh -e
 rpmi -i -- "\$@"
 cd \`rpm --eval %_specdir\`
-rpmbuild -bs --nodeps $rpmargs -- *.spec >/dev/null
+rpmbuild -bs --nodeps --define '_allow_undefined_macros 1' $rpmargs -- *.spec >/dev/null
 cd \`rpm --eval %_srcrpmdir\`
 rpmquery -pR -- "\$@"
 __EOF__
