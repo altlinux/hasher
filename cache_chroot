@@ -1,7 +1,7 @@
 #!/bin/sh -ef
 #
 # $Id$
-# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The chroot cache functions for the initroot
 #
@@ -196,7 +196,7 @@ mkdir -p /sys
 # /WORKAROUND
 rm -f /etc/rpm/macros.db1
 # WORKAROUND: glibc-locales is too large
-echo '%_install_langs $install_langs' >>/etc/rpm/macros
+echo '%_install_langs ${install_langs:-$def_install_langs}' >>/etc/rpm/macros
 # /WORKAROUND
 rpmdb --initdb
 __EOF__
@@ -211,7 +211,7 @@ __EOF__
 	cat >>"$entry" <<__EOF__
 export DURING_INSTALL=1
 ${exclude_docs:+export RPM_EXCLUDEDOCS=1}
-rpmi -i $verbose $exclude_docs --justdb --nodeps $(for f in $initlist; do printf %s "\"$(quote_arg "${f##*/}")\" "; done)
+${rpmi:-$def_rpmi} -i $verbose $exclude_docs --justdb --nodeps $(for f in $initlist; do printf %s "\"$(quote_arg "${f##*/}")\" "; done)
 __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_short \
@@ -255,7 +255,7 @@ inst_list="$(for f in $buildlist; do
 	done
 	printf %s "$(quote_arg "$f") "
 done)"
-[ -z "\$inst_list" ] || rpmi -i $rpm_verbose $hash $exclude_docs --nodeps \$inst_list
+[ -z "\$inst_list" ] || ${rpmi:-$def_rpmi} -i $rpm_verbose $hash $exclude_docs --nodeps \$inst_list
 noinst_list="$(for f in $buildlist; do
 	f="${f##*/}"
 	for p in $noinstall_pattern_list; do
@@ -265,7 +265,7 @@ noinst_list="$(for f in $buildlist; do
 		fi
 	done
 done)"
-[ -z "\$noinst_list" ] || rpmi -i $verbose $exclude_docs --nodeps --justdb \$noinst_list
+[ -z "\$noinst_list" ] || ${rpmi:-$def_rpmi} -i $verbose $exclude_docs --nodeps --justdb \$noinst_list
 __EOF__
 
 		wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_short \

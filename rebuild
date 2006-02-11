@@ -1,7 +1,7 @@
 #!/bin/sh -ef
 #
 # $Id$
-# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The rebuild utility for the hasher project
 #
@@ -67,13 +67,7 @@ TEMP=`getopt -n $PROG -o h,q,v,V -l args:,excludedocs,hasher-priv-dir:,mountpoin
 	show_usage
 eval set -- "$TEMP"
 
-known_mountpoints=
 nodeps=
-prog_query_req=
-prog_rebuild=
-query_repackage=
-required_mountpoints=
-rpmargs=
 while :; do
 	case "$1" in
 		--args) shift; rpmargs="$1"
@@ -152,6 +146,8 @@ shift
 
 check_helpers
 
+required_mountpoints=
+
 # Create rebuild script.
 if [ -n "$prog_rebuild" ]; then
 	install -p -m755 $verbose "$prog_rebuild" chroot/.host/rebuild
@@ -195,7 +191,7 @@ if [ -z "$nodeps" ]; then
 	elif [ -n "$query_repackage" ]; then
 		cat >chroot/.host/query_req <<__EOF__
 #!/bin/sh -e
-rpmi -i -- "\$@"
+${rpmi:-$def_rpmi} -i -- "\$@"
 cd \`rpm --eval %_specdir\`
 rpmbuild -bs --nodeps --define '_allow_undefined_macros 1' $rpmargs -- *.spec >/dev/null
 cd \`rpm --eval %_srcrpmdir\`

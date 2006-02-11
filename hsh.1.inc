@@ -1,5 +1,5 @@
 .\" $Id$
-.\" Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
+.\" Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
 .\" 
 .\" Additional documentation for the hsh command.
 .\"
@@ -45,7 +45,7 @@ build will fail.
 
 [FILES]
 .B ~/.hasher/config
-- user config file sourced by all hasher utilities.
+- user config file sourced by all hasher utilities; uses shell syntax.
 .TP
 .B ~/.hasher/install/post
 - postinstall script;

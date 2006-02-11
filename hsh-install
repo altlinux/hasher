@@ -1,7 +1,7 @@
 #!/bin/sh -ef
 #
 # $Id$
-# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The install utility for the hasher project
 #
@@ -106,7 +106,7 @@ check_tty
 create_entry_fakeroot_header
 cat >>"$entry" <<__EOF__
 ${exclude_docs:+export RPM_EXCLUDEDOCS=1}
-rpmi -i $rpm_verbose $hash $exclude_docs $(for f in $filelist; do printf %s "\"$(quote_arg "${f##*/}")\" "; done)
+${rpmi:-$def_rpmi} -i $rpm_verbose $hash $exclude_docs $(for f in $filelist; do printf %s "\"$(quote_arg "${f##*/}")\" "; done)
 ldconfig
 if type adjust_kernel_headers >/dev/null 2>&1; then
 	adjust_kernel_headers --first

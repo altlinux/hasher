@@ -1,7 +1,7 @@
 #!/bin/sh -ef
 #
 # $Id$
-# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The initroot utility for the hasher project
 #
@@ -35,23 +35,23 @@ Usage: $PROG [options] <path-to-workdir>
 <path-to-workdir> must be valid hasher directory.
 
 Valid options are:
-  --excludedocs                 do not install documentation files;
-  --hasher-priv-dir=DIR         hasher-priv directory;
-  --install-langs=LIST          colon-separated list of languages to install;
-  --no-cache                    do not use cache;
-  --no-contents-indices         do not use content indices;
-  --no-repackage-source         do not repackage source along with binaries;
-  --nprocs=NUMBER               number of CPUs to use;
-  --number=NUMBER               subconfig identifier;
-  --pkg-build-list=LIST         override default build package file list;
-  --pkg-init-list=LIST          override default initial package file list;
-  --pkg-noinstall-pattern-list  override default noinstall package pattern list;
-  --repackage-source            repackage source along with binaries;
-  --save-fakeroot               save fakeroot state;
-  -q, --quiet                   try to be more quiet;
-  -v, --verbose                 print a message for each action;
-  -V, --version                 print program version and exit;
-  -h, --help                    show this text and exit.
+  --excludedocs                     do not install documentation files;
+  --hasher-priv-dir=DIR             hasher-priv directory;
+  --install-langs=LIST              colon-separated list of languages to install;
+  --no-cache                        do not use cache;
+  --no-contents-indices             do not use content indices;
+  --no-repackage-source             do not repackage source along with binaries;
+  --nprocs=NUMBER                   number of CPUs to use;
+  --number=NUMBER                   subconfig identifier;
+  --pkg-build-list=LIST             override default build package file list;
+  --pkg-init-list=LIST              override default initial package file list;
+  --pkg-noinstall-pattern-list      override default noinstall package pattern list;
+  --repackage-source                repackage source along with binaries;
+  --save-fakeroot                   save fakeroot state;
+  -q, --quiet                       try to be more quiet;
+  -v, --verbose                     print a message for each action;
+  -V, --version                     print program version and exit;
+  -h, --help                        show this text and exit.
     
 Report bugs to http://bugs.altlinux.ru/
 
@@ -63,14 +63,6 @@ TEMP=`getopt -n $PROG -o h,q,v,V -l contents-index-all:,contents-index-bin:,excl
 	show_usage
 eval set -- "$TEMP"
 
-build_list='basesystem rpm-build>=0:4.0.4-alt21 kernel-headers-common>=0:1.1.4-alt1 sisyphus_check>=0:0.7.3 time'
-init_list='setup filesystem rpm fakeroot>=0:0.7.3'
-noinstall_pattern_list='dev[-_][0-9]*'
-install_langs=all
-no_cache=
-no_contents_indices=
-nprocs=
-repackage_source=1
 while :; do
 	case "$1" in
 		--excludedocs) exclude_docs=--excludedocs
@@ -128,9 +120,9 @@ shift
 [ -d "$aptbox" ] || Fatal "$aptbox: cannot access aptbox."
 [ -r "$APT_CONFIG" ] || Fatal "$APT_CONFIG: cannot access APT configuration."
 
-if [ -n "$save_fakeroot" ]; then
-	init_list="$init_list cpio"
-fi
+: ${init_list:=$pkg_init_list}
+: ${build_list:=$pkg_build_list}
+[ -z "$save_fakeroot" ] || init_list="$init_list cpio"
 
 mkdir -p -m700 $verbose cache
 rm -rf $verbose \

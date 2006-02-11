@@ -1,7 +1,7 @@
 #!/bin/sh -ef
 #
 # $Id$
-# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The hsh utility for the hasher project
 #
@@ -88,21 +88,8 @@ TEMP=`getopt -n $PROG -o h,q,v,V -l apt-config:,apt-prefix:,build-args:,cleanup-
 	show_usage
 eval set -- "$TEMP"
 
-apt_config=
-build_list=
 cleanup_only=
-init_list=
 initroot_only=
-install_langs=
-known_mountpoints=
-no_cache=
-no_contents_indices=
-nprocs=
-prog_query_req=
-prog_rebuild=
-query_repackage=
-repackage_source=
-rpmargs=
 while :; do
 	case "$1" in
 		--apt-config)
@@ -210,6 +197,9 @@ else
 	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
 	[ "$#" -le 1 ] || show_usage 'Too many arguments.'
 fi
+
+[ "$repackage_source" = '--no-repackage-source' ] ||
+	repackage_source='--repackage-source'
 
 set_workdir "$1"
 shift

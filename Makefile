@@ -1,6 +1,6 @@
 #
 # $Id$
-# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # Makefile for the hasher project.
 #
@@ -59,8 +59,13 @@ $(MAN7PAGES):
 	$(TOUCH_R) $< $@
 	chmod --reference=$< $@
 
-%.1: % %.1.inc
-	$(HELP2MAN1) -i $@.inc ./$< >$@
+%._: % manify.sed
+	sed -rf manify.sed <$< >$@
+	chmod --reference=$< $@
+
+%.1: %._ %.1.inc
+	$(HELP2MAN1) -i $(<:._=).1.inc ./$< >$@
+	sed -i 's/^\.B $</.B $(<:._=)/' $@
 
 install: all
 	$(MKDIR_P) -m755 $(DESTDIR)$(helperdir)
@@ -77,4 +82,4 @@ install: all
 	$(LN_S) $(binreldir)/hsh-shell $(DESTDIR)$(bindir)/
 
 clean:
-	$(RM) $(TARGETS) *~
+	$(RM) $(TARGETS) *~ *._
