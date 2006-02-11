@@ -35,23 +35,22 @@ Usage: $PROG [options] <path-to-workdir>
 <path-to-workdir> must be valid hasher directory.
 
 Valid options are:
-  --excludedocs                     do not install documentation files;
-  --hasher-priv-dir=DIR             hasher-priv directory;
-  --install-langs=LIST              colon-separated list of languages to install;
-  --no-cache                        do not use cache;
-  --no-contents-indices             do not use content indices;
-  --no-repackage-source             do not repackage source along with binaries;
-  --nprocs=NUMBER                   number of CPUs to use;
-  --number=NUMBER                   subconfig identifier;
-  --pkg-build-list=LIST             override default build package file list;
-  --pkg-init-list=LIST              override default initial package file list;
-  --pkg-noinstall-pattern-list      override default noinstall package pattern list;
-  --repackage-source                repackage source along with binaries;
-  --save-fakeroot                   save fakeroot state;
-  -q, --quiet                       try to be more quiet;
-  -v, --verbose                     print a message for each action;
-  -V, --version                     print program version and exit;
-  -h, --help                        show this text and exit.
+  --excludedocs             do not install documentation files;
+  --hasher-priv-dir=DIR     hasher-priv directory;
+  --install-langs=LI        colon-separated list of languages to install;
+  --no-cache                do not use cache;
+  --no-contents-indices     do not use content indices;
+  --no-repackage-source     do not repackage source along with binaries;
+  --nprocs=NUMBER           number of CPUs to use;
+  --number=NUMBER           subconfig identifier;
+  --pkg-build-list=LIST     override default build package file list;
+  --pkg-init-list=LIST      override default initial package file list;
+  --repackage-source        repackage source along with binaries;
+  --save-fakeroot           save fakeroot state;
+  -q, --quiet               try to be more quiet;
+  -v, --verbose             print a message for each action;
+  -V, --version             print program version and exit;
+  -h, --help                show this text and exit.
     
 Report bugs to http://bugs.altlinux.ru/
 
@@ -90,8 +89,6 @@ while :; do
 		--pkg-build-list) shift; build_list="$1"
 			;;
 		--pkg-init-list) shift; init_list="$1"
-			;;
-		--pkg-noinstall-pattern-list) shift; noinstall_pattern_list="$1"
 			;;
 		--repackage-source) repackage_source=1
 			;;
