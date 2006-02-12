@@ -43,7 +43,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %_bindir/*
 %_datadir/%name
 %_mandir/man?/*
-%doc FAQ QUICKSTART README *.sh
+%doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
 * Sun Feb 12 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.26-alt1
@@ -56,6 +56,7 @@ See %_docdir/%name-%version/QUICKSTART for details.
   during repackage.
 - hsh-install: honor noinstall_pattern_list parameter like
   in initroot stage.
+- Added example apt.conf file to documentation.
 
 * Tue Nov 29 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.25-alt1
 - initroot: Adopted "prepare /proc and /sys for potential mount"
