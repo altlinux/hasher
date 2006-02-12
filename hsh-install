@@ -106,7 +106,27 @@ check_tty
 create_entry_fakeroot_header
 cat >>"$entry" <<__EOF__
 ${exclude_docs:+export RPM_EXCLUDEDOCS=1}
-${rpmi:-$def_rpmi} -i $rpm_verbose $hash $exclude_docs $(for f in $filelist; do printf %s "\"$(quote_arg "${f##*/}")\" "; done)
+# Exclude packages which should not be installed
+noinst_list="$(for f in $filelist; do
+	f="${f##*/}"
+	for p in $noinstall_pattern_list; do
+		if [ -z "${f##$p}" ]; then
+			printf %s "$(quote_arg "$f") "
+			continue 2
+		fi
+	done
+done)"
+[ -z "\$noinst_list" ] || ${rpmi:-$def_rpmi} -i $verbose $exclude_docs --nodeps --justdb \$noinst_list
+inst_list="$(for f in $filelist; do
+	f="${f##*/}"
+	for p in $noinstall_pattern_list; do
+		if [ -z "${f##$p}" ]; then
+			continue 2
+		fi
+	done
+	printf %s "$(quote_arg "$f") "
+done)"
+[ -z "\$inst_list" ] || ${rpmi:-$def_rpmi} -i $rpm_verbose $hash $exclude_docs \$inst_list
 ldconfig
 if type adjust_kernel_headers >/dev/null 2>&1; then
 	adjust_kernel_headers --first
