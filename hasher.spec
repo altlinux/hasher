@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.25
+Version: 1.0.26
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -46,6 +46,17 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README *.sh
 
 %changelog
+* Sun Feb 12 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.26-alt1
+- Enhanced manpages, based on idea and implementation
+  from George Kouryachy.
+- Parametrized default values for most of program options,
+  see manpages for details.
+- Parametrized rpmi: use $rpmi to override default rpmi.
+- rebuild --query-repackage: allow undefined rpm macros
+  during repackage.
+- hsh-install: honor noinstall_pattern_list parameter like
+  in initroot stage.
+
 * Tue Nov 29 2005 Dmitry V. Levin <ldv@altlinux.org> 1.0.25-alt1
 - initroot: Adopted "prepare /proc and /sys for potential mount"
   code to work in --save-fakeroot mode.
