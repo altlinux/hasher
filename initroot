@@ -86,9 +86,15 @@ while :; do
 			number="$(opt_check_number "$1" "$2")"
 			shift
 			;;
-		--pkg-build-list) shift; build_list="$1"
+		--pkg-build-list) shift
+			[ "$1" != "${1#+}" -a -n "${1#+}" ] && 
+				build_list="$build_list,${1#+}" ||
+				build_list="$1"
 			;;
-		--pkg-init-list) shift; init_list="$1"
+		--pkg-init-list) shift
+			[ "$1" != "${1#+}" -a -n "${1#+}" ] && 
+				init_list="$init_list,${1#+}" ||
+				init_list="$1"
 			;;
 		--repackage-source) repackage_source=1
 			;;
