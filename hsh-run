@@ -48,7 +48,7 @@ Options:
   --pty                     redirect standard descriptors to controlling pty;
   --rooter                  run program as pseudoroot;
   --save-fakeroot           save fakeroot state;
-  --shell                   run interactive shell;
+  --shell[=SHELL]           run interactive shell;
   --x11-timeout=SECONDS     how long X11 authorization will be valid;
   -x                        disable X11 forwarding;
   -X                        enable X11 forwarding;
@@ -64,13 +64,14 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,execute:,hasher-priv-dir:,mountpoints:,number:,pty,rooter,save-fakeroot,shell,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,execute:,hasher-priv-dir:,mountpoints:,number:,pty,rooter,save-fakeroot,shell::,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
 run_as_rooter=
 run_script=
 run_shell=
+shell_prog=bash
 
 if [ "${0##*/}" = hsh-shell ]; then
 	run_shell=1
@@ -102,7 +103,11 @@ while :; do
 			;;
 		--save-fakeroot) save_fakeroot=1
 			;;
-		--shell) run_shell=1; use_pty=yes; export use_pty
+		--shell)
+			run_shell=1
+			use_pty=yes; export use_pty
+			shift
+			[ -z "$1" ] || shell_prog="$1"
 			;;
 		--x11-timeout) shift; x11_timeout="$1"
 			;;
@@ -132,7 +137,7 @@ fi
 
 if [ -n "$run_shell" ]; then
 	[ "$#" -eq 0 ] || show_usage 'Too many arguments.'
-	set -- -a -bash bash
+	set -- -a "-$shell_prog" "$shell_prog"
 fi
 
 # Either --execute or one more argument, please.
