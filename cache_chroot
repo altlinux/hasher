@@ -45,7 +45,9 @@ archive_chroot_cache()
 	create_entry_fakeroot_header
 	cat >>"$entry" <<__EOF__
 cd /
-find $list |cpio --create --quiet --format=newc
+find --version >/dev/null 2>&1 && find=find || find=/.host/find
+cpio --version >/dev/null 2>&1 && cpio=cpio || cpio=/.host/cpio
+\$find $list |\$cpio --create --quiet --format=newc
 __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
