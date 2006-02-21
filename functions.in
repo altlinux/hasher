@@ -560,30 +560,30 @@ print_uris()
 		Fatal 'failed to calculate package file list.'
 	fi
 
-	local pattern0="'\\([a-z]\\+\\):\\([^']\\+\\)' .*"
-	local pattern1="'\\(file\\|copy\\):\\([^']\\+\\)' .*"
+	local all_pattern="'\\([a-z]\\+\\):\\([^']\\+\\)' .*"
+	local local_pattern="'\\(file\\|copy\\):\\([^']\\+\\)' .*"
 
 	local all_uris
-	if ! all_uris="$(printf %s "$out" |sed -ne "s/^$pattern0/\\2/pg")"; then
+	if ! all_uris="$(printf %s "$out" |sed -ne "s/^$all_pattern/\\2/pg")"; then
 		printf %s\\n "$out" >&2
 		Fatal 'failed to filter package file list.'
 	fi
 
-	local uris
-	if ! uris="$(printf %s "$out" |sed -ne "s/^$pattern1/\\2/pg")"; then
+	local local_uris cached_uris=
+	if ! local_uris="$(printf %s "$out" |sed -ne "s/^$local_pattern/\\2/pg")"; then
 		printf %s\\n "$out" >&2
 		Fatal 'failed to filter package file list.'
 	fi
 
-	if [ "$all_uris" != "$uris" ]; then
+	if [ "$all_uris" != "$local_uris" ]; then
 		if [ -z "$APT_Get_PrintLocalFile" ]; then
 			if ! out="$("$prog_apt_get" -o APT::Get::PrintLocalFile=yes -q -y --print-uris install -- "$@" 2>&1)"; then
 				printf %s\\n "$out" >&2
 				Fatal 'calculated package file list is not local and apt-get does not support APT::Get::PrintLocalFile option.'
 			fi
 
-			if ! uris="$(printf %s "$out" |sed -ne "s/^$pattern0/\\2/pg")" ||
-			   [ -n "$uris" ]; then
+			if ! cached_uris="$(printf %s "$out" |sed -ne "s/^$all_pattern/\\2/pg")" ||
+			   [ -n "$cached_uris" ]; then
 				printf %s\\n "$out" >&2
 				Fatal 'calculated package file list is not local and apt-get does not support APT::Get::PrintLocalFile option.'
 			fi
@@ -606,13 +606,18 @@ print_uris()
 			Fatal 'failed to calculate local package file list.'
 		fi
 
-		if ! uris="$(printf %s "$out" |grep ^/)" || [ -z "$uris" ]; then
+		if ! cached_uris="$(printf %s "$out" |grep ^/)" || [ -z "$cached_uris" ]; then
 			printf %s\\n "$out" >&2
 			Fatal 'failed to calculate local package file list.'
 		fi
 	fi
 
-	printf %s "$uris" &&
+	if [ -n "$cached_uris" ]; then
+		[ -n "$local_uris" ] && local_uris="$local_uris
+$cached_uris" || local_uris="$cached_uris"
+	fi
+
+	printf %s "$local_uris" &&
 		Verbose 'calculated package file list.'
 }
 

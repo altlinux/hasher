@@ -1,7 +1,7 @@
 # $Id$
 
 Name: hasher
-Version: 1.0.27
+Version: 1.0.28
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -46,11 +46,15 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Tue Feb 21 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.28-alt1
+- functions (print_uris): Fixed package download implementation
+  to support mixed repos (see #8902).
+
 * Fri Feb 17 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.27-alt1
 - cache_chroot: Use find and cpio from host system
   if native tools are not available.
-- initroot: Added --pkg-{init,build}-list=+ syntax (#9102).
-- hsh-run: Added optional argument to --shell option (#9103).
+- initroot: Added --pkg-{init,build}-list=+ syntax (closes #9102).
+- hsh-run: Added optional argument to --shell option (closes #9103).
 
 * Sun Feb 12 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.26-alt1
 - Enhanced manpages, based on idea and implementation
