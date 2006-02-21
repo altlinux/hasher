@@ -235,7 +235,7 @@ __EOF__
 	fi
 
 	if [ -n "$deps" ]; then
-		"$hasher_dir/install" \
+		"$hasher_dir/hsh-install" \
 			${quiet:+$quiet} \
 			${verbose:+$verbose} \
 			${number:+--number=$number} \
