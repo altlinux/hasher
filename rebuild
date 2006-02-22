@@ -155,6 +155,7 @@ else
 	cat >"chroot/.host/rebuild" <<__EOF__
 #!/bin/sh -le
 ${verbose:+set -x}
+export -n target ||:
 exec nice time rpmbuild --rebuild --target="\$target" $nodeps $rpmargs "\$@"
 __EOF__
 	chmod 755 "chroot/.host/rebuild"
