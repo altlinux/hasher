@@ -1,5 +1,3 @@
-# $Id$
-
 Name: hasher
 Version: 1.0.28
 Release: alt1

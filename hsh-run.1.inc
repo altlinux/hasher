@@ -1,4 +1,3 @@
-.\" $Id$
 .\" Copyright (C) 2005  Dmitry V. Levin <ldv@altlinux.org>
 .\" 
 .\" Additional documentation for the hsh-run command.

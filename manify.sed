@@ -1,5 +1,4 @@
 #
-# $Id$
 # Copyright (C) 2005  Fr. Br. George <george@altlinux.ru>
 # 
 # Sed script required for the hasher project manpages creation.

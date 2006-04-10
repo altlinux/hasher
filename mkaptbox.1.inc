@@ -1,4 +1,3 @@
-.\" $Id$
 .\" Copyright (C) 2003, 2004, 2005  Dmitry V. Levin <ldv@altlinux.org>
 .\" 
 .\" Additional documentation for the mkaptbox command.

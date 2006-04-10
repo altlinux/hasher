@@ -1,5 +1,4 @@
 #
-# $Id$
 # Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # Makefile for the hasher project.

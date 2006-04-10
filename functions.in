@@ -1,6 +1,5 @@
 #!/bin/sh -ef
 #
-# $Id$
 # Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # This file defines functions used by hasher scripts.
