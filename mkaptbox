@@ -140,9 +140,9 @@ read_apt_config Dir::Etc::SourceList sl_value
 # reset APT_CONFIG and fill it with new data.
 export APT_CONFIG="$aptbox/etc/apt/apt.conf"
 cat >"$APT_CONFIG" <<__EOF__
-${apt_config:+$(cat "$apt_config")}
 Dir::State "$aptbox/var/lib/apt/";
 Dir::Cache "$aptbox/var/cache/apt/";
+${apt_config:+$(cat "$apt_config")}
 Dir::Etc::SourceList "$aptbox/etc/apt/sources.list";
 RPM::RootDir "$aptbox";
 APT::Install::Virtual "true";
@@ -165,11 +165,7 @@ Verbose "Created RPM database in \`./var/lib/rpm/'."
 for n in apt-cache apt-config apt-get genbasedir; do
 	cat >"$n" <<__EOF__
 #!/bin/sh -e
-
-if [ -n "$LD_LIBRARY_PATH" ]; then
-	LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
-	export LD_LIBRARY_PATH
-fi
+${LD_LIBRARY_PATH:+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH"}
 APT_CONFIG="$APT_CONFIG" \
 exec $(eval printf %s "$(printf '$prog_%s' "$n" |tr - _)") "\$@"
 __EOF__
