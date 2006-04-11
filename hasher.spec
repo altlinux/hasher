@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.0.28
+Version: 1.0.29
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,16 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Mon Apr 10 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.29-alt1
+- rebuild:
+  + Do not export $target variable in default rebuild script.
+- mkaptbox:
+  + When creating internal apt.conf, place user apt config after
+    internal Dir::State and Dir::Cache, to let users override
+    these directories (legion@).
+  + Cleanup apt wrappers (legion@).
+- Removed keywords used for CVS keyword substitution.
+
 * Tue Feb 21 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.28-alt1
 - functions (print_uris): Fixed package download implementation
   to support mixed repos (see #8902).
