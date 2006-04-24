@@ -9,7 +9,7 @@ Url: ftp://ftp.altlinux.org/pub/people/ldv/hasher
 Packager: Dmitry V. Levin <ldv@altlinux.org>
 BuildArch: noarch
 
-Source: %url/%name-%version.tar.bz2
+Source: %url/%name-%version.tar
 
 %define _libexecdir %_prefix/libexec
 %define helperdir %_libexecdir/%name-priv
