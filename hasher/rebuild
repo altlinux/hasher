@@ -216,9 +216,9 @@ __EOF__
 		Fatal "$sname: failed to fetch build dependencies."
 	deps="$(printf %s "$deps" |grep -v '^rpmlib(' |LC_ALL=C tr -d [[:blank:]])"
 	if bad_deps="$(printf %s "$deps" |LC_ALL=C grep -v '^[[:alnum:]_/]')"; then
-		Fatal "$sname: invalid build dependencies: $bad_deps"
+		Fatal "$sname: invalid build dependencies: $(printf %s "$bad_deps" |tr -s '[:space:]' ' ')"
 	fi
-	Verbose "$sname: calculated build dependencies: $deps"
+	Verbose "$sname: calculated build dependencies: $(printf %s "$deps" |tr -s '[:space:]' ' ')"
 
 	if [ -n "$known_mountpoints" ]; then
 		for file_deps in `printf %s "$deps" |LC_ALL=C grep '^/' |LC_ALL=C sort -u`; do
