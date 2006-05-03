@@ -163,6 +163,71 @@ fi
 
 # Copy source to chroot.
 copy_chroot_incoming "$source"
+create_entry_header
+cat >>"$entry" <<__EOF__
+mkdir -p $verbose -m700 -- "\$TMPDIR"
+rm -rf "\$HOME/in"
+mkdir $verbose -m700 -- "\$HOME/in"
+# Check source file.
+header="\$(od -A n -N 8 -t x1 -- "$(quote_arg "$sname")")"
+case "\$header" in
+	' ed ab ee db '*' 00 01')
+		mkdir $verbose -m700 -- "\$HOME/in/srpm"
+		install -pm644 $verbose "$(quote_arg "$sname")" "\$HOME/in/srpm/"
+		echo src.rpm
+		exit 0
+		;;
+	' ed ab ee db '*)
+		exit 0
+		;;
+esac
+spec="\$(LC_ALL=C tar -tvf "$(quote_arg "$sname")" 2>/dev/null |
+	sed '/^V---------[[:space:]]\+0\/0[[:space:]]\+0[[:space:]]\+[^[:space:]]\+[[:space:]]\+[^[:space:]]\+[[:space:]]\+/!d;s///;s/--Volume Header--\$//;q')"
+if [ -n "\$spec" -a "\$spec" = "\${spec#*/}" ]; then
+	mkdir $verbose -m700 -- "\$HOME/in/spec" "\$HOME/in/source" >&2
+	tar $verbose -xf "$(quote_arg "$sname")" -C "\$HOME/in/source/" >&2
+	mv $verbose "\$HOME/in/source/\$spec" "\$HOME/in/spec/" >&2
+	echo pkg.tar
+	exit 0
+fi
+__EOF__
+source_type="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
+	    chrootuid2)" &&
+	Verbose "$sname: installed source file." ||
+	Fatal "$sname: failed to install source file."
+purge_chroot_in
+
+make_srpm_from_pkgtar()
+{
+	# At this stage, build environment is ready for creating source rpm.
+	create_entry_header
+	cat >>"$entry" <<__EOF__
+mkdir $verbose -m700 -- "\$HOME/in/srpm"
+rpmbuild -bs --nodeps \
+	--define '_allow_undefined_macros 1' \
+	$rpmargs \
+	--define "_sourcedir \$HOME/in/source" \
+	--define "_srcrpmdir \$HOME/in/srpm" \
+	-- "\$HOME/in/spec"/*
+# Once srpm is created, its sources are no longer needed.
+rm -rf "\$HOME/in/spec" "\$HOME/in/source"
+__EOF__
+	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
+	    chrootuid2 &&
+		Verbose "$sname: created src.rpm file." ||
+		Fatal "$sname: failed to create src.rpm file"
+}
+
+case "$source_type" in
+	src.rpm)
+		;;
+	pkg.tar)
+		make_srpm_from_pkgtar
+		;;
+	*)
+		Fatal "$sname does not look like source package."
+		;;
+esac
 
 # Execute sisyphus_check.
 [ -n "$no_sisyphus_check_in" ] ||
@@ -173,8 +238,8 @@ if [ "$no_sisyphus_check_in" != all ]; then
 
 	create_entry_header
 	cat >>"$entry" <<__EOF__
-mkdir -p $verbose -m700 -- "\$TMPDIR"
-sisyphus_check --no-check="$(quote_arg "$no_sisyphus_check_in")" /.in
+cd "\$HOME/in/srpm"
+sisyphus_check --no-check="$(quote_arg "$no_sisyphus_check_in")" .
 __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long wlimit_bytes_written=$wlimit_bytes_out \
@@ -207,7 +272,8 @@ __EOF__
 
 	create_entry_header
 	cat >>"$entry" <<__EOF__
-/.host/query_req "$(quote_arg "$sname")"
+cd "\$HOME/in/srpm"
+/.host/query_req *
 __EOF__
 
 	deps="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
@@ -244,8 +310,6 @@ __EOF__
 			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 			-- \
 			"$workdir" $deps
-
-		copy_chroot_incoming "$source"
 	fi
 fi
 
@@ -282,13 +346,13 @@ purge_chroot_out
 
 create_entry_header
 cat >>"$entry" <<__EOF__
-mkdir -p $verbose -m700 -- "\$TMPDIR"
-packager=\$(rpmquery -p --qf '%{PACKAGER}' "$(quote_arg "$sname")")
+cd "\$HOME/in/srpm"
+packager=\$(rpmquery -p --qf '%{PACKAGER}' *)
 cat >>/usr/src/.rpmmacros <<EOF
 %packager \$packager
 EOF
 
-target="$(quote_arg "${target:-$def_target}")" /.host/rebuild "$(quote_arg "$sname")"
+target="$(quote_arg "${target:-$def_target}")" /.host/rebuild *
 find /usr/src/RPM/SRPMS/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
 	xargs -r0 mv -f $verbose --target-directory=/.out/ --
 find /usr/src/RPM/RPMS/ -mindepth 2 -maxdepth 2 -type f -name \*.rpm -print0 |
