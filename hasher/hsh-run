@@ -23,8 +23,9 @@ x11_forwarding=
 x11_timeout=60
 
 hasher_dir="$(dirname "$0")"
-[ "$hasher_dir" != "." ] || hasher_dir="$(/bin/pwd)"
-[ -r "$hasher_dir/functions" ] || hasher_dir="/usr/share/hasher"
+[ -r "$hasher_dir/functions" ] &&
+	hasher_dir="$(readlink -env "$hasher_dir")" ||
+	hasher_dir="/usr/share/hasher"
 . "$hasher_dir/functions"
 
 show_help()

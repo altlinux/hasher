@@ -1,6 +1,6 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2005  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The rmchroot utility for the hasher project
 #
@@ -20,8 +20,9 @@
 #
 
 hasher_dir="$(dirname "$0")"
-[ "$hasher_dir" != "." ] || hasher_dir="$(/bin/pwd)"
-[ -r "$hasher_dir/functions" ] || hasher_dir="/usr/share/hasher"
+[ -r "$hasher_dir/functions" ] &&
+	hasher_dir="$(readlink -env "$hasher_dir")" ||
+	hasher_dir="/usr/share/hasher"
 . "$hasher_dir/functions"
 
 show_help()
