@@ -19,7 +19,7 @@
 #
 
 PROJECT = hasher
-VERSION = $(shell grep ^Version: hasher.spec |head -1 |awk '{print $$2}')
+VERSION = $(shell sed '/^Version: */!d;s///;q' hasher.spec)
 HELPERS = functions cache_chroot cache_contents hsh hsh-install hsh-run initroot mkaptbox mkchroot rebuild rmchroot
 PROGRAMS = hsh hsh-install hsh-run mkaptbox
 MAN1PAGES = $(PROGRAMS:=.1)
