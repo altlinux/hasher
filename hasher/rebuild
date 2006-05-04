@@ -198,17 +198,95 @@ source_type="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_t
 	Fatal "$sname: failed to install source file."
 purge_chroot_in
 
+build_deps=
+calc_check_install_build_deps()
+{
+	build_deps="$(wlimit_time_elapsed=$wlimit_time_short \
+		      wlimit_time_idle=$wlimit_time_short \
+		      wlimit_bytes_written=$wlimit_bytes_out \
+		      chrootuid2)" &&
+		Verbose "$sname: fetched build dependencies." ||
+		Fatal "$sname: failed to fetch build dependencies."
+	build_deps="$(printf %s "$build_deps" |grep -v '^rpmlib(' |LC_ALL=C tr -d [[:blank:]])"
+	Verbose "$sname: calculated build dependencies: $(printf %s "$build_deps" |tr -s '[:space:]' ' ')"
+
+	local bad_deps
+	if bad_deps="$(printf %s "$build_deps" |LC_ALL=C grep -v '^[[:alnum:]_/]')"; then
+		Fatal "$sname: invalid build dependencies: $(printf %s "$bad_deps" |tr -s '[:space:]' ' ')"
+	fi
+
+	if [ -n "$build_deps" ]; then
+		"$hasher_dir/install" \
+			${quiet:+$quiet} \
+			${verbose:+$verbose} \
+			${number:+--number=$number} \
+			${exclude_docs:+--excludedocs} \
+			${save_fakeroot:+--save-fakeroot} \
+			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
+			-- \
+			"$workdir" $build_deps
+	fi
+}
+
 make_srpm_from_pkgtar()
 {
-	# At this stage, build environment is ready for creating source rpm.
+	if [ -z "$nodeps" ]; then
+		cat >chroot/.host/filter_spec_buildreq <<\__EOF__
+#!/bin/sh -ef
+tr -s '[:blank:],' ' ' |
+	while read; do
+		set -f
+		set -- $REPLY
+		while [ -n "$1" ]; do
+			case "$2" in
+				=|["<>"]|["<>"]=)
+					printf %s\\n "$1 $2 $3"
+					shift 2
+					;;
+				*)
+					printf %s\\n "$1"
+					;;
+			esac
+			if ! shift; then
+				echo >&2 "Invalid build dependencies: $REPLY"
+				exit 1
+			fi
+		done
+	done
+__EOF__
+	chmod 755 chroot/.host/filter_spec_buildreq
+
+		# Calculate, check and install BuildRequires(pre) dependencies.
+		create_entry_header
+		cat >>"$entry" <<__EOF__
+sed '/^buildrequires(pre):[[:space:]]*/I!d;s///' "\$HOME/in/spec"/* |
+	/.host/filter_spec_buildreq
+__EOF__
+		calc_check_install_build_deps
+
+		# Calculate, check and install other build dependencies.
+		create_entry_header
+		cat >>"$entry" <<__EOF__
+rpmbuild -bE $rpmargs \\
+	--define "_specdir \$HOME/in/spec" \\
+	--define "_sourcedir \$HOME/in/source" \\
+	-- "\$HOME/in/spec"/* |
+	sed '/^\\(buildrequires\\|buildprereq\\)\\(([^[:space:]):]*)\\)\\?:[[:space:]]*/I!d;s///' |
+	/.host/filter_spec_buildreq
+__EOF__
+		calc_check_install_build_deps
+	fi
+
+	# At this stage, build environment should be ready for creating source rpm.
 	create_entry_header
 	cat >>"$entry" <<__EOF__
 mkdir $verbose -m700 -- "\$HOME/in/srpm"
-rpmbuild -bs --nodeps \
-	--define '_allow_undefined_macros 1' \
-	$rpmargs \
-	--define "_sourcedir \$HOME/in/source" \
-	--define "_srcrpmdir \$HOME/in/srpm" \
+rpmbuild -bs --nodeps \\
+	--define '_allow_undefined_macros 1' \\
+	$rpmargs \\
+	--define "_specdir \$HOME/in/spec" \\
+	--define "_sourcedir \$HOME/in/source" \\
+	--define "_srcrpmdir \$HOME/in/srpm" \\
 	-- "\$HOME/in/spec"/*
 # Once srpm is created, its sources are no longer needed.
 rm -rf "\$HOME/in/spec" "\$HOME/in/source"
@@ -277,18 +355,9 @@ cd "\$HOME/in/srpm"
 /.host/query_req *
 __EOF__
 
-	deps="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-		    chrootuid2)" &&
-		Verbose "$sname: fetched build dependencies." ||
-		Fatal "$sname: failed to fetch build dependencies."
-	deps="$(printf %s "$deps" |grep -v '^rpmlib(' |LC_ALL=C tr -d [[:blank:]])"
-	if bad_deps="$(printf %s "$deps" |LC_ALL=C grep -v '^[[:alnum:]_/]')"; then
-		Fatal "$sname: invalid build dependencies: $(printf %s "$bad_deps" |tr -s '[:space:]' ' ')"
-	fi
-	Verbose "$sname: calculated build dependencies: $(printf %s "$deps" |tr -s '[:space:]' ' ')"
-
+	calc_check_install_build_deps
 	if [ -n "$known_mountpoints" ]; then
-		for file_deps in `printf %s "$deps" |LC_ALL=C grep '^/' |LC_ALL=C sort -u`; do
+		for file_deps in `printf %s "$build_deps" |LC_ALL=C grep '^/' |LC_ALL=C sort -u`; do
 			for mpoint in $(printf %s "$known_mountpoints" |tr -s , ' '); do
 				if [ "$mpoint" = "$file_deps" ]; then
 					[ -z "$required_mountpoints" ] &&
@@ -299,18 +368,6 @@ __EOF__
 			done
 		done
 		Verbose "$sname: calculated mount points: $required_mountpoints"
-	fi
-
-	if [ -n "$deps" ]; then
-		"$hasher_dir/install" \
-			${quiet:+$quiet} \
-			${verbose:+$verbose} \
-			${number:+--number=$number} \
-			${exclude_docs:+--excludedocs} \
-			${save_fakeroot:+--save-fakeroot} \
-			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
-			-- \
-			"$workdir" $deps
 	fi
 fi
 
