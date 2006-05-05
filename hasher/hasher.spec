@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.0.29
+Version: 1.0.30
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,11 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Fri May 05 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.30-alt1
+- Enhanced $hasher_dir initialization, to make execution of
+  hasher placed to exotic custom directory work as designed.
+- rebuild: Handle tar packages made by gear utility.
+
 * Mon Apr 10 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.29-alt1
 - rebuild:
   + Do not export $target variable in default rebuild script.
