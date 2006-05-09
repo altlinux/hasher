@@ -204,8 +204,6 @@ fi
 set_workdir "$1"
 shift
 
-set_apt_vars
-
 for f in "$@"; do
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
 	[ -f "$f" ] ||
@@ -255,6 +253,7 @@ handle_package()
 		${target:+--target="$target"} \
 		${repo:+--repo="$repo"} \
 		${apt_config:+--apt-config="$apt_config"} \
+		${apt_prefix:+--apt-prefix="$apt_prefix"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
 		${no_stuff:+--no-stuff} \

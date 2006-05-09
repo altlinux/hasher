@@ -121,7 +121,6 @@ shift
 
 [ -d "$chroot" ] || Fatal "$chroot: cannot access chroot."
 [ -d "$aptbox" ] || Fatal "$aptbox: cannot access aptbox."
-[ -r "$APT_CONFIG" ] || Fatal "$APT_CONFIG: cannot access APT configuration."
 
 : ${init_list:=$pkg_init_list}
 : ${build_list:=$pkg_build_list}

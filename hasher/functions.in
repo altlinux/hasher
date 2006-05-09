@@ -209,12 +209,6 @@ if [ -s "$hasher_config" ]; then
 	. "$hasher_config"
 fi
 
-[ -n "$prog_apt_get" ] || prog_apt_get="apt-get"
-[ -n "$prog_apt_cache" ] || prog_apt_cache="apt-cache"
-[ -n "$prog_apt_config" ] || prog_apt_config="apt-config"
-[ -n "$prog_genbasedir" ] || prog_genbasedir="genbasedir"
-export prog_apt_get prog_apt_cache prog_apt_config prog_genbasedir
-
 # working directory.
 workdir=
 
@@ -279,51 +273,6 @@ parse_common_options()
 	esac
 }
 
-set_apt_vars()
-{
-	[ -n "$apt_prefix" ] || return 0
-
-	[ -d "$apt_prefix" ] ||
-		Fatal "$apt_prefix: directory not available."
-
-	if printf %s "$apt_prefix" |grep -qs '[`"$\]'; then
-		Fatal "$apt_prefix: illegal symbols in apt prefix."
-	fi
-
-	local apt_libdir="$apt_prefix/lib"
-	[ -d "$apt_libdir" ] ||
-		Fatal "$apt_libdir: directory not available."
-
-	prog_apt_get="$apt_prefix/bin/apt-get"
-	[ -x "$prog_apt_get" ] ||
-		Fatal "$prog_apt_get: program not available."
-
-	prog_apt_cache="$apt_prefix/bin/apt-cache"
-	[ -x "$prog_apt_cache" ] ||
-		Fatal "$prog_apt_cache: program not available."
-
-	prog_apt_config="$apt_prefix/bin/apt-config"
-	[ -x "$prog_apt_config" ] ||
-		Fatal "$prog_apt_config: program not available."
-
-	prog_genbasedir="$apt_prefix/bin/genbasedir"
-	[ -x "$prog_genbasedir" ] ||
-		Fatal "$prog_genbasedir: program not available."
-
-	if [ -z "$LD_LIBRARY_PATH" ]; then
-		LD_LIBRARY_PATH="$apt_libdir"
-	else
-		LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$apt_libdir"
-	fi
-
-	if printf %s "$LD_LIBRARY_PATH" |grep -qs '[`"$\]'; then
-		Fatal "$LD_LIBRARY_PATH: illegal symbols in LD_LIBRARY_PATH."
-	fi
-
-	export apt_prefix LD_LIBRARY_PATH
-}
-
-APT_CONFIG=
 set_workdir()
 {
 	workdir="$1"
@@ -341,10 +290,9 @@ set_workdir()
 	aptbox="$workdir/aptbox"
 	chroot="$workdir/chroot"
 	entry="$chroot/.host/entry"
-	export APT_CONFIG="$aptbox/etc/apt/apt.conf"
 }
 
-# assumed: defined APT_CONFIG, prog_apt_config
+# assumed: defined aptbox
 get_apt_config()
 {
 	local get_eval get_name get_value
@@ -353,7 +301,7 @@ get_apt_config()
 	get_value="$1"
 	shift || return 1
 
-	get_eval="$("$prog_apt_config" shell "$get_value" "$get_name")" || return 1
+	get_eval="$("$aptbox/apt-config" shell "$get_value" "$get_name")" || return 1
 	eval "$get_eval"
 }
 
@@ -383,7 +331,7 @@ read_apt_config()
 		[ -s "$value" -a -r "$value" ] ||
 		Fatal "apt-config: broken $orig_name: $value"
 
-	eval "$res_value=$(quote_arg "$value")"
+	eval "$res_value=\"$(quote_arg "$value")\""
 }
 	
 hash=
@@ -456,11 +404,11 @@ make_repo()
 	mkdir -p $verbose -- ${repo:-$def_repo}/{{SRPMS,${target:-$def_target}/RPMS}.hasher,${target:-$def_target}/base}
 }
 
-# assumed: cwd == workdir, defined prog_genbasedir
+# assumed: cwd == workdir, defined aptbox
 update_repo()
 {
 	[ -z "$no_stuff" ] || return 0
-	"$prog_genbasedir" --topdir=${repo:-$def_repo} --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher &&
+	"$aptbox/genbasedir" --topdir=${repo:-$def_repo} --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher &&
 		Verbose 'updated hasher repository indices.' ||
 		Fatal 'failed to update hasher repository indices.'
 }
@@ -547,14 +495,12 @@ lock_workdir()
 	echo $$ >"$pidfile"
 }
 
-# assumed: defined APT_CONFIG, prog_apt_get
+# assumed: defined aptbox
 APT_Get_PrintLocalFile=
 print_uris()
 {
-	[ -n "$APT_CONFIG" ] || Fatal 'APT_CONFIG undefined.'
-
 	local out
-	if ! out="$("$prog_apt_get" -q -y --print-uris install -- "$@" 2>&1)"; then
+	if ! out="$("$aptbox/apt-get" -q -y --print-uris install -- "$@" 2>&1)"; then
 		printf %s\\n "$out" >&2
 		Fatal 'failed to calculate package file list.'
 	fi
@@ -576,7 +522,7 @@ print_uris()
 
 	if [ "$all_uris" != "$local_uris" ]; then
 		if [ -z "$APT_Get_PrintLocalFile" ]; then
-			if ! out="$("$prog_apt_get" -o APT::Get::PrintLocalFile=yes -q -y --print-uris install -- "$@" 2>&1)"; then
+			if ! out="$("$aptbox/apt-get" -o APT::Get::PrintLocalFile=yes -q -y --print-uris install -- "$@" 2>&1)"; then
 				printf %s\\n "$out" >&2
 				Fatal 'calculated package file list is not local and apt-get does not support APT::Get::PrintLocalFile option.'
 			fi
@@ -591,16 +537,16 @@ print_uris()
 		fi
 
 		if [ -n "$verbose" ]; then
-			"$prog_apt_get" -y -d install -- "$@" >&2 ||
+			"$aptbox/apt-get" -y -d install -- "$@" >&2 ||
 				Fatal 'failed to download packages from calculated package file list.'
 		else
-			if ! out="$("$prog_apt_get" -y -d install -- "$@" 2>&1)"; then
+			if ! out="$("$aptbox/apt-get" -y -d install -- "$@" 2>&1)"; then
 				printf %s\\n "$out" >&2
 				Fatal 'failed to download packages from calculated package file list.'
 			fi
 		fi
 
-		if ! out="$("$prog_apt_get" -o APT::Get::PrintLocalFile=yes -q -y --print-uris install -- "$@" 2>&1)"; then
+		if ! out="$("$aptbox/apt-get" -o APT::Get::PrintLocalFile=yes -q -y --print-uris install -- "$@" 2>&1)"; then
 			printf %s\\n "$out" >&2
 			Fatal 'failed to calculate local package file list.'
 		fi
@@ -677,8 +623,10 @@ prepare_x11_forwarding()
 # quote argument for /.host/entry.
 quote_arg()
 {
-	local out
-	out="$(printf %s "$*" |sed -e 's/[\`"$]/\\&/g')" || return 1
+	local out="$*"
+	if [ -z "${out##*[\"\$\`\\]*}" ]; then
+		out="$(printf %s "$out" |sed -e 's/["$`\]/\\&/g')" || return 1
+	fi
 	printf %s "$out"
 }
 

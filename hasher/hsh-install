@@ -86,7 +86,6 @@ check_helpers
 
 [ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
 [ -d "$aptbox" ] || Fatal "$aptbox: cannot find aptbox."
-[ -r "$APT_CONFIG" ] || Fatal "$APT_CONFIG: cannot access APT configuration."
 
 if [ "$PROG" = hsh-install ]; then
 	lock_workdir

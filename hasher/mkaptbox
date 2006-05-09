@@ -102,11 +102,7 @@ done
 set_workdir "$1"
 shift
 
-set_apt_vars
-make_repo
-update_repo
-
-# exists already?
+# does aptbox exist yet?
 if [ -e aptbox -o -L aptbox ]; then
 	[ -n "$force" ] || Fatal "remove $aptbox first."
 	[ -d aptbox ] || Fatal "$aptbox: invalid pathname."
@@ -127,20 +123,71 @@ fi
 
 Verbose "Changed working directory to \`$aptbox'."
 
-# apt/rpm skeleton directories.
+# create apt/rpm skeleton directories.
 mkdir -p $verbose -- \
 	./etc/apt/{apt.conf,{sources,vendors}.list}.d \
 	./var/cache/apt/archives/partial \
 	./var/lib/apt/lists/partial \
 	./var/lib/rpm
 
-[ -z "$apt_config" ] || APT_CONFIG="$apt_config"
+# define apt variables.
+prog_apt_get="apt-get"
+prog_apt_cache="apt-cache"
+prog_apt_config="apt-config"
+prog_genbasedir="genbasedir"
+apt_libdir=
+if [ -z "$apt_prefix" ]; then
+	apt_libdir="$LD_LIBRARY_PATH"
+else
+	[ -d "$apt_prefix" ] ||
+		Fatal "$apt_prefix: directory not available."
+
+	if printf %s "$apt_prefix" |grep -qs '[`"$\]'; then
+		Fatal "$apt_prefix: illegal symbols in apt prefix."
+	fi
+
+	apt_libdir="$apt_prefix/lib"
+	[ -d "$apt_libdir" ] ||
+		Fatal "$apt_libdir: directory not available."
+
+	if [ -n "$LD_LIBRARY_PATH" ]; then
+		apt_libdir="$LD_LIBRARY_PATH:$apt_libdir"
+	fi
+
+	for n in apt-cache apt-config apt-get genbasedir; do
+		prog="$apt_prefix/bin/$n"
+		[ -x "$prog" ] ||
+			Fatal "$prog: program not available."
+		var="$(printf '$prog_%s' "$n" |tr - _)"
+		eval "$var=\"$(quote_arg "$prog")\""
+	done
+fi
+if printf %s "$apt_libdir" |grep -qs '[`"$\]'; then
+	Fatal "$LD_LIBRARY_PATH: illegal symbols in LD_LIBRARY_PATH."
+fi
+
+# create apt wrappers.
+apt_config_file="$aptbox/etc/apt/apt.conf"
+for n in apt-cache apt-config apt-get genbasedir; do
+	cat >"$n" <<__EOF__
+#!/bin/sh -e
+${apt_libdir:+export LD_LIBRARY_PATH="$apt_libdir"}
+APT_CONFIG="$apt_config_file" \
+exec $(eval printf %s "$(printf '$prog_%s' "$n" |tr - _)") "\$@"
+__EOF__
+Verbose "created $n wrapper"
+chmod $verbose a+x "$n"
+done
+
+# create initial apt.conf file.
+cat >"$apt_config_file" <<__EOF__
+${apt_config:+$(cat "$apt_config")}
+__EOF__
 
 read_apt_config Dir::Etc::SourceList sl_value
 
-# reset APT_CONFIG and fill it with new data.
-export APT_CONFIG="$aptbox/etc/apt/apt.conf"
-cat >"$APT_CONFIG" <<__EOF__
+# create final apt.conf file.
+cat >"$apt_config_file" <<__EOF__
 Dir::State "$aptbox/var/lib/apt/";
 Dir::Cache "$aptbox/var/cache/apt/";
 ${apt_config:+$(cat "$apt_config")}
@@ -149,8 +196,9 @@ RPM::RootDir "$aptbox";
 APT::Install::Virtual "true";
 APT::Install::VirtualVersion "true";
 __EOF__
-Verbose "Created APT configuration file \`$APT_CONFIG'."
+Verbose "Created APT configuration file \`$apt_config_file'."
 
+# create a new sources.list file.
 target_config="./etc/apt/sources.list"
 cat >"$target_config" <<__EOF__
 ${no_stuff:+#}rpm file:$workdir/${repo:-$def_repo} ${target:-$def_target} hasher
@@ -162,16 +210,7 @@ Verbose "Created APT source list file \`$target_config'."
 rpmdb --initdb --dbpath "$aptbox/var/lib/rpm"
 Verbose "Created RPM database in \`./var/lib/rpm/'."
 
-# create apt wrappers.
-for n in apt-cache apt-config apt-get genbasedir; do
-	cat >"$n" <<__EOF__
-#!/bin/sh -e
-${LD_LIBRARY_PATH:+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH"}
-APT_CONFIG="$APT_CONFIG" \
-exec $(eval printf %s "$(printf '$prog_%s' "$n" |tr - _)") "\$@"
-__EOF__
-Verbose "created $n wrapper"
-chmod $verbose a+x "$n"
-done
-
-[ -z "$update" ] || "$prog_apt_get" update $([ -n "$verbose" ] || echo -qq)
+cd "$workdir"
+make_repo
+update_repo
+[ -z "$update" ] || "$aptbox/apt-get" update $([ -n "$verbose" ] || echo -qq)
