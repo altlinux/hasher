@@ -235,16 +235,17 @@ make_srpm_from_pkgtar()
 #!/bin/sh -ef
 tr -s '[:blank:],' ' ' |
 	while read; do
-		set -f
 		set -- $REPLY
 		while [ -n "$1" ]; do
 			case "$2" in
 				=|["<>"]|["<>"]=)
-					printf %s\\n "$1 $2 $3"
+					[ -z "${1##*%*}" -o -z "${3##*%*}" ] ||
+						printf %s\\n "$1 $2 $3"
 					shift 2
 					;;
 				*)
-					printf %s\\n "$1"
+					[ -z "${1##*%*}" ] ||
+						printf %s\\n "$1"
 					;;
 			esac
 			if ! shift; then
