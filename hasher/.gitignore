@@ -3,4 +3,6 @@ hasher.7
 hsh.1
 hsh-install.1
 hsh-run.1
+hsh-shell
+install
 mkaptbox.1

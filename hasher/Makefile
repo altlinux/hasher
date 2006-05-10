@@ -42,9 +42,13 @@ LN_S = ln -s
 MKDIR_P = mkdir -p
 TOUCH_R = touch -r
 
-.PHONY:	all install clean
+.PHONY:	all symlinks install clean
 
 all: $(TARGETS)
+
+symlinks:
+	$(LN_S) -f hsh-run hsh-shell
+	$(LN_S) -f hsh-install install
 
 $(MAN1PAGES): functions
 
@@ -81,4 +85,4 @@ install: all
 	$(LN_S) $(binreldir)/hsh-shell $(DESTDIR)$(bindir)/
 
 clean:
-	$(RM) $(TARGETS) *~ *._
+	$(RM) $(TARGETS) hsh-shell install *~ *._
