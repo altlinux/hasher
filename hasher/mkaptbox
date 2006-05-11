@@ -126,6 +126,7 @@ Verbose "Changed working directory to \`$aptbox'."
 # create apt/rpm skeleton directories.
 mkdir -p $verbose -- \
 	./etc/apt/{apt.conf,{sources,vendors}.list}.d \
+	./home/user \
 	./var/cache/apt/archives/partial \
 	./var/lib/apt/lists/partial \
 	./var/lib/rpm
@@ -166,6 +167,18 @@ if printf %s "$apt_libdir" |grep -qs '[`"$\]'; then
 	Fatal "$LD_LIBRARY_PATH: illegal symbols in LD_LIBRARY_PATH."
 fi
 
+# create aptbox version of ~/.rpmrc if necessary.
+aptbox_home=
+current_arch="$(uname -m)"
+if [ "$current_arch" != "$target" ]; then
+	aptbox_home="$aptbox/home/user"
+	for f in "$HOME/.rpmrc" "$HOME/.rpmmacros"; do
+		[ ! -f "$f" ] ||
+			install -pm600 $verbose -- "$f" "$aptbox_home/"
+	done
+	echo "arch_compat: $current_arch: $target" >> "$aptbox_home/.rpmrc"
+fi
+
 # create apt wrappers.
 apt_config_file="$aptbox/etc/apt/apt.conf"
 for n in apt-cache apt-config apt-get genbasedir; do
@@ -173,6 +186,7 @@ for n in apt-cache apt-config apt-get genbasedir; do
 #!/bin/sh -e
 ${apt_libdir:+export LD_LIBRARY_PATH="$apt_libdir"}
 APT_CONFIG="$apt_config_file" \
+${aptbox_home:+HOME="$aptbox_home"} \
 exec $(eval printf %s "$(printf '$prog_%s' "$n" |tr - _)") "\$@"
 __EOF__
 Verbose "created $n wrapper"
