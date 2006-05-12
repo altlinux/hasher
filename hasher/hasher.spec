@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.0.30
+Version: 1.0.31
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Fri May 12 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.31-alt1
+- Changed code to use aptbox wrappers instead of direct apt commands.
+- rebuild: make_srpm_from_pkgtar: filter_spec_buildreq: Ignore deps with % symbol.
+- mkaptbox: Create aptbox version of ~/.rpmrc if necessary.
+- mkaptbox: Create regenbasedir wrapper.
+
 * Fri May 05 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.30-alt1
 - Enhanced $hasher_dir initialization, to make execution of
   hasher placed to exotic custom directory work as designed.
