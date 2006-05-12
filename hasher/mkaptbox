@@ -170,13 +170,13 @@ fi
 # create aptbox version of ~/.rpmrc if necessary.
 aptbox_home=
 current_arch="$(uname -m)"
-if [ "$current_arch" != "$target" ]; then
+if [ "$current_arch" != "${target:-$def_target}" ]; then
 	aptbox_home="$aptbox/home/user"
 	for f in "$HOME/.rpmrc" "$HOME/.rpmmacros"; do
 		[ ! -f "$f" ] ||
 			install -pm600 $verbose -- "$f" "$aptbox_home/"
 	done
-	echo "arch_compat: $current_arch: $target" >> "$aptbox_home/.rpmrc"
+	echo "arch_compat: $current_arch: ${target:-$def_target}" >> "$aptbox_home/.rpmrc"
 fi
 
 # create apt wrappers.
