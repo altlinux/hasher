@@ -189,9 +189,17 @@ APT_CONFIG="$apt_config_file" \
 ${aptbox_home:+HOME="$aptbox_home"} \
 exec $(eval printf %s "$(printf '$prog_%s' "$n" |tr - _)") "\$@"
 __EOF__
-Verbose "created $n wrapper"
-chmod $verbose a+x "$n"
+	Verbose "created $n wrapper"
+	chmod $verbose a+x "$n"
 done
+
+cat >regenbasedir <<__EOF__
+#!/bin/sh -ef
+"$aptbox/genbasedir" --topdir="$workdir/${repo:-$def_repo}" --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher
+"$aptbox/apt-get" ${quiet:+-qq} update
+__EOF__
+Verbose "created regenbasedir"
+chmod $verbose a+x regenbasedir
 
 # create initial apt.conf file.
 cat >"$apt_config_file" <<__EOF__
