@@ -134,6 +134,10 @@ Helpify nprocs
 number=
 Helpify number
 
+# override default packager <hasher@localhost>
+packager=
+Helpify packager
+
 # whether repackage source along with binaries
 repackage_source='--repackage-source'
 Helpify repackage_source

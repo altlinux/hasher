@@ -43,6 +43,7 @@ Valid options are:
   --no-repackage-source     do not repackage source along with binaries;
   --nprocs=NUMBER           number of CPUs to use;
   --number=NUMBER           subconfig identifier;
+  --packager=EMAIL          override default packager tag;
   --pkg-build-list=LIST     override default build package file list;
   --pkg-init-list=LIST      override default initial package file list;
   --repackage-source        repackage source along with binaries;
@@ -58,7 +59,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-repackage-source,nprocs:,number:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o h,q,v,V -l contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -85,6 +86,8 @@ while :; do
 		--number)
 			number="$(opt_check_number "$1" "$2")"
 			shift
+			;;
+		--packager) shift; packager="$1"
 			;;
 		--pkg-build-list) shift
 			[ "$1" != "${1#+}" -a -n "${1#+}" ] && 
@@ -258,7 +261,7 @@ if [ -n "$build_list" ]; then
 mkdir -p $verbose -m700 -- "\$TMPDIR"
 rpminit $verbose
 cat >>/usr/src/.rpmmacros <<\EOF
-%packager Automated package hasher <hasher@localhost>
+%packager ${packager:-Automated package hasher <hasher@localhost>}
 %buildhost ${USER:-`id -nu`}.hasher.altlinux.org
 %__BTE hasher
 %__nprocs $nprocs
