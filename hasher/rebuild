@@ -172,7 +172,7 @@ mkdir $verbose -m700 -- "\$HOME/in"
 # Check source file.
 header="\$(od -A n -N 8 -t x1 -- "$(quote_arg "$sname")")"
 case "\$header" in
-	' ed ab ee db '*' 00 01')
+	' ed ab ee db '??' '??' 00 01')
 		mkdir $verbose -m700 -- "\$HOME/in/srpm" >&2
 		install -pm644 $verbose "$(quote_arg "$sname")" "\$HOME/in/srpm/" >&2
 		echo src.rpm
