@@ -169,8 +169,13 @@ fi
 
 # create aptbox version of ~/.rpmrc if necessary.
 aptbox_home=
-current_arch="$(uname -m)"
-if [ "$current_arch" != "${target:-$def_target}" ]; then
+rpm_showrc="$(rpm --showrc)"
+current_arch="$(printf %s "$rpm_showrc" |sed -ne 's/^install arch[[:space:]]*:[[:space:]]*\([^[:space:]]\+\).*/\1/p')"
+[ -n "$current_arch" ] ||
+	current_arch="$(uname -m)"
+if [ "$current_arch" != "${target:-$def_target}" ] &&
+   ! printf %s "$rpm_showrc" |
+     grep -qs "^compatible archs[[:space:]]*:.*\<${target:-$def_target}\>"; then
 	aptbox_home="$aptbox/home/user"
 	for f in "$HOME/.rpmrc" "$HOME/.rpmmacros"; do
 		[ ! -f "$f" ] ||
@@ -195,7 +200,7 @@ done
 
 cat >regenbasedir <<__EOF__
 #!/bin/sh -ef
-"$aptbox/genbasedir" --topdir="$workdir/${repo:-$def_repo}" --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher
+"$aptbox/genbasedir" --topdir="$workdir/${repo:-$def_repo}" --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher "\$@"
 "$aptbox/apt-get" ${quiet:+-qq} update
 __EOF__
 Verbose "created regenbasedir"
