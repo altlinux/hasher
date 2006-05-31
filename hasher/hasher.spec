@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.0.32
+Version: 1.0.33
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,10 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Wed May 31 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.33-alt1
+- functions, mkaptbox:
+  + Changed def_target and current_arch values to whatever rpm decides.
+
 * Thu May 25 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.32-alt1
 - hsh, initroot: Implemented --packager option.
 - rebuild: Enhanced srpm detection.
