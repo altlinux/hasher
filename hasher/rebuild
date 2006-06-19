@@ -283,6 +283,7 @@ __EOF__
 	cat >>"$entry" <<__EOF__
 mkdir $verbose -m700 -- "\$HOME/in/srpm"
 rpmbuild -bs --nodeps \\
+	--target="$(quote_arg "${target:-$def_target}")" \\
 	--define '_allow_undefined_macros 1' \\
 	$rpmargs \\
 	--define "_specdir \$HOME/in/spec" \\
@@ -338,7 +339,10 @@ if [ -z "$nodeps" ]; then
 #!/bin/sh -e
 ${rpmi:-$def_rpmi} -i -- "\$@"
 cd \`rpm --eval %_specdir\`
-rpmbuild -bs --nodeps --define '_allow_undefined_macros 1' $rpmargs -- *.spec >/dev/null
+rpmbuild -bs --nodeps \\
+	--target="$(quote_arg "${target:-$def_target}")" \\
+	--define '_allow_undefined_macros 1' \\
+	$rpmargs -- *.spec >/dev/null
 cd \`rpm --eval %_srcrpmdir\`
 rpmquery -pR -- "\$@"
 __EOF__
