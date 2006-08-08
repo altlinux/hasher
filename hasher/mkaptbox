@@ -40,6 +40,10 @@ Options:
   -f, --force               force aptbox creation;
   --no-update               do not run "apt-get update" after creation;
   --repo=DIR                path to work repository directory;
+  --repo-bin=DIR            binary packages destination directory,
+                            overriding --repo option for binary packages;
+  --repo-src=DIR            source packages destination directory,
+                            overriding --repo option for source packages;
   --target=ARCH             target architecture of the work repository;
   -u, --update              run "apt-get update" after creation;
   --without-stuff           do not configure sources.list for the work repository;
@@ -55,7 +59,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,h,q,v,V -l apt-config:,apt-prefix:,force,no-stuff,no-update,repo:,target:,update,without-stuff,with-stuff,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o f,u,h,q,v,V -l apt-config:,apt-prefix:,force,no-stuff,no-update,repo:,repo-bin:,repo-src:,target:,update,without-stuff,with-stuff,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -76,6 +80,10 @@ while :; do
 		--no-update) update=
 			;;
 		--repo) shift; repo="$1"
+			;;
+		--repo-bin) shift; repo_bin="$1"
+			;;
+		--repo-src) shift; repo_src="$1"
 			;;
 		--target) shift; target="$1"
 			[ -z "${target##[A-Za-z]*}" ] ||
