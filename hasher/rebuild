@@ -456,22 +456,18 @@ fi
 # Copy binaries from chroot.
 make_repo
 
+case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |grep -c '\.src\.rpm$'` in
+	0) subdir=.in ;;
+	1) subdir=.out ;;
+	*) Fatal 'Too many src.rpm files written.' ;;
+esac
+
 repo_bin="${repo_bin:-${repo:-$def_repo}/"${target:-$def_target}"/RPMS.hasher/}"
 repo_src="${repo_src:-${repo:-$def_repo}/SRPMS.hasher/}"
 
-case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |grep -c '\.src\.rpm$'` in
-	0)
-		find chroot/.in/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
-			xargs -r0 mv -f $verbose --target-directory="$repo_src" --
-		;;
-	1)
-		find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
-			xargs -r0 mv -f $verbose --target-directory="$repo_src" --
-		;;
-	*)
-		Fatal 'Too many src.rpm files written.'
-		;;
-esac
+find chroot/$subdir/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
+	xargs -r0 mv -f $verbose --target-directory="$repo_src" --
+
 find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.rpm -print0 |
 	xargs -r0 mv -f $verbose --target-directory="$repo_bin" --
 
