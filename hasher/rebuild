@@ -276,10 +276,11 @@ __EOF__
 		# Calculate, check and install other build dependencies.
 		create_entry_header
 		cat >>"$entry" <<__EOF__
-rpmbuild -bE $rpmargs \\
+spec="\$(rpmbuild -bE $rpmargs \\
 	--define "_specdir \$HOME/in/spec" \\
 	--define "_sourcedir \$HOME/in/source" \\
-	-- "\$HOME/in/spec"/* |
+	-- "\$HOME/in/spec"/*)" || exit \$?
+printf %s "\$spec" |
 	sed '/^\\(buildrequires\\|buildprereq\\)\\(([^[:space:]):]*)\\)\\?:[[:space:]]*/I!d;s///' |
 	/.host/filter_spec_buildreq
 __EOF__
