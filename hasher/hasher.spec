@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.0.33
+Version: 1.0.34
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,15 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Mon Sep 04 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.34-alt1
+- rebuild:
+  + Pass --target option to "rpmbuild -bE" and "rpmbuild -bs" invocations.
+  + Honor "rpmbuild -bE" exit code.
+- cache_chroot:
+  + Invalidate chroot cache in case of fakeroot options change.
+- functions, hsh, mkaptbox, rebuild:
+  + New options: --repo-bin, --repo-src (legion@).
+
 * Wed May 31 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.33-alt1
 - functions, mkaptbox:
   + Changed def_target and current_arch values to whatever rpm decides.
