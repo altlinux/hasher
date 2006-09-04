@@ -61,6 +61,7 @@ __EOF__
 	mv -f $verbose cache/chroot/list{.new,}/build
 	rm -rf cache/chroot/package
 	mv -f $verbose cache/chroot/package{.new,}
+	mv -f $verbose cache/chroot/fakeroot-options{.new,}
 } # archive_chroot_cache
 
 check_chroot_cache()
@@ -89,6 +90,13 @@ check_chroot_cache()
 				break 2
 			fi
 		done
+
+		printf %s "$save_fakeroot" >cache/chroot/fakeroot-options.new
+		if ! cmp -s cache/chroot/fakeroot-options{.new,}; then
+			Verbose 'Fakeroot options changed, invalidating chroot cache.'
+			rebuild_chroot_cache=1
+			break
+		fi
 
 		if ! cmp -s cache/chroot/list{.new,}/init; then
 			Verbose 'Init list changed, invalidating chroot cache.'
