@@ -82,6 +82,8 @@ check_chroot_cache()
 		done
 	[ ! -f "$bad" ] || Fatal 'Failed to check chroot cache.'
 
+	printf %s "$save_fakeroot" >cache/chroot/fakeroot-options.new
+
 	while :; do
 		for f in cache/chroot/{rpmdb.tar,chroot.cpio}; do
 			if [ ! -s "$f" ]; then
@@ -91,7 +93,6 @@ check_chroot_cache()
 			fi
 		done
 
-		printf %s "$save_fakeroot" >cache/chroot/fakeroot-options.new
 		if ! cmp -s cache/chroot/fakeroot-options{.new,}; then
 			Verbose 'Fakeroot options changed, invalidating chroot cache.'
 			rebuild_chroot_cache=1
