@@ -130,11 +130,13 @@ CONTENTS
 3.3. Local and remote repositories.
 
 3.3.1 Run of hasher failed with the following error:
-	initroot: calculated package file list is not local.
+	initroot: calculated package file list is not local and apt-get does not support APT::Get::PrintLocalFile option.
 	initroot: failed to generate initial package file list.
 
-   Hasher supports only local apt source methods (i.e. file and copy).
-   That is, you have to place package repository on local host or use NFS.
+   Hasher is designed primarily to work with local repositories.  There is
+   a limited support for remote repositories implemented using apt-get
+   APT::Get::PrintLocalFile option.  This option is available in
+   apt >= 0.5.15cnc6-alt18.
 
 ------------------------------
 
