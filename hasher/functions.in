@@ -473,7 +473,11 @@ create_entry_fakeroot_header()
 	cat >"$entry" <<__EOF__
 #!/bin/sh -e
 if [ -z "\$FAKEROOTKEY" -a "\$USER" = root -a -x /usr/bin/fakeroot ]; then
-	exec /usr/bin/fakeroot${save_fakeroot:+ -i /.fakedata -s /.fakedata} "\$0" "\$@"
+	if [ -f '/.fakedata' ]; then
+		exec /usr/bin/fakeroot -i /.fakedata -s /.fakedata "\$0" "\$@"
+	else
+		exec /usr/bin/fakeroot "\$0" "\$@"
+	fi
 fi
 cd /.in
 __EOF__
