@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.0.34
+Version: 1.0.35
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Sun Dec 10 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.35-alt1
+- apt.conf: Use C-style comments (#10158).
+- FAQ: Updated section about remote repositories (#10167).
+- functions (create_entry_fakeroot_header): Load/save fakeroot state
+  iff /.fakedata exists, regardless of --save-fakeroot value (#10313).
+
 * Mon Sep 04 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.34-alt1
 - rebuild:
   + Pass --target option to "rpmbuild -bE" and "rpmbuild -bs" invocations.
