@@ -1,4 +1,4 @@
-.\" Copyright (C) 2005  Dmitry V. Levin <ldv@altlinux.org>
+.\" Copyright (C) 2005-2007  Dmitry V. Levin <ldv@altlinux.org>
 .\" 
 .\" Additional documentation for the hsh-run command.
 .\"
@@ -17,7 +17,7 @@
 .\" Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
 [NAME]
-\fBhsh\-run\fR \- run specified program within hasher chroot
+hsh\-run \- run specified program within hasher chroot
 
 [SEE ALSO]
 .BR hsh (1).

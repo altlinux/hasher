@@ -1,4 +1,4 @@
-.\" Copyright (C) 2005  Dmitry V. Levin <ldv@altlinux.org>
+.\" Copyright (C) 2005-2007  Dmitry V. Levin <ldv@altlinux.org>
 .\" 
 .\" Additional documentation for the hsh-install command.
 .\"
@@ -17,7 +17,7 @@
 .\" Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
 [NAME]
-\fBhsh\-install\fR \- install binary packages into hasher chroot
+hsh\-install \- install binary packages into hasher chroot
 
 [SEE ALSO]
 .BR hsh (1).

@@ -1,4 +1,4 @@
-.\" Copyright (C) 2003, 2004, 2005  Dmitry V. Levin <ldv@altlinux.org>
+.\" Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 .\" 
 .\" Additional documentation for the mkaptbox command.
 .\"
@@ -17,7 +17,7 @@
 .\" Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
 [NAME]
-\fBmkaptbox\fR \- create initial aptbox
+mkaptbox \- create initial aptbox
 
 [SEE ALSO]
 .BR hsh (1).

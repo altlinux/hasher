@@ -1,4 +1,4 @@
-.\" Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
+.\" Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 .\" 
 .\" Additional documentation for the hsh command.
 .\"
@@ -17,7 +17,7 @@
 .\" Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
 [NAME]
-\fBhsh\fR \- build package using hasher utilities
+hsh \- build package using hasher utilities
 
 [OPTIONS]
 .TP
