@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # Makefile for the hasher project.
 #
@@ -36,7 +36,7 @@ helperdir = $(datadir)/$(PROJECT)
 binreldir = $(shell relative $(helperdir) $(bindir)/)
 DESTDIR =
 
-HELP2MAN1 = help2man -N -s1
+HELP2MAN1 = env PATH=":$$PATH" help2man -N -s1 -S '$(PROJECT) $(VERSION)'
 INSTALL = install
 LN_S = ln -s
 MKDIR_P = mkdir -p
