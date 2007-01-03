@@ -252,7 +252,7 @@ fi
 
 if [ -n "$build_list" ]; then
 	# Create /dev/log.
-	mksock -m666 "$chroot/dev/log" ||
+	/usr/bin/mksock -m666 "$chroot/dev/log" ||
 		Fatal "Failed to create \`$chroot/dev/log' socket."
 
 	# Create RPM build directory tree.
