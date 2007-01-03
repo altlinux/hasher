@@ -39,7 +39,6 @@ See %_docdir/%name-%version/QUICKSTART for details.
 
 %files
 %_bindir/*
-%_datadir/%name
 %_mandir/man?/*
 %doc FAQ QUICKSTART README apt.conf *.sh
 

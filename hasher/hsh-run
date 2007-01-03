@@ -1,6 +1,6 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # Run specified program within hasher chroot.
 #
@@ -22,26 +22,41 @@
 x11_forwarding=
 x11_timeout=60
 
-hasher_dir="$(dirname "$0")"
-[ -r "$hasher_dir/functions" ] &&
-	hasher_dir="$(readlink -env "$hasher_dir")" ||
-	hasher_dir="/usr/share/hasher"
-. "$hasher_dir/functions"
+. hsh-sh-functions
+
+[ "${PROG%._}" = hsh-shell ] &&
+	i_am_hsh_run= ||
+	i_am_hsh_run=1
 
 show_help()
 {
-	cat <<EOF
+	if [ -n "$i_am_hsh_run" ]; then
+		cat <<EOF
 hsh-run - run specified program within hasher chroot.
 
 Usage: $PROG [options] <path-to-workdir> <program> [args]
 
 <path-to-workdir> must be valid hasher directory.
+EOF
+	else
+		cat <<EOF
+hsh-shell - run shell within hasher chroot.
 
-In addition, hsh-shell is the same as hsh-run --shell.
+Usage: $PROG [options] <path-to-workdir>
+
+<path-to-workdir> must be valid hasher directory.
+EOF
+	fi
+	cat <<EOF
 
 Options:
   --builder                 run program as builder;
+EOF
+	[ -z "$i_am_hsh_run" ] ||
+		cat <<EOF
   --execute=PATH            copy given script to workdir and execute it;
+EOF
+	cat <<EOF
   --hasher-priv-dir=DIR     hasher-priv directory;
   --mountpoints=LIST        comma-separated list of mount points;
   --number=NUMBER           subconfig identifier;
@@ -64,7 +79,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,execute:,hasher-priv-dir:,mountpoints:,number:,pty,rooter,save-fakeroot,shell::,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,${i_am_hsh_run:+execute:,}hasher-priv-dir:,mountpoints:,number:,pty,rooter,save-fakeroot,shell::,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -73,7 +88,7 @@ run_script=
 run_shell=
 shell_prog=bash
 
-if [ "${0##*/}" = hsh-shell ]; then
+if [ -z "$i_am_hsh_run" ]; then
 	run_shell=1
 	use_pty=yes
 	export use_pty

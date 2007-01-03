@@ -1,6 +1,6 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The rmchroot utility for the hasher project
 #
@@ -19,22 +19,18 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-hasher_dir="$(dirname "$0")"
-[ -r "$hasher_dir/functions" ] &&
-	hasher_dir="$(readlink -env "$hasher_dir")" ||
-	hasher_dir="/usr/share/hasher"
-. "$hasher_dir/functions"
+. hsh-sh-functions
 
 show_help()
 {
 	cat <<EOF
-rmchroot - remove hasher chroot created by mkchroot.
+rmchroot - remove hasher chroot created by hsh-mkchroot.
 
 Usage: $PROG [options] <path-to-workdir>
 
 <path-to-workdir> must be valid hasher directory.
 
-Valid options are:
+Options:
   --hasher-priv-dir=DIR     hasher-priv directory;
   --number=NUMBER           subconfig identifier;
   -q, --quiet               try to be more quiet;

@@ -20,11 +20,12 @@
 
 PROJECT = hasher
 VERSION = $(shell sed '/^Version: */!d;s///;q' hasher.spec)
-HELPERS = functions cache_chroot cache_contents hsh hsh-install hsh-run initroot mkaptbox mkchroot rebuild rmchroot
-PROGRAMS = hsh hsh-install hsh-run mkaptbox
-MAN1PAGES = $(PROGRAMS:=.1)
+ALIASES = hsh-shell
+FUNCTIONS = hsh-sh-functions hsh-sh-cache-chroot hsh-sh-cache-contents
+PROGRAMS = hsh hsh-initroot hsh-install hsh-mkchroot hsh-rebuild hsh-rmchroot hsh-run mkaptbox
+MAN1PAGES = $(PROGRAMS:=.1) $(ALIASES:=.1)
 MAN7PAGES = $(PROJECT).7
-TARGETS = functions $(MAN1PAGES) $(MAN7PAGES)
+TARGETS = $(MAN1PAGES) $(MAN7PAGES)
 
 bindir = /usr/bin
 datadir = /usr/share
@@ -32,25 +33,23 @@ libexecdir = /usr/libexec
 mandir = $(datadir)/man
 man1dir = $(mandir)/man1
 man7dir = $(mandir)/man7
-helperdir = $(datadir)/$(PROJECT)
-binreldir = $(shell relative $(helperdir) $(bindir)/)
 DESTDIR =
 
+CP = cp -a
 HELP2MAN1 = env PATH=":$$PATH" help2man -N -s1 -S '$(PROJECT) $(VERSION)'
 INSTALL = install
 LN_S = ln -s
 MKDIR_P = mkdir -p
 TOUCH_R = touch -r
 
-.PHONY:	all symlinks install clean
+.PHONY:	all install clean
 
 all: $(TARGETS)
 
-symlinks:
-	$(LN_S) -f hsh-run hsh-shell
-	$(LN_S) -f hsh-install install
+hsh-shell: hsh-run
+	$(LN_S) -f $< $@
 
-$(MAN1PAGES): functions
+$(MAN1PAGES): hsh-sh-functions
 
 $(MAN7PAGES):
 
@@ -71,18 +70,16 @@ $(MAN7PAGES):
 	sed -i 's/^\.B $</.B $(<:._=)/' $@
 
 install: all
-	$(MKDIR_P) -m755 $(DESTDIR)$(helperdir)
-	$(INSTALL) -p -m755 $(HELPERS) $(DESTDIR)$(helperdir)/
-	$(LN_S) hsh-install $(DESTDIR)$(helperdir)/install
-	$(MKDIR_P) -m755 $(DESTDIR)$(man1dir)
-	$(INSTALL) -p -m644 $(MAN1PAGES) $(DESTDIR)$(man1dir)/
-	$(MKDIR_P) -m755 $(DESTDIR)$(man7dir)
-	$(INSTALL) -p -m644 $(MAN7PAGES) $(DESTDIR)$(man7dir)/
 	$(MKDIR_P) -m755 $(DESTDIR)$(bindir)
-	$(LN_S) $(PROGRAMS:%=$(binreldir)/%) $(DESTDIR)$(bindir)/
-	$(LN_S) hsh-run $(DESTDIR)$(helperdir)/hsh-shell
-	$(LN_S) hsh-run.1 $(DESTDIR)$(man1dir)/hsh-shell.1
-	$(LN_S) $(binreldir)/hsh-shell $(DESTDIR)$(bindir)/
+	$(INSTALL) -pm755 $(PROGRAMS) $(FUNCTIONS) $(DESTDIR)$(bindir)/
+
+	$(MKDIR_P) -m755 $(DESTDIR)$(man1dir)
+	$(INSTALL) -pm644 $(MAN1PAGES) $(DESTDIR)$(man1dir)/
+
+	$(MKDIR_P) -m755 $(DESTDIR)$(man7dir)
+	$(INSTALL) -pm644 $(MAN7PAGES) $(DESTDIR)$(man7dir)/
+
+	$(CP) -t $(DESTDIR)$(bindir)/ -- $(ALIASES)
 
 clean:
-	$(RM) $(TARGETS) hsh-shell install *~ *._
+	$(RM) $(TARGETS) $(ALIASES) *~ *._

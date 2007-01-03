@@ -1,6 +1,6 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The install utility for the hasher project
 #
@@ -19,11 +19,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-hasher_dir="$(dirname "$0")"
-[ -r "$hasher_dir/functions" ] &&
-	hasher_dir="$(readlink -env "$hasher_dir")" ||
-	hasher_dir="/usr/share/hasher"
-. "$hasher_dir/functions"
+. hsh-sh-functions
 
 show_help()
 {
@@ -50,10 +46,11 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l excludedocs,hasher-priv-dir:,number:,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o h,q,v,V -l excludedocs,hasher-priv-dir:,nolock,number:,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
+nolock=
 while :; do
 	case "$1" in
 		--excludedocs) exclude_docs=--excludedocs
@@ -61,6 +58,8 @@ while :; do
 		--hasher-priv-dir)
 			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
 			shift
+			;;
+		--nolock) nolock=1
 			;;
 		--number)
 			number="$(opt_check_number "$1" "$2")"
@@ -87,9 +86,7 @@ check_helpers
 [ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
 [ -d "$aptbox" ] || Fatal "$aptbox: cannot find aptbox."
 
-if [ "$PROG" = hsh-install ]; then
-	lock_workdir
-fi
+[ -n "$nolock" ] || lock_workdir
 
 filelist="$(print_uris "$@")" ||
 	Fatal 'Failed to generate package file list.'

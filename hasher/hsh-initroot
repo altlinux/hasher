@@ -1,6 +1,6 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The initroot utility for the hasher project
 #
@@ -19,22 +19,18 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-hasher_dir="$(dirname "$0")"
-[ -r "$hasher_dir/functions" ] &&
-	hasher_dir="$(readlink -env "$hasher_dir")" ||
-	hasher_dir="/usr/share/hasher"
-. "$hasher_dir/functions"
+. hsh-sh-functions
 
 show_help()
 {
 	cat <<EOF
-initroot - fill hasher chroot with initial set of packages.
+initroot - fill hasher chroot created by hsh-mkchroot with initial set of packages.
 
 Usage: $PROG [options] <path-to-workdir>
 
 <path-to-workdir> must be valid hasher directory.
 
-Valid options are:
+Options:
   --excludedocs             do not install documentation files;
   --hasher-priv-dir=DIR     hasher-priv directory;
   --install-langs=LI        colon-separated list of languages to install;
@@ -155,8 +151,8 @@ gid2="$(printf %s "$ugid2" |cut -d: -f2)"
 
 check_tty
 
-. "$hasher_dir/cache_chroot"
-. "$hasher_dir/cache_contents"
+. hsh-sh-cache-chroot
+. hsh-sh-cache-contents
 
 init_list=`printf %s "$init_list" |tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//'`
 [ -n "$init_list" ] ||

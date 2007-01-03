@@ -1,6 +1,6 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The hsh utility for the hasher project
 #
@@ -19,11 +19,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-hasher_dir="$(dirname "$0")"
-[ -r "$hasher_dir/functions" ] &&
-	hasher_dir="$(readlink -env "$hasher_dir")" ||
-	hasher_dir="/usr/share/hasher"
-. "$hasher_dir/functions"
+. hsh-sh-functions
 
 show_help()
 {
@@ -243,7 +239,7 @@ cleanup_workdir()
 			Fatal 'Failed to remove repo.'
 	fi
 	if [ -d chroot ]; then
-		$hasher_dir/rmchroot "$workdir" \
+		hsh-rmchroot "$workdir" \
 			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 			${quiet:+$quiet} \
 			${verbose:+$verbose} \
@@ -260,7 +256,7 @@ handle_package()
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
 
 	rm -rf aptbox
-	$hasher_dir/mkaptbox "$workdir" \
+	mkaptbox "$workdir" \
 		${target:+--target="$target"} \
 		${repo:+--repo="$repo"} \
 		${repo_bin:+--repo-bin="$repo_bin"} \
@@ -271,19 +267,19 @@ handle_package()
 		${verbose:+$verbose} \
 		${no_stuff:+--no-stuff} \
 		#
-	[ ! -d chroot ] || $hasher_dir/rmchroot "$workdir" \
+	[ ! -d chroot ] || hsh-rmchroot "$workdir" \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
 		${number:+--number=$number} \
 		#
-	$hasher_dir/mkchroot "$workdir" \
+	hsh-mkchroot "$workdir" \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
 		${number:+--number=$number} \
 		#
-	$hasher_dir/initroot "$workdir" \
+	hsh-initroot "$workdir" \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
@@ -300,7 +296,7 @@ handle_package()
 		${build_list:+--pkg-build-list="$build_list"} \
 		#
 	[ -n "$f" ] || return 0
-	$hasher_dir/rebuild "$workdir" \
+	hsh-rebuild "$workdir" \
 		${target:+--target="$target"} \
 		${repo:+--repo="$repo"} \
 		${repo_bin:+--repo-bin="$repo_bin"} \
@@ -323,7 +319,7 @@ handle_package()
 		-- "$f"
 	if [ -z "$lazy_cleanup" -a -z "$initroot_only" ]; then
 		rm -rf aptbox
-		[ ! -d chroot ] || $hasher_dir/rmchroot "$workdir" \
+		[ ! -d chroot ] || hsh-rmchroot "$workdir" \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \

@@ -1,6 +1,6 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2006  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The rebuild utility for the hasher project
 #
@@ -19,22 +19,18 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-hasher_dir="$(dirname "$0")"
-[ -r "$hasher_dir/functions" ] &&
-	hasher_dir="$(readlink -env "$hasher_dir")" ||
-	hasher_dir="/usr/share/hasher"
-. "$hasher_dir/functions"
+. hsh-sh-functions
 
 show_help()
 {
 	cat <<EOF
-rebuild - rebuild source packages.
+rebuild - rebuild source package.
 
 Usage: $PROG [options] <path-to-workdir> <source-package>
 
 <path-to-workdir> must be valid writable directory.
 
-Valid options are:
+Options:
   --args=ARGS                       extra arguments for rpmbuild;
   --excludedocs                     do not install documentation files;
   --hasher-priv-dir=DIR             hasher-priv directory;
@@ -224,7 +220,7 @@ calc_check_install_build_deps()
 	fi
 
 	if [ -n "$build_deps" ]; then
-		"$hasher_dir/install" \
+		hsh-install --nolock \
 			${quiet:+$quiet} \
 			${verbose:+$verbose} \
 			${number:+--number=$number} \
