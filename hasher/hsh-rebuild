@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 # 
-# The rebuild utility for the hasher project
+# The hsh-rebuild utility for the hasher project
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 show_help()
 {
 	cat <<EOF
-rebuild - rebuild source package.
+hsh-rebuild - rebuild source package.
 
 Usage: $PROG [options] <path-to-workdir> <source-package>
 
@@ -123,7 +123,7 @@ while :; do
 			;;
 		--) shift; break
 			;;
-		*) parse_common_options rebuild "$1"
+		*) parse_common_options hsh-rebuild "$1"
 			;;
 	esac
 	shift

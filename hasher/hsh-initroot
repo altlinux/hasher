@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 # 
-# The initroot utility for the hasher project
+# The hsh-initroot utility for the hasher project
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 show_help()
 {
 	cat <<EOF
-initroot - fill hasher chroot created by hsh-mkchroot with initial set of packages.
+hsh-initroot - fill hasher chroot created by hsh-mkchroot with initial set of packages.
 
 Usage: $PROG [options] <path-to-workdir>
 
@@ -105,7 +105,7 @@ while :; do
 			;;
 		--) shift; break
 			;;
-		*) parse_common_options initroot "$1"
+		*) parse_common_options hsh-initroot "$1"
 			;;
 	esac
 	shift
@@ -151,9 +151,6 @@ gid2="$(printf %s "$ugid2" |cut -d: -f2)"
 
 check_tty
 
-. hsh-sh-cache-chroot
-. hsh-sh-cache-contents
-
 init_list=`printf %s "$init_list" |tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//'`
 [ -n "$init_list" ] ||
 	Fatal 'Initial package file list is empty, cannot setup chroot.'
@@ -169,11 +166,6 @@ initlist="$(printf %s "$initlist" |grep '/setup[-_]' ||:)
 $(printf %s "$initlist" |grep '/filesystem[-_]' ||:)
 $(printf %s "$initlist" |egrep -v '/(setup|filesystem)[-_]' ||:)"
 initlist="$(printf %s "$initlist" |grep -v '^$' ||:)"
-
-if [ -z "$no_cache" ]; then
-	printf %s "$initlist" >cache/chroot/list.new/init
-	[ ! -s cache/chroot/list.new/init ] || echo >>cache/chroot/list.new/init
-fi
 
 build_list=`printf %s "$build_list" |tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//'`
 if [ -n "$build_list" ]; then
@@ -195,10 +187,13 @@ else
 fi # $build_list
 
 if [ -z "$no_cache" ]; then
+	printf %s "$initlist" >cache/chroot/list.new/init
+	[ ! -s cache/chroot/list.new/init ] || echo >>cache/chroot/list.new/init
 	printf %s "$buildlist" >cache/chroot/list.new/build
 	[ ! -s cache/chroot/list.new/build ] || echo >>cache/chroot/list.new/build
 fi
 
+. hsh-sh-cache-chroot-functions
 check_chroot_cache
 
 if [ -n "$no_cache" -o -n "$rebuild_chroot_cache" ]; then
@@ -237,6 +232,7 @@ __EOF__
 		Fatal 'Failed to update faked /proc permissions.'
 fi
 
+. hsh-sh-cache-contents-functions
 check_contents_cache
 
 if [ -n "$no_cache" -o -n "$rebuild_contents_cache" ]; then
@@ -247,7 +243,7 @@ fi
 
 if [ -n "$build_list" ]; then
 	# Create /dev/log.
-	/usr/bin/mksock -m666 "$chroot/dev/log" ||
+	mksock -m666 "$chroot/dev/log" ||
 		Fatal "Failed to create \`$chroot/dev/log' socket."
 
 	# Create RPM build directory tree.

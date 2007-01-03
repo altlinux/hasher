@@ -21,7 +21,7 @@
 PROJECT = hasher
 VERSION = $(shell sed '/^Version: */!d;s///;q' hasher.spec)
 ALIASES = hsh-shell
-FUNCTIONS = hsh-sh-functions hsh-sh-cache-chroot hsh-sh-cache-contents
+FUNCTIONS = hsh-sh-functions hsh-sh-cache-chroot-functions hsh-sh-cache-contents-functions
 PROGRAMS = hsh hsh-initroot hsh-install hsh-mkchroot hsh-rebuild hsh-rmchroot hsh-run mkaptbox
 MAN1PAGES = $(PROGRAMS:=.1) $(ALIASES:=.1)
 MAN7PAGES = $(PROJECT).7
