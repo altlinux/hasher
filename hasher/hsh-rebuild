@@ -319,24 +319,34 @@ case "$source_type" in
 		;;
 esac
 
-# Execute sisyphus_check.
-[ -n "$no_sisyphus_check_in" ] ||
-	no_sisyphus_check_in="$no_sisyphus_check"
-if [ "$no_sisyphus_check_in" != all ]; then
-	[ -n "$no_sisyphus_check_in" ] ||
-		no_sisyphus_check_in=gpg
+run_sisyphus_check()
+{
+	local dir="$1" no_check="$2" add_gpg="${3:-}"
+
+	[ -n "$no_check" ] ||
+		no_check="$no_sisyphus_check"
+	[ "$no_check" != all ] || return 0
+
+	if [ -n "$no_check" ]; then
+		[ -z "$add_gpg" ] ||
+			no_check="$no_check,gpg"
+	else
+		no_check=gpg
+	fi
 
 	create_entry_header
 	cat >>"$entry" <<__EOF__
-cd "\$HOME/in/srpm"
-sisyphus_check --no-check="$(quote_arg "$no_sisyphus_check_in")" .
+sisyphus_check --no-check="$(quote_arg "$no_check")" "$dir"
 __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long wlimit_bytes_written=$wlimit_bytes_out \
 	    chrootuid2 &&
 		Verbose "$sname: sisyphus_check passed." ||
 		Fatal "$sname: sisyphus_check failed."
-fi
+}
+
+# Execute sisyphus_check for input.
+run_sisyphus_check '$HOME/in/srpm' "$no_sisyphus_check_in"
 
 required_mountpoints=
 calculate_required_mountpoints()
@@ -416,8 +426,10 @@ fi
 # Build the package.
 purge_chroot_out
 
-create_entry_header
-cat >>"$entry" <<__EOF__
+run_rebuild()
+{
+	create_entry_header
+	cat >>"$entry" <<__EOF__
 cd "\$HOME/in/srpm"
 packager=\$(rpmquery -p --qf '%{PACKAGER}' *)
 cat >>/usr/src/.rpmmacros <<EOF
@@ -431,28 +443,15 @@ find /usr/src/RPM/RPMS/ -mindepth 2 -maxdepth 2 -type f -name \*.rpm -print0 |
 	xargs -r0 mv -f $verbose --target-directory=/.out/ --
 __EOF__
 
-mountpoints="$required_mountpoints" \
-    chrootuid2 &&
-	Verbose "rebuild of \`$sname' complete." ||
-	Fatal "rebuild of \`$sname' failed."
-
-# Execute sisyphus_check.
-[ -n "$no_sisyphus_check_out" ] ||
-	no_sisyphus_check_out="$no_sisyphus_check"
-if [ "$no_sisyphus_check_out" != all ]; then
-	[ -n "$no_sisyphus_check_out" ] &&
-		no_sisyphus_check_out="$no_sisyphus_check_out,gpg" ||
-		no_sisyphus_check_out=gpg
-	create_entry_header
-	cat >>"$entry" <<__EOF__
-sisyphus_check --no-check="$(quote_arg "$no_sisyphus_check_out")" /.out
-__EOF__
-
-	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long wlimit_bytes_written=$wlimit_bytes_out \
+	mountpoints="$required_mountpoints" \
 	    chrootuid2 &&
-		Verbose "$sname: sisyphus_check passed." ||
-		Fatal "$sname: sisyphus_check failed."
-fi
+		Verbose "rebuild of \`$sname' complete." ||
+		Fatal "rebuild of \`$sname' failed."
+}
+run_rebuild
+
+# Execute sisyphus_check for output.
+run_sisyphus_check '/.out' "$no_sisyphus_check_out" gpg
 
 # Copy binaries from chroot.
 make_repo
