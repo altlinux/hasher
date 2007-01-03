@@ -1,4 +1,4 @@
-.\" Copyright (C) 2004, 2005  Dmitry V. Levin <ldv@altlinux.org>
+.\" Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 .\" 
 .\" Documentation for the hasher project.
 .\"
@@ -16,7 +16,7 @@
 .\" along with this program; if not, write to the Free Software
 .\" Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 .\" 
-.TH "HASHER" "3" "January 2005" "hasher version @VERSION@" "ALT Linux"
+.TH "HASHER" "3" "January 2007" "hasher @VERSION@" "ALT Linux"
 .SH "NAME"
 hasher \- modern safe package building technology
 .SH "SYNOPSIS"
@@ -148,7 +148,7 @@ Written by Dmitry V. Levin <ldv@altlinux.org>
 .SH "REPORTING BUGS"
 Report bugs to http://bugs.altlinux.ru/
 .SH "COPYRIGHT"
-Copyright \(co 2003, 2004, 2005  Dmitry V. Levin <ldv@altlinux.org>
+Copyright \(co 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 .br
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
