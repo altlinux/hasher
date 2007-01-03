@@ -150,8 +150,6 @@ shift
 
 check_helpers
 
-required_mountpoints=
-
 # Create rebuild script.
 if [ -n "$prog_rebuild" ]; then
 	install -p -m755 $verbose "$prog_rebuild" chroot/.host/rebuild
@@ -166,10 +164,12 @@ __EOF__
 	Verbose 'Created rebuild script.'
 fi
 
-# Copy source to chroot.
-copy_chroot_incoming "$source"
-create_entry_header
-cat >>"$entry" <<__EOF__
+source_type=
+copy_source_get_type()
+{
+	copy_chroot_incoming "$source"
+	create_entry_header
+	cat >>"$entry" <<__EOF__
 mkdir -p $verbose -m700 -- "\$TMPDIR"
 rm -rf "\$HOME/in"
 mkdir $verbose -m700 -- "\$HOME/in"
@@ -196,11 +196,12 @@ if [ -n "\$spec" -a "\$spec" = "\${spec#*/}" ]; then
 	exit 0
 fi
 __EOF__
-source_type="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-	    chrootuid2)" &&
-	Verbose "$sname: installed source file." ||
-	Fatal "$sname: failed to install source file."
-purge_chroot_in
+	source_type="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
+		       chrootuid2)" &&
+		Verbose "$sname: installed source file." ||
+		Fatal "$sname: failed to install source file."
+	purge_chroot_in
+}
 
 build_deps=
 calc_check_install_build_deps()
@@ -259,7 +260,7 @@ tr -s '[:blank:],' ' ' |
 		done
 	done
 __EOF__
-	chmod 755 chroot/.host/filter_spec_buildreq
+		chmod 755 chroot/.host/filter_spec_buildreq
 
 		# Calculate, check and install BuildRequires(pre) dependencies.
 		create_entry_header
@@ -306,6 +307,7 @@ __EOF__
 		Fatal "$sname: failed to create src.rpm file"
 }
 
+copy_source_get_type
 case "$source_type" in
 	src.rpm)
 		;;
@@ -335,6 +337,32 @@ __EOF__
 		Verbose "$sname: sisyphus_check passed." ||
 		Fatal "$sname: sisyphus_check failed."
 fi
+
+required_mountpoints=
+calculate_required_mountpoints()
+{
+	[ -n "$known_mountpoints" ] ||
+		return 0
+
+	local deps file_deps mpoint
+
+	deps="$(printf %s "$1" |grep ^/ |LC_ALL=C grep -v '[[:blank:]]' |LC_ALL=C sort -u)"
+
+	for file_deps in ${deps}; do
+		for mpoint in $(printf %s "$known_mountpoints" |tr -s , ' '); do
+			if [ "$mpoint" = "$file_deps" ]; then
+				[ -z "$required_mountpoints" ] &&
+					required_mountpoints="$mpoint" ||
+					required_mountpoints="$required_mountpoints,$mpoint"
+				break
+			fi
+		done
+	done
+
+	required_mountpoints="$(printf %s "$required_mountpoints" |tr -s , '\n' |LC_ALL=C sort -u |tr -s '\n' ,)"
+	required_mountpoints="${required_mountpoints%,}"
+	Verbose "$sname: calculated mount points: $required_mountpoints"
+}
 
 # Calculate, check and install build dependencies.
 if [ -z "$nodeps" ]; then
@@ -368,47 +396,21 @@ cd "\$HOME/in/srpm"
 __EOF__
 
 	calc_check_install_build_deps
-	if [ -n "$known_mountpoints" ]; then
-		for file_deps in `printf %s "$build_deps" |LC_ALL=C grep '^/' |LC_ALL=C sort -u`; do
-			for mpoint in $(printf %s "$known_mountpoints" |tr -s , ' '); do
-				if [ "$mpoint" = "$file_deps" ]; then
-					[ -z "$required_mountpoints" ] &&
-						required_mountpoints="$mpoint" ||
-						required_mountpoints="$required_mountpoints,$mpoint"
-					break
-				fi
-			done
-		done
-		Verbose "$sname: calculated mount points: $required_mountpoints"
-	fi
+	calculate_required_mountpoints "$build_deps"
 fi
 
 # Calculate required mountpoints from installed file dependencies.
 if [ -z "$nodeps" -a -n "$known_mountpoints" ]; then
 	create_entry_header
 	cat >>"$entry" <<__EOF__
-rpmquery -aR |grep ^/ |sort -u
+rpmquery -aR |grep ^/ |grep -v '[[:blank:]]' |sort -u
 __EOF__
 
 	deps="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 		    chrootuid2)" &&
 		Verbose "$sname: fetched installed file dependencies." ||
 		Fatal "$sname: failed to fetch installed file dependencies."
-	deps="$(printf %s "$deps" |grep ^/ |LC_ALL=C tr -d [[:blank:]])"
-
-	for file_deps in $deps; do
-		for mpoint in $(printf %s "$known_mountpoints" |tr -s , ' '); do
-			if [ "$mpoint" = "$file_deps" ]; then
-				[ -z "$required_mountpoints" ] &&
-					required_mountpoints="$mpoint" ||
-					required_mountpoints="$required_mountpoints,$mpoint"
-				break
-			fi
-		done
-	done
-	required_mountpoints="$(printf %s "$required_mountpoints" |tr -s , '\n' |LC_ALL=C sort -u |tr -s '\n' ,)"
-	required_mountpoints="${required_mountpoints%,}"
-	Verbose "$sname: calculated mount points: $required_mountpoints"
+	calculate_required_mountpoints "$deps"
 fi
 
 # Build the package.
