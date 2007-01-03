@@ -42,7 +42,6 @@ calc_check_install_build_deps()
 			${verbose:+$verbose} \
 			${number:+--number=$number} \
 			${exclude_docs:+--excludedocs} \
-			${save_fakeroot:+--save-fakeroot} \
 			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 			-- \
 			"$workdir" $build_deps

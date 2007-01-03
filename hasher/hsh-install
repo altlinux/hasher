@@ -34,7 +34,6 @@ Options:
   --excludedocs             do not install documentation files;
   --hasher-priv-dir=DIR     hasher-priv directory;
   --number=NUMBER           subconfig identifier;
-  --save-fakeroot           save fakeroot state;
   -q, --quiet               try to be more quiet;
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;
@@ -65,7 +64,7 @@ while :; do
 			number="$(opt_check_number "$1" "$2")"
 			shift
 			;;
-		--save-fakeroot) save_fakeroot=1
+		--save-fakeroot) Info "Warning: obsolete option $1 ignored."
 			;;
 		--) shift; break
 			;;

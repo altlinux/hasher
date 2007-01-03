@@ -48,7 +48,6 @@ Options:
                                     overriding --repo option for binary packages;
   --repo-src=DIR                    source packages destination directory,
                                     overriding --repo option for source packages;
-  --save-fakeroot                   save fakeroot state;
   --target=ARCH                     target architecture;
   --without-stuff                   do not generate apt index files;
   --with-stuff                      generate apt index files;
@@ -111,7 +110,7 @@ while :; do
 			;;
 		--repo-src) shift; repo_src="$1"
 			;;
-		--save-fakeroot) save_fakeroot=1
+		--save-fakeroot) Info "Warning: obsolete option $1 ignored."
 			;;
 		--target) shift; target="$1"
 			[ -z "${target##[A-Za-z]*}" ] ||
