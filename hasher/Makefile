@@ -21,7 +21,8 @@
 PROJECT = hasher
 VERSION = $(shell sed '/^Version: */!d;s///;q' hasher.spec)
 ALIASES = hsh-shell
-FUNCTIONS = hsh-sh-functions hsh-sh-cache-chroot-functions hsh-sh-cache-contents-functions
+AUTO_FUNCTIONS = hsh-sh-functions
+FUNCTIONS = $(AUTO_FUNCTIONS) hsh-sh-cache-chroot-functions hsh-sh-cache-contents-functions hsh-sh-rebuild-functions
 PROGRAMS = hsh hsh-initroot hsh-install hsh-mkchroot hsh-rebuild hsh-rmchroot hsh-run mkaptbox
 MAN1PAGES = $(PROGRAMS:=.1) $(ALIASES:=.1)
 MAN7PAGES = $(PROJECT).7
@@ -49,7 +50,7 @@ all: $(TARGETS)
 hsh-shell: hsh-run
 	$(LN_S) -f $< $@
 
-$(MAN1PAGES): hsh-sh-functions
+$(MAN1PAGES): $(AUTO_FUNCTIONS)
 
 $(MAN7PAGES):
 
@@ -82,4 +83,4 @@ install: all
 	$(CP) -t $(DESTDIR)$(bindir)/ -- $(ALIASES)
 
 clean:
-	$(RM) $(TARGETS) $(ALIASES) *~ *._
+	$(RM) $(TARGETS) $(ALIASES) $(AUTO_FUNCTIONS) *~ *._
