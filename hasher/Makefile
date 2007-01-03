@@ -37,7 +37,7 @@ man7dir = $(mandir)/man7
 DESTDIR =
 
 CP = cp -a
-HELP2MAN1 = env PATH=":$$PATH" help2man -N -s1 -S '$(PROJECT) $(VERSION)'
+HELP2MAN1 = help2man -N -s1 -S '$(PROJECT) $(VERSION)'
 INSTALL = install
 LN_S = ln -s
 MKDIR_P = mkdir -p
