@@ -60,7 +60,12 @@ EOF
   --hasher-priv-dir=DIR     hasher-priv directory;
   --mountpoints=LIST        comma-separated list of mount points;
   --number=NUMBER           subconfig identifier;
+EOF
+	[ -z "$i_am_hsh_run" ] ||
+		cat <<EOF
   --pty                     redirect standard descriptors to controlling pty;
+EOF
+		cat <<EOF
   --rooter                  run program as pseudoroot;
   --save-fakeroot           save fakeroot state;
   --shell[=SHELL]           run interactive shell;
@@ -79,7 +84,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,${i_am_hsh_run:+execute:,}hasher-priv-dir:,mountpoints:,number:,pty,rooter,save-fakeroot,shell::,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,${i_am_hsh_run:+execute:,}hasher-priv-dir:,mountpoints:,number:,${i_am_hsh_run:+pty,}rooter,save-fakeroot,shell::,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
