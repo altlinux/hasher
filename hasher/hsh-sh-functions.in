@@ -206,13 +206,17 @@ no_stuff=
 Helpify with_stuff no_stuff
 Helpify without_stuff no_stuff
 
-# various reasonable work limits
+# various reasonable work limits.
 wlimit_time_short=60
 Helpify wlimit_time_short
 wlimit_time_long=600
 Helpify wlimit_time_long
 wlimit_bytes_out=65536
 Helpify wlimit_bytes_out
+
+# working directory.
+workdir=
+Helpify workdir
 
 ### End configuration variables
 
@@ -221,9 +225,6 @@ hasher_config="$HOME/.hasher/config"
 if [ -s "$hasher_config" ]; then
 	. "$hasher_config"
 fi
-
-# working directory.
-workdir=
 
 # APT workdir, $workdir/aptbox
 aptbox=
@@ -288,7 +289,8 @@ parse_common_options()
 
 set_workdir()
 {
-	workdir="$1"
+	[ -n "$workdir" -a -z "${1:-}" ] ||
+		workdir="${1:-}"
 	cd "$workdir" || return 1
 	workdir="$(/bin/pwd)" || return 1
 

@@ -26,7 +26,7 @@ show_help()
 	cat <<EOF
 mkaptbox - create initial aptbox in specified working directory.
 
-Usage: $PROG [options] <path-to-workdir>
+Usage: $PROG [options] [<path-to-workdir>]
 
 <path-to-workdir> must be valid writable directory.
 
@@ -99,12 +99,21 @@ while :; do
 	shift
 done
 
-# Exactly one argument, please.
-[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
-[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+if [ -z "$workdir" ]; then
+	# Exactly one argument.
+	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+	[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+else
+	# At most one argument.
+	[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+fi
 
-set_workdir "$1"
-shift
+if [ "$#" -ge 1 ]; then
+	set_workdir "$1"
+	shift
+else
+	set_workdir
+fi
 
 # does aptbox exist yet?
 if [ -e aptbox -o -L aptbox ]; then

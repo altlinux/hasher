@@ -34,7 +34,7 @@ show_help()
 		cat <<EOF
 hsh-run - run specified program within hasher chroot.
 
-Usage: $PROG [options] <path-to-workdir> <program> [args]
+Usage: $PROG [options] [<path-to-workdir>] <program> [args]
 
 <path-to-workdir> must be valid hasher directory.
 EOF
@@ -42,7 +42,7 @@ EOF
 		cat <<EOF
 hsh-shell - run shell within hasher chroot.
 
-Usage: $PROG [options] <path-to-workdir>
+Usage: $PROG [options] [<path-to-workdir>]
 
 <path-to-workdir> must be valid hasher directory.
 EOF
@@ -144,11 +144,17 @@ while :; do
 	shift
 done
 
-# At least one argument, please.
-[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+if [ -z "$workdir" ]; then
+	# At least one argument.
+	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+fi
 
-set_workdir "$1"
-shift
+if [ -z "$workdir" -o -d "${1:-}" ]; then
+	set_workdir "${1:-}"
+	shift
+else
+	set_workdir
+fi
 
 if [ -n "$run_script" -a -n "$run_shell" ]; then
 	show_usage '--execute and --shell are mutually exclusive options.'

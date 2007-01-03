@@ -26,7 +26,7 @@ show_help()
 	cat <<EOF
 hsh-rebuild - rebuild source package in chroot prepared by hsh-initroot.
 
-Usage: $PROG [options] <path-to-workdir> <source-package>
+Usage: $PROG [options] [<path-to-workdir>] <source-package>
 
 <path-to-workdir> must be valid writable directory.
 
@@ -132,12 +132,22 @@ if [ -n "$prog_query_req" -a -n "$query_repackage" ]; then
 	show_usage '--query-req-prog and --query-repackage are mutually exclusive options.'
 fi
 
-# Exactly two arguments, please.
-[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
-[ "$#" -le 2 ] || show_usage 'Too many arguments.'
+if [ -z "$workdir" ]; then
+	# Exactly two arguments.
+	[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
+	[ "$#" -le 2 ] || show_usage 'Too many arguments.'
+else
+	# At least one and at most two arguments.
+	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+	[ "$#" -le 2 ] || show_usage 'Too many arguments.'
+fi
 
-set_workdir "$1"
-shift
+if [ "$#" -eq 2 ]; then
+	set_workdir "$1"
+	shift
+else
+	set_workdir
+fi
 
 source="$1"
 [ -z "${source##/*}" ] || source="$saved_cwd/$source"

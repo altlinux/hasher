@@ -26,7 +26,7 @@ show_help()
 	cat <<EOF
 hsh - build package using hasher utilities.
 
-Usage: $PROG [options] <path-to-workdir> <package>...
+Usage: $PROG [options] [<path-to-workdir>] <package>...
 
 <path-to-workdir> must be valid writable directory.
 
@@ -188,6 +188,9 @@ while :; do
 	shift
 done
 
+[ "$repackage_source" = '--no-repackage-source' ] ||
+	repackage_source='--repackage-source'
+
 if [ -n "$initroot_only" -a -n "$cleanup_only" ]; then
 	show_usage '--initroot-only and --cleanup-only are mutually exclusive options.'
 fi
@@ -197,19 +200,40 @@ if [ -n "$prog_query_req" -a -n "$query_repackage" ]; then
 fi
 
 if [ -z "$initroot_only" -a -z "$cleanup_only" ]; then
-	# At least two arguments, please.
-	[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
-else
-	# Exactly one argument, please.
+	if [ -z "$workdir" ]; then
+		# At least two arguments.
+		[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
+	else
+		# At least one argument.
+		[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+	fi
+
+	if [ -z "$workdir" -o -d "${1:-}" ]; then
+		set_workdir "${1:-}"
+		shift
+	else
+		set_workdir
+	fi
+
+	# At least one argument.
 	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
-	[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+else
+	if [ -z "$workdir" ]; then
+		# Exactly one argument.
+		[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+		[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+	else
+		# At most one argument.
+		[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+	fi
+
+	if [ "$#" -ge 1 ]; then
+		set_workdir "$1"
+		shift
+	else
+		set_workdir
+	fi
 fi
-
-[ "$repackage_source" = '--no-repackage-source' ] ||
-	repackage_source='--repackage-source'
-
-set_workdir "$1"
-shift
 
 for f in "$@"; do
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"

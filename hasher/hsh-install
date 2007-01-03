@@ -26,7 +26,7 @@ show_help()
 	cat <<EOF
 hsh-install - install binary packages into chroot prepared by hsh-initroot.
 
-Usage: $PROG [options] <path-to-workdir> <package>...
+Usage: $PROG [options] [<path-to-workdir>] <package>...
 
 <path-to-workdir> must be valid hasher directory.
 
@@ -74,11 +74,23 @@ while :; do
 	shift
 done
 
-# At least two arguments, please.
-[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
+if [ -z "$workdir" ]; then
+	# At least two arguments.
+	[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
+else
+	# At least one argument.
+	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+fi
 
-set_workdir "$1"
-shift
+if [ -z "$workdir" -o -d "${1:-}" ]; then
+	set_workdir "${1:-}"
+	shift
+else
+	set_workdir
+fi
+
+# At least one argument.
+[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
 
 check_helpers
 

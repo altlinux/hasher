@@ -26,7 +26,7 @@ show_help()
 	cat <<EOF
 hsh-rmchroot - remove hasher chroot created by hsh-mkchroot.
 
-Usage: $PROG [options] <path-to-workdir>
+Usage: $PROG [options] [<path-to-workdir>]
 
 <path-to-workdir> must be valid hasher directory.
 
@@ -66,12 +66,21 @@ while :; do
 	shift
 done
 
-# Exactly one argument, please.
-[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
-[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+if [ -z "$workdir" ]; then
+	# Exactly one argument.
+	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+	[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+else
+	# At most one argument.
+	[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+fi
 
-set_workdir "$1"
-shift
+if [ "$#" -ge 1 ]; then
+	set_workdir "$1"
+	shift
+else
+	set_workdir
+fi
 
 check_helpers
 
