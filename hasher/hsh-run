@@ -67,7 +67,6 @@ EOF
 EOF
 		cat <<EOF
   --rooter                  run program as pseudoroot;
-  --save-fakeroot           save fakeroot state;
   --shell[=SHELL]           run interactive shell;
   --x11-timeout=SECONDS     how long X11 authorization will be valid;
   -x                        disable X11 forwarding;
@@ -121,7 +120,7 @@ while :; do
 			;;
 		--rooter) run_as_rooter=1
 			;;
-		--save-fakeroot) save_fakeroot=1
+		--save-fakeroot) Info "Warning: obsolete option $1 ignored."
 			;;
 		--shell)
 			run_shell=1
