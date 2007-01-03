@@ -14,8 +14,10 @@
 
 2. Usage.
 
-  The package hasher consists of several low-level utilities placed in
-  /usr/share/hasher/, and two high-level utilities, hsh(1) and mkaptbox(1).
+  The package hasher consists of one high-level utility - hsh(1),
+  and several low-level utilities:
+  hsh-initroot(1), hsh-install(1), hsh-mkchroot(1), hsh-rebuild(1),
+  hsh-rmchroot(1), hsh-run(1), hsh-shell(1), mkaptbox(1).
 
   Example of use:
   $ hsh workdir path/to/foobar-1.0.src.rpm
