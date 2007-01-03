@@ -45,11 +45,11 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l excludedocs,hasher-priv-dir:,nolock,number:,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o h,q,v,V -l excludedocs,hasher-priv-dir:,no-lock,number:,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
-nolock=
+no_lock=
 while :; do
 	case "$1" in
 		--excludedocs) exclude_docs=--excludedocs
@@ -58,7 +58,7 @@ while :; do
 			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
 			shift
 			;;
-		--nolock) nolock=1
+		--no-lock) no_lock=1
 			;;
 		--number)
 			number="$(opt_check_number "$1" "$2")"
@@ -85,7 +85,7 @@ check_helpers
 [ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
 [ -d "$aptbox" ] || Fatal "$aptbox: cannot find aptbox."
 
-[ -n "$nolock" ] || lock_workdir
+[ -n "$no_lock" ] || lock_workdir
 
 filelist="$(print_uris "$@")" ||
 	Fatal 'Failed to generate package file list.'

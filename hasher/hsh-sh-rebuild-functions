@@ -37,7 +37,7 @@ calc_check_install_build_deps()
 	fi
 
 	if [ -n "$build_deps" ]; then
-		hsh-install --nolock \
+		hsh-install --no-lock \
 			${quiet:+$quiet} \
 			${verbose:+$verbose} \
 			${number:+--number=$number} \
