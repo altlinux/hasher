@@ -24,7 +24,7 @@
 show_help()
 {
 	cat <<EOF
-hsh-rebuild - rebuild source package.
+hsh-rebuild - rebuild source package in chroot prepared by hsh-initroot.
 
 Usage: $PROG [options] <path-to-workdir> <source-package>
 
