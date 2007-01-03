@@ -181,7 +181,7 @@ create_contents()
 	local bad="$tmpdir/bad"
 	local contents="$tmpdir/contents"
 
-	cat cache/contents/list.new/index |
+	cat cache/contents/list.new/index 2>/dev/null |
 		while read f; do
 			if ! egrep '^/((usr/)?bin|(usr/)?sbin|usr/X11R6/bin|etc)/' "$f"; then
 				Verbose "Failed to process contents index $f."
