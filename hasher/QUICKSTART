@@ -9,7 +9,7 @@ To prepare hasher for user joe, you need to
 
 <joe logged in>
 
-joe$ mkdir workdir
-joe$ hsh workdir path/to/foobar-1.0.src.rpm
+joe$ mkdir ~/hasher
+joe$ hsh path/to/foobar-1.0.src.rpm
 
 If you have questions, please read README and FAQ.

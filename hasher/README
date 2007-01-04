@@ -20,15 +20,16 @@
   hsh-rmchroot(1), hsh-run(1), hsh-shell(1), mkaptbox(1).
 
   Example of use:
-  $ hsh workdir path/to/foobar-1.0.src.rpm
+  $ hsh path/to/foobar-1.0.src.rpm
 
-  Working directory ("workdir" in example above) MUST exist.
+  Working directory ("$HOME/hasher" by default) MUST exist.
 
   Working directory shouldn't contain self-made files or directories
   with reserved names "aptbox", "cache", "chroot", "lockdir" and "repo".
 
-  During the work hasher creates work repository, workdir/repo.
-  Result of successful builds will be placed into this repository.
+  During the work hasher creates there a subdirectory named "repo" to
+  store work repository.  Result of successful builds will be placed
+  into this repository.
 
   Most useful options:
     --without-stuff
