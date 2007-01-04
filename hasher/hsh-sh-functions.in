@@ -215,7 +215,7 @@ wlimit_bytes_out=65536
 Helpify wlimit_bytes_out
 
 # working directory.
-workdir=
+workdir="$HOME/hasher"
 Helpify workdir
 
 ### End configuration variables
