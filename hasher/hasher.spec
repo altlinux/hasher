@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.0.35
+Version: 1.1.0
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -43,6 +43,24 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Thu Jan 04 2007 Dmitry V. Levin <ldv@altlinux.org> 1.1.0-alt1
+- Removed boldface from the NAME section of man pages;
+  suggested by Sergey Vlasov.
+- Made all hasher utilities available for external use.
+- Moved hasher function files to %_bindir/ as well.
+- hsh-rebuild:
+  Factored out rebuild functions to hsh-sh-rebuild-functions file.
+- hsh-sh-cache-contents-functions (create_contents):
+  Ignore missing cache/contents/list.new/index file (#9844).
+- hsh-shell: Removed redundant --execute and --pty options.
+- hsh-install, hsh-rebuild, hsh-run, hsh-shell:
+  Deprecated --save-fakeroot option.
+- Changed set_workdir() and utilities to allow $workdir to be
+  defined in config file instead of command argument, and
+  changed default $workdir value to $HOME/hasher;
+  suggested by Mikhail Yakshin.
+- Updated documentation to reflect these changes.
+
 * Sun Dec 10 2006 Dmitry V. Levin <ldv@altlinux.org> 1.0.35-alt1
 - apt.conf: Use C-style comments (#10158).
 - FAQ: Updated section about remote repositories (#10167).
