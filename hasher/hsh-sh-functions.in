@@ -29,7 +29,7 @@ Info()
 
 Fatal()
 {
-	printf %s\\n "${0##*/}: $*" >&2
+	Info "$@"
 	exit 1
 }
 
