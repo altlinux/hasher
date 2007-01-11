@@ -205,7 +205,7 @@ calculate_required_mountpoints()
 
 	local deps file_deps mpoint
 
-	deps="$(printf %s "$1" |grep ^/ |LC_ALL=C grep -v '[[:blank:]]' |LC_ALL=C sort -u)"
+	deps="$(printf %s "$1" |grep ^/ |LC_ALL=C tr -d '[[:blank:]]' |LC_ALL=C sort -u)"
 
 	for file_deps in ${deps}; do
 		for mpoint in $(printf %s "$known_mountpoints" |tr -s , ' '); do
