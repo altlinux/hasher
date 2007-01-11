@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.1.0
+Version: 1.1.1
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -43,6 +43,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Thu Jan 11 2007 Dmitry V. Levin <ldv@altlinux.org> 1.1.1-alt1
+- mkaptbox: Implemented absolute repository path support in --repo
+  (Alex Myltsev).
+- Fixed required mountpoints calculation regression introduced in
+  previous release.
+
 * Thu Jan 04 2007 Dmitry V. Levin <ldv@altlinux.org> 1.1.0-alt1
 - Removed boldface from the NAME section of man pages;
   suggested by Sergey Vlasov.
