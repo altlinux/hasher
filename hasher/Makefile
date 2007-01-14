@@ -80,7 +80,7 @@ install: all
 	$(MKDIR_P) -m755 $(DESTDIR)$(man7dir)
 	$(INSTALL) -pm644 $(MAN7PAGES) $(DESTDIR)$(man7dir)/
 
-	$(CP) -t $(DESTDIR)$(bindir)/ -- $(ALIASES)
+	$(CP) $(ALIASES) $(DESTDIR)$(bindir)/
 
 clean:
 	$(RM) $(TARGETS) $(ALIASES) $(AUTO_FUNCTIONS) *~ *._
