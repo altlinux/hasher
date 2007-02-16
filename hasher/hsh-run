@@ -83,10 +83,11 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,${i_am_hsh_run:+execute:,}hasher-priv-dir:,mountpoints:,number:,${i_am_hsh_run:+pty,}rooter,save-fakeroot,shell::,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,${i_am_hsh_run:+execute:,}hasher-priv-dir:,mountpoints:,no-lock,number:,${i_am_hsh_run:+pty,}rooter,save-fakeroot,shell::,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
+no_lock=
 run_as_rooter=
 run_script=
 run_shell=
@@ -111,6 +112,8 @@ while :; do
 			shift
 			;;
 		--mountpoints) shift; mountpoints="$1"
+			;;
+		--no-lock) no_lock=1
 			;;
 		--number)
 			number="$(opt_check_number "$1" "$2")"
@@ -170,8 +173,7 @@ fi
 	show_usage 'Insufficient arguments.'
 
 check_helpers
-lock_workdir
-
+[ -n "$no_lock" ] || lock_workdir
 [ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
 
 prepare_x11_forwarding || x11_forwarding=

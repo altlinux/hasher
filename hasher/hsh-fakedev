@@ -1,0 +1,211 @@
+#!/bin/sh -ef
+#
+# Copyright (C) 2007  Dmitry V. Levin <ldv@altlinux.org>
+# 
+# The hsh-fakedev utility for the hasher project
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+
+. hsh-sh-functions
+
+show_help()
+{
+	cat <<EOF
+hsh-fakedev - create fake device file of the given type in chroot prepared by hsh-initroot.
+
+Usage: $PROG [options] [<path-to-workdir>] [<name> <type> <major> <minor>]
+
+<path-to-workdir> must be valid writable directory.
+Arguments <name>, <type>, <major> and <minor> have the same meaning as in
+mknod(1) utility.  They are required iff --reference option is not given.
+
+Options:
+  --hasher-priv-dir=DIR             hasher-priv directory;
+  --number=NUMBER                   subconfig identifier;
+  -m, --mode=MODE                   set permission mode as in mknod(1);
+  -g, --group=GROUP                 set group ownership as in install(1);
+  -o, --owner=OWNER                 set ownership as in install(1);
+  -r, --reference=FILE              use this file properties
+  -q, --quiet                       try to be more quiet;
+  -v, --verbose                     print a message for each action;
+  -V, --version                     print program version and exit;
+  -h, --help                        show this text and exit.
+
+Report bugs to http://bugs.altlinux.ru/
+
+EOF
+	exit
+}
+
+opt_check_dev()
+{
+	local value
+	value="$(readlink -ev "$2")" &&
+		[ -b "$value" -o -c "$value" ] ||
+		Fatal "$1: $2: device not available."
+	printf %s "$value"
+}
+
+TEMP=`getopt -n $PROG -o g:,m:,o:,r:,h,q,v,V -l hasher-priv-dir:,number:,mode:,group:,owner:,reference:,help,quiet,verbose,version -- "$@"` ||
+	show_usage
+eval set -- "$TEMP"
+
+mode=
+group=
+owner=
+reference=
+while :; do
+	case "$1" in
+		--hasher-priv-dir)
+			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
+			shift
+			;;
+		--number)
+			number="$(opt_check_number "$1" "$2")"
+			shift
+			;;
+		-m|--mode)
+			mode="$2"
+			shift
+			;;
+		-b|--group)
+			group="$2"
+			shift
+			;;
+		-o|--owner)
+			owner="$2"
+			shift
+			;;
+		-r|--reference)
+			reference="$(opt_check_dev "$1" "$2")"
+			shift
+			;;
+		--) shift; break
+			;;
+		*) parse_common_options hsh-fakedev "$1"
+			;;
+	esac
+	shift
+done
+
+if [ -z "$workdir" ]; then
+	# At least one argument.
+	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+fi
+
+if [ -z "$workdir" -o -d "${1:-}" ]; then
+	set_workdir "${1:-}"
+	shift
+else
+	set_workdir
+fi
+
+name=
+type=
+major=
+minor=
+if [ -z "$reference" ]; then
+	# Exactly 4 arguments.
+	[ "$#" -ge 4 ] || show_usage 'Insufficient arguments.'
+	[ "$#" -le 4 ] || show_usage 'Too many arguments.'
+
+	name="$1" && shift
+	name="${name#/dev/}"
+	[ -n "${name##*/*}" -a -n "${name##*.*}" ] ||
+		Fatal "$name: invalid device file name"
+
+	type="$1" && shift
+	[ "$type" = b -o "$type" = c ] ||
+		Fatal "$type: invalid device file type"
+
+	major="$1" && shift
+	[ "$major" -gt 0 ] 2>/dev/null ||
+		Fatal "$major: invalid device file major number"
+
+	minor="$1" && shift
+	[ "$minor" -ge 0 ] 2>/dev/null ||
+		Fatal "$minor: invalid device file minor number"
+else
+	# No more arguments.
+	[ "$#" -eq 0 ] || show_usage 'Too many arguments.'
+
+	TEMP="$(LANG=C stat -c '%a %U %G %t %T %F' "$reference")"
+	# 666 root root 1 3 character special file
+	[ -z "${TEMP%%* special file}" ] ||
+		Fatal "$reference: unrecognized file type: $TEMP"
+	eval set -- "$TEMP"
+	[ "$#" -ge 6 ] ||
+		Fatal "$reference: unrecognized file type: $TEMP"
+
+	[ -n "$mode" ] || mode="$1"
+	shift
+
+	[ -n "$owner" ] || owner="$1"
+	shift
+
+	[ -n "$group" ] || group="$1"
+	shift
+
+	major="$1" && shift
+	minor="$1" && shift
+
+	case "$1" in
+		block) type=b;;
+		character) type=c;;
+		*) Fatal "$reference: unrecognized file type: $1";;
+	esac
+	shift
+
+	name="${reference##*/}"
+fi
+
+check_helpers
+lock_workdir
+[ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
+[ -f "$chroot/.fakedata" ] ||
+	Fatal "$chroot: chroot was not created using --save-fakeroot option."
+dev_name="$chroot/dev/$name"
+[ ! -e "$dev_name" ] ||
+	Fatal "$dev_name: File exists."
+
+[ -n "$owner" ] || owner=0
+[ -n "$group" ] || group=0
+
+cat >"$chroot/.host/fakedev" <<__EOF__
+#!/bin/sh -e
+cd \$TMPDIR
+mknod ${mode:+-m $mode} -- fakedev "$type" "$major" "$minor"
+chown -- $owner:$group fakedev
+stat -c %i -- fakedev
+__EOF__
+
+tmp_inode="$(hsh-run --no-lock --root --execute="$chroot/.host/fakedev" -- "$workdir")" ||
+	Fatal 'Fake device creation failed.'
+
+touch "$dev_name"
+dev_inode="$(stat -c %i -- "$dev_name")"
+
+cat >"$entry" <<__EOF__
+#!/bin/sh -e
+cd \$TMPDIR
+rm fakedev
+sed -i 's/,ino=$tmp_inode,/,ino=$dev_inode,/' /.fakedata
+__EOF__
+chmod 755 "$entry"
+
+chrootuid1 &&
+	Verbose 'Fake device creation complete.' ||
+	Fatal 'Fake device creation failed.'
