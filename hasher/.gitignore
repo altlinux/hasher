@@ -1,12 +1,13 @@
-hsh-shell
-hsh-sh-functions
 hasher.7
-hsh.1
+hsh-fakedev.1
 hsh-initroot.1
 hsh-install.1
 hsh-mkchroot.1
 hsh-rebuild.1
 hsh-rmchroot.1
 hsh-run.1
+hsh-sh-functions
+hsh-shell
 hsh-shell.1
+hsh.1
 mkaptbox.1
