@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.1.1
+Version: 1.2.0
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -43,6 +43,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Wed Feb 21 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.0-alt1
+- Fixed build to use plain "cp -a" for better portability.
+- hsh-fakedev: New utility, creates fake device files.
+- mkaptbox:
+  Disabled creation of internal repository in --without-stuff mode.
+
 * Thu Jan 11 2007 Dmitry V. Levin <ldv@altlinux.org> 1.1.1-alt1
 - mkaptbox: Implemented absolute repository path support in --repo
   (Alex Myltsev).
