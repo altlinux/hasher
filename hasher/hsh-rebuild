@@ -237,14 +237,13 @@ run_rebuild
 run_sisyphus_check '/.out' "$no_sisyphus_check_out" gpg
 
 # Copy binaries from chroot.
-make_repo
-
 case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |grep -c '\.src\.rpm$'` in
 	0) subdir=.in ;;
 	1) subdir=.out ;;
 	*) Fatal 'Too many src.rpm files written.' ;;
 esac
 
+make_repo
 repo_bin="${repo_bin:-${repo:-$def_repo}/"${target:-$def_target}"/RPMS.hasher/}"
 repo_src="${repo_src:-${repo:-$def_repo}/SRPMS.hasher/}"
 
