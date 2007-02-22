@@ -101,7 +101,7 @@ while :; do
 	shift
 done
 
-if [ -z "$workdir" ]; then
+if [ -z "$workdir" -o -z "$reference" ]; then
 	# At least one argument.
 	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
 fi
