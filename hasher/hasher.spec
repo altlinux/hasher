@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.2.0
+Version: 1.2.1
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -43,6 +43,15 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Mon Mar 12 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.1-alt1
+- hsh-fakedev:
+  + Enhanced error diagnostics.
+  + Fixed hsh-run(1) invocation to propagate --number and --hasher-priv-dir options.
+- hsh-sh-functions.in (opt_check_number):
+  + Disallowed numbers starting with zero.
+  + Optimized check to avoid execution of extra processes.
+  Suggested by Sergey Vlasov.
+
 * Wed Feb 21 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.0-alt1
 - Fixed build to use plain "cp -a" for better portability.
 - hsh-fakedev: New utility, creates fake device files.
