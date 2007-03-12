@@ -262,7 +262,7 @@ opt_check_dir()
 
 opt_check_number()
 {
-	[ -z "$(printf %s "$2" |tr -d '[0-9]')" ] &&
+	[ -n "${2##0*}" -a -n "${2##*[!0-9]*}" ] &&
 		[ "$2" -gt 0 ] 2>/dev/null ||
 		Fatal "$1: $2: invalid number."
 	printf %s "$2"
