@@ -192,7 +192,9 @@ chown -- $owner:$group fakedev
 stat -c %i -- fakedev
 __EOF__
 
-tmp_inode="$(hsh-run --no-lock --root --execute="$chroot/.host/fakedev" -- "$workdir")" ||
+tmp_inode="$(hsh-run --no-lock --root ${number:+--number="$number"} \
+	     ${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
+	     --execute="$chroot/.host/fakedev" -- "$workdir")" ||
 	Fatal 'Fake device creation failed.'
 
 touch "$dev_name"
