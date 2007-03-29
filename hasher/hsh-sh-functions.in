@@ -342,10 +342,6 @@ read_apt_config()
 		value="$dir_value$value"
 	done
 
-	[ -z "${value##/*}" ] &&
-		[ -s "$value" -a -r "$value" ] ||
-		Fatal "apt-config: broken $orig_name: $value"
-
 	eval "$res_value=\"$(quote_arg "$value")\""
 }
 	
