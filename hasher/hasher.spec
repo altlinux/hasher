@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.2.1
+Version: 1.2.2
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -43,6 +43,9 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Thu Mar 29 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.2-alt1
+- mkaptbox: If cdroms.list is not empty, copy it and apt indices into aptbox.
+
 * Mon Mar 12 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.1-alt1
 - hsh-fakedev:
   + Enhanced error diagnostics.
