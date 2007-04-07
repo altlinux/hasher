@@ -241,7 +241,7 @@ if [ -r "$cd_value" -a -s "$cd_value" ]; then
 
 	read_apt_config Dir::State::lists lists_value
 	if [ -r "$lists_value" -a -d "$lists_value" ]; then
-		find "$lists_value/" -mindepth 1 -maxdepth 1 -type f -exec \
+		find "$lists_value/" -mindepth 1 -maxdepth 1 -perm -444 -type f -exec \
 			install -p -m644 $verbose '{}' "$aptbox/var/lib/apt/lists/" ';'
 	fi
 fi
