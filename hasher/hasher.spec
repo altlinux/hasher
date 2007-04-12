@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.2.3
+Version: 1.2.4
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -43,6 +43,9 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Thu Apr 12 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.4-alt1
+- hsh-fakedev: Fixed typo in -g option support (sbolshakov, #11489).
+
 * Sun Apr 08 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.3-alt1
 - mkaptbox: When copying files from Dir::State::lists,
   take only readable files into account.
