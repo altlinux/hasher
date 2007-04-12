@@ -81,7 +81,7 @@ while :; do
 			mode="$2"
 			shift
 			;;
-		-b|--group)
+		-g|--group)
 			group="$2"
 			shift
 			;;
