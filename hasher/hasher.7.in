@@ -16,7 +16,7 @@
 .\" along with this program; if not, write to the Free Software
 .\" Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 .\" 
-.TH "HASHER" "3" "January 2007" "hasher @VERSION@" "ALT Linux"
+.TH "HASHER" "7" "January 2007" "hasher @VERSION@" "ALT Linux"
 .SH "NAME"
 hasher \- modern safe package building technology
 .SH "SYNOPSIS"
