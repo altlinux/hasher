@@ -265,7 +265,6 @@ inst_list="$(for f in $buildlist; do
 	done
 	printf %s "$(quote_arg "$f") "
 done)"
-[ -z "\$inst_list" ] || ${rpmi:-$def_rpmi} -i $rpm_verbose $hash $exclude_docs --nodeps \$inst_list
 noinst_list="$(for f in $buildlist; do
 	f="${f##*/}"
 	for p in $noinstall_pattern_list; do
@@ -275,6 +274,8 @@ noinst_list="$(for f in $buildlist; do
 		fi
 	done
 done)"
+[ -z "\$noinst_list" ] || rpm_nodeps="--nodeps"
+[ -z "\$inst_list" ] || ${rpmi:-$def_rpmi} -i $rpm_verbose $hash $exclude_docs \$rpm_nodeps \$inst_list
 [ -z "\$noinst_list" ] || ${rpmi:-$def_rpmi} -i $verbose $exclude_docs --nodeps --justdb \$noinst_list
 __EOF__
 
