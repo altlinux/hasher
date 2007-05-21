@@ -54,7 +54,7 @@ opt_check_dev()
 {
 	local value
 	value="$(readlink -ev "$2")" &&
-		[ -b "$value" -o -c "$value" ] ||
+		[ -b "$value" -o -c "$value" -o -p "$value" ] ||
 		Fatal "$1: $2: device not available."
 	printf %s "$value"
 }
@@ -118,8 +118,8 @@ type=
 major=
 minor=
 if [ -z "$reference" ]; then
-	# Exactly 4 arguments.
-	[ "$#" -ge 4 ] || show_usage 'Insufficient arguments.'
+	# Exactly 2 arguments for type p, exactly 4 arguments for devices.
+	[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
 	[ "$#" -le 4 ] || show_usage 'Too many arguments.'
 
 	name="$1" && shift
@@ -128,24 +128,40 @@ if [ -z "$reference" ]; then
 		Fatal "$name: invalid device file name"
 
 	type="$1" && shift
-	[ "$type" = b -o "$type" = c ] ||
-		Fatal "$type: invalid device file type"
+	case "$type" in
+		b|c|u)
+			[ "$#" -eq 2 ] || show_usage 'Insufficient arguments.'
 
-	major="$1" && shift
-	[ "$major" -gt 0 ] 2>/dev/null ||
-		Fatal "$major: invalid device file major number"
+			major="$1" && shift
+			[ "$major" -gt 0 ] 2>/dev/null ||
+				Fatal "$major: invalid device file major number"
 
-	minor="$1" && shift
-	[ "$minor" -ge 0 ] 2>/dev/null ||
-		Fatal "$minor: invalid device file minor number"
+			minor="$1" && shift
+			[ "$minor" -ge 0 ] 2>/dev/null ||
+				Fatal "$minor: invalid device file minor number"
+			;;
+		p)
+			[ "$#" -eq 0 ] || show_usage 'Too many arguments.'
+			major=
+			minor=
+			;;
+		*)
+			Fatal "$type: invalid device file type"
+			;;
+	esac
 else
 	# No more arguments.
 	[ "$#" -eq 0 ] || show_usage 'Too many arguments.'
 
 	TEMP="$(LANG=C stat -c '%a %U %G %t %T %F' "$reference")"
 	# 666 root root 1 3 character special file
-	[ -z "${TEMP%%* special file}" ] ||
-		Fatal "$reference: unrecognized file type: $TEMP"
+	case "$TEMP" in
+		*\ special\ file|*\ fifo)
+			;;
+		*)
+			Fatal "$reference: unrecognized file type: $TEMP"
+			;;
+	esac
 	eval set -- "$TEMP"
 	[ "$#" -ge 6 ] ||
 		Fatal "$reference: unrecognized file type: $TEMP"
@@ -160,11 +176,17 @@ else
 	shift
 
 	major="$1" && shift
+	[ "$major" -ge 0 ] 2>/dev/null ||
+		Fatal "$major: invalid device file major number"
+
 	minor="$1" && shift
+	[ "$minor" -ge 0 ] 2>/dev/null ||
+		Fatal "$minor: invalid device file minor number"
 
 	case "$1" in
 		block) type=b;;
 		character) type=c;;
+		fifo) type=p; major=; minor=;;
 		*) Fatal "$reference: unrecognized file type: $1";;
 	esac
 	shift
@@ -187,7 +209,7 @@ dev_name="$chroot/dev/$name"
 cat >"$chroot/.host/fakedev" <<__EOF__
 #!/bin/sh -e
 cd \$TMPDIR
-mknod ${mode:+-m $mode} -- fakedev "$type" "$major" "$minor"
+mknod ${mode:+-m $mode} -- fakedev "$type" $major $minor
 chown -- $owner:$group fakedev
 stat -c %i -- fakedev
 __EOF__
