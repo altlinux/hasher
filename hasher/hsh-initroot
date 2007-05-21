@@ -59,6 +59,9 @@ TEMP=`getopt -n $PROG -o h,q,v,V -l contents-index-all:,contents-index-bin:,excl
 	show_usage
 eval set -- "$TEMP"
 
+: ${init_list:=$pkg_init_list}
+: ${build_list:=$pkg_build_list}
+
 while :; do
 	case "$1" in
 		--excludedocs) exclude_docs=--excludedocs
@@ -130,8 +133,6 @@ fi
 [ -d "$chroot" ] || Fatal "$chroot: cannot access chroot."
 [ -d "$aptbox" ] || Fatal "$aptbox: cannot access aptbox."
 
-: ${init_list:=$pkg_init_list}
-: ${build_list:=$pkg_build_list}
 [ -z "$save_fakeroot" ] || init_list="$init_list cpio"
 
 mkdir -p -m700 $verbose cache
