@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.2.4
+Version: 1.2.5
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -43,6 +43,14 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Mon May 21 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.5-alt1
+- hsh-initroot: Do not pass --nodeps option to rpmi
+  unless some packages were filtered out (avm).
+- hasher.7.in: Fixed man section number (#11613).
+- hsh-initroot: Fixed --pkg-{init,build}-list=+ support
+  (Sergey Kurakin, #11827).
+- hsh-fakedev: Implemented fifo support (#11811).
+
 * Thu Apr 12 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.4-alt1
 - hsh-fakedev: Fixed typo in -g option support (sbolshakov, #11489).
 
