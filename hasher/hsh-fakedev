@@ -53,7 +53,7 @@ EOF
 opt_check_dev()
 {
 	local value
-	value="$(readlink -ev "$2")" &&
+	value="$(readlink -ev -- "$2")" &&
 		[ -b "$value" -o -c "$value" -o -p "$value" ] ||
 		Fatal "$1: $2: device not available."
 	printf %s "$value"

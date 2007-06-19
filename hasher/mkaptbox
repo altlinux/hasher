@@ -118,7 +118,7 @@ fi
 [ -n "$no_stuff" ] ||
 	make_repo
 [ -z "$repo" ] ||
-	repo="$(readlink -ef "$repo")"
+	repo="$(readlink -ef -- "$repo")"
 
 # does aptbox exist yet?
 if [ -e aptbox -o -L aptbox ]; then
