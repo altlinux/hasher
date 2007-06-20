@@ -117,11 +117,11 @@ ln -s $verbose ../proc/self/fd/1 dev/stdout
 ln -s $verbose ../proc/self/fd/2 dev/stderr
 Verbose 'Created /dev symlinks.'
 
-install -p -m755 $verbose /bin/ash.static .host/sh
-install -p -m755 $verbose /usr/bin/find.static .host/find
-install -p -m755 $verbose /usr/bin/cpio.static .host/cpio
+install_static_helper ash sh
+install_static_helper find
+install_static_helper cpio
 [ -z "$qemu_arch" ] ||
-        install -p -m755 $verbose "/usr/bin/qemu-$qemu_arch.static" ".host/qemu-$qemu_arch"
+	install_static_helper "qemu-$qemu_arch"
 postin="$HOME/.hasher/install/post"
 if [ -r "$postin" -a -x "$postin" ]; then
 	install -p -m755 $verbose "$postin" .host/postin

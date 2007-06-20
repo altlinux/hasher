@@ -319,7 +319,7 @@ install_static_helper()
 	local dst="${2:-$name}"
 	local path="$(type -p "$src")"
 	[ -n "$path" -a -z "${path##/*}" ] ||
-		Fatal "static helper $src not found."
+		Fatal "Static helper $src not found."
 	install -p -m755 $verbose "$path" "$chroot/.host/$dst"
 }
 

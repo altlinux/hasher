@@ -87,8 +87,9 @@ check_helpers
 cd chroot
 Verbose "Changed working directory to \`$chroot'."
 
-install -pD -m755 $verbose /bin/ash.static .host/sh
-install -pD -m755 $verbose /usr/bin/find.static .host/find
+mkdir -p -m711 $verbose .host
+install_static_helper ash sh
+install_static_helper find
 Verbose 'Installed .host programs.'
 
 if [ ! -c "dev/null" ]; then
