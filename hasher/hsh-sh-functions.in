@@ -206,6 +206,10 @@ no_stuff=
 Helpify with_stuff no_stuff
 Helpify without_stuff no_stuff
 
+# qemu architecture
+qemu_arch=
+Helpify qemu_arch
+
 # various reasonable work limits.
 wlimit_time_short=60
 Helpify wlimit_time_short
@@ -430,7 +434,7 @@ update_repo()
 # assumed: defined variables: hash
 update_RPM_database()
 {
-	rpmi -i $verbose $hash --dbpath "$aptbox/var/lib/rpm" $exclude_docs --ignoresize --noorder --noscripts --notriggers --justdb "$@"
+	rpmi -i $verbose $hash --dbpath "$aptbox/var/lib/rpm" $exclude_docs --ignorearch --ignoresize --noorder --noscripts --notriggers --justdb "$@"
 		Verbose 'RPM database updated.' ||
 		Fatal 'RPM database update failed.'
 }

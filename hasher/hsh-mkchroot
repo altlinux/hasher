@@ -33,6 +33,7 @@ Usage: $PROG [options] [<path-to-workdir>]
 Options:
   --hasher-priv-dir=DIR     hasher-priv directory;
   --number=NUMBER           subconfig identifier;
+  --with-qemu=ARCH          copy qemu executable into the chroot .host directory;
   -q, --quiet               try to be more quiet;
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;
@@ -44,7 +45,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l hasher-priv-dir:,number:,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o h,q,v,V -l hasher-priv-dir:,number:,with-qemu:,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -56,6 +57,10 @@ while :; do
 			;;
 		--number)
 			number="$(opt_check_number "$1" "$2")"
+			shift
+			;;
+		--with-qemu)
+			qemu_arch="$2"
 			shift
 			;;
 		--) shift; break
@@ -115,6 +120,8 @@ Verbose 'Created /dev symlinks.'
 install -p -m755 $verbose /bin/ash.static .host/sh
 install -p -m755 $verbose /usr/bin/find.static .host/find
 install -p -m755 $verbose /usr/bin/cpio.static .host/cpio
+[ -z "$qemu_arch" ] ||
+        install -p -m755 $verbose "/usr/bin/qemu-$qemu_arch.static" ".host/qemu-$qemu_arch"
 postin="$HOME/.hasher/install/post"
 if [ -r "$postin" -a -x "$postin" ]; then
 	install -p -m755 $verbose "$postin" .host/postin
