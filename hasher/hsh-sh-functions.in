@@ -311,7 +311,19 @@ set_workdir()
 	entry="$chroot/.host/entry"
 }
 
-# assumed: defined aptbox
+# assumes: initialized $chroot
+install_static_helper()
+{
+	local name="$1"
+	local src="$name.static"
+	local dst="${2:-$name}"
+	local path="$(type -p "$src")"
+	[ -n "$path" -a -z "${path##/*}" ] ||
+		Fatal "static helper $src not found."
+	install -p -m755 $verbose "$path" "$chroot/.host/$dst"
+}
+
+# assumes: defined aptbox
 get_apt_config()
 {
 	local get_eval get_name get_value
