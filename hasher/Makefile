@@ -26,7 +26,9 @@ FUNCTIONS = $(AUTO_FUNCTIONS) hsh-sh-cache-chroot-functions hsh-sh-cache-content
 PROGRAMS = hsh hsh-initroot hsh-install hsh-fakedev hsh-mkchroot hsh-rebuild hsh-rmchroot hsh-run mkaptbox
 MAN1PAGES = $(PROGRAMS:=.1) $(ALIASES:=.1)
 MAN7PAGES = $(PROJECT).7
-TARGETS = $(MAN1PAGES) $(MAN7PAGES)
+MANPAGES = $(MAN1PAGES) $(MAN7PAGES)
+HTMLPAGES = $(MANPAGES:=.html)
+TARGETS = $(MANPAGES)
 
 bindir = /usr/bin
 datadir = /usr/share
@@ -40,6 +42,7 @@ CP = cp -a
 HELP2MAN1 = help2man -N -s1 -S '$(PROJECT) $(VERSION)'
 INSTALL = install
 LN_S = ln -s
+MAN2HTML = man2html -r
 MKDIR_P = mkdir -p
 TOUCH_R = touch -r
 
@@ -70,6 +73,18 @@ $(MAN7PAGES):
 	$(HELP2MAN1) -i $(<:._=).1.inc ./$< >$@
 	sed -i 's/^\.B $</.B $(<:._=)/' $@
 
+%.html: %
+	$(MAN2HTML) $< >$@
+	sed -i -e '/^Content-type: /d' -e '/^Time: /d' -e '/index\.html/d' \
+		-e 's,HREF="\.\./man./\(hsh\|hasher\.\|mkaptbox\),HREF="\1,g' \
+		-e 's,<A HREF="\.\./man./[^/]\+\.html">\([^<]\+\)</A>,\1,g' \
+		-e 's,<A HREF="mailto:[^"]\+">\([^@<]\+@[^<]\+\)</A>,\1,' \
+		-e 's,\(@altlinux\)\.[a-z]\+,\1,' \
+		-e 's,.*\(man2html\).*,\1,' \
+		$@
+
+html: $(HTMLPAGES)
+
 install: all
 	$(MKDIR_P) -m755 $(DESTDIR)$(bindir)
 	$(INSTALL) -pm755 $(PROGRAMS) $(FUNCTIONS) $(DESTDIR)$(bindir)/
@@ -83,4 +98,4 @@ install: all
 	$(CP) $(ALIASES) $(DESTDIR)$(bindir)/
 
 clean:
-	$(RM) $(TARGETS) $(ALIASES) $(AUTO_FUNCTIONS) *~ *._
+	$(RM) $(TARGETS) $(HTMLPAGES) $(ALIASES) $(AUTO_FUNCTIONS) *~ *._
