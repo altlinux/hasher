@@ -210,7 +210,7 @@ for n in apt-cache apt-config apt-get genbasedir; do
 ${apt_libdir:+export LD_LIBRARY_PATH="$apt_libdir"}
 APT_CONFIG="$apt_config_file" \
 ${aptbox_home:+HOME="$aptbox_home"} \
-exec $(eval printf %s "$(printf '$prog_%s' "$n" |tr - _)") "\$@"
+exec setarch "${target:-$def_target}" $(eval printf %s "$(printf '$prog_%s' "$n" |tr - _)") "\$@"
 __EOF__
 	Verbose "created $n wrapper"
 	chmod $verbose a+x "$n"
