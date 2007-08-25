@@ -503,35 +503,93 @@ __EOF__
 	chmod 755 "$entry"
 }
 
+lock_file=
 hasher_exit_handler()
 {
 	local rc=$?
 	trap - EXIT
-	rm -rf $verbose -- "$workdir/lockdir"
+	[ -z "$lock_file" ] ||
+		rm -f $verbose -- "$lock_file"
 	exit $rc
+}
+
+create_lock_file()
+{
+	local dest="$1"; shift
+	local item="$1"; shift
+	local silent="${1:-}"; shift ||:
+	local temp
+	temp="$(mktemp -- "$dest.XXXXXXXX")" ||
+		Fatal "Unable to lock $item."
+	if ! echo $$ >"$temp"; then
+		rm -f $verbose -- "$temp"
+		Fatal "Unable to lock $item."
+	fi
+
+	if ln -- "$temp" "$dest" 2>/dev/null; then
+		rm -f -- "$temp"
+		Verbose "Locked $item."
+		return 0
+	fi
+
+	rm -f -- "$temp"
+	local pid
+	if pid="$(head -c32 -- "$dest")" &&
+	   kill -0 -- "$pid" 2>/dev/null; then
+		Info "$item is locked, pid=$pid."
+		ps hp "$pid" >&2
+		return 2
+	fi
+
+	[ -n "$silent" ] ||
+		Info "$item is locked, stale pid=$pid."
+	return 1
 }
 
 lock_workdir()
 {
+	[ -z "$lock_file" ] || return 0
+
 	local lockdir="$workdir/lockdir"
-	local pidfile="$lockdir/pid"
-	if ! mkdir -m700 $verbose -- "$lockdir"; then
-		if [ -s "$pidfile" ]; then
-			local pid
-			pid="$(head -c32 "$pidfile")"
-			if kill -0 -- "$pid" 2>/dev/null; then
-				Info "Working directory \`$workdir' is locked, pid=$pid."
-				ps hp "$pid" 2>/dev/null
-			else
-				Info "Working directory \`$workdir' is locked, stale pid=$pid."
-			fi
-		fi
+	mkdir -p $verbose "$lockdir" ||
 		Fatal 'Unable to lock working directory.'
+	lock_file="$lockdir/lockfile"
+
+	if create_lock_file "$lock_file" "working directory \`$workdir'"; then
+		trap hasher_exit_handler HUP PIPE INT QUIT TERM EXIT
+		return 0
+	elif [ $? -eq 1 ]; then
+		# stale lock detected
+		local unlock_file="$lockdir/unlockfile"
+		create_lock_file "$unlock_file" "stale lock \`$lock_file'" ||
+			Fatal 'Unable to remove stale lock.'
+
+		if create_lock_file "$lock_file" "working directory \`$workdir'" silent; then
+			# stale lock disappeared
+			trap hasher_exit_handler HUP PIPE INT QUIT TERM EXIT
+			rm -f -- "$unlock_file"
+			return 0
+		elif [ $? -eq 2 ]; then
+			# actual lock detected
+			rm -f -- "$unlock_file"
+			Fatal 'Unable to lock working directory.'
+		elif [ $? -eq 1 ] &&
+		     rm -f $verbose -- "$lock_file"; then
+			# stale lock removed
+			if create_lock_file "$lock_file" "working directory \`$workdir'"; then
+				trap hasher_exit_handler HUP PIPE INT QUIT TERM EXIT
+				rm -f -- "$unlock_file"
+				return 0
+			fi
+			rm -f -- "$unlock_file"
+			Fatal 'Unable to lock working directory.'
+		fi
+		# error removing stale lock
+		rm -f -- "$unlock_file"
+		Fatal 'Unable to remove stale lock.'
 	fi
-
-	trap hasher_exit_handler HUP PIPE INT QUIT TERM EXIT
-
-	echo $$ >"$pidfile"
+	# actual lock detected
+	Fatal 'Unable to lock working directory.'
 }
 
 # assumed: defined aptbox
