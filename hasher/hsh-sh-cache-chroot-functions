@@ -25,8 +25,8 @@ archive_chroot_cache()
 {
 	[ -n "$rebuild_chroot_cache" ] || return 0
 
-	local rpmdb_archive="cache/chroot/rpmdb.tar"
-	local chroot_archive="cache/chroot/chroot.cpio"
+	local rpmdb_archive="$cache_dir/chroot/rpmdb.tar"
+	local chroot_archive="$cache_dir/chroot/chroot.cpio"
 
 	trap 'rm -f -- "$rpmdb_archive" "$chroot_archive"' EXIT HUP INT QUIT TERM
 
@@ -57,11 +57,11 @@ __EOF__
 	trap - EXIT HUP INT QUIT TERM
 
 	# Regenerate data for later cache validation.
-	mv -f $verbose cache/chroot/list{.new,}/init
-	mv -f $verbose cache/chroot/list{.new,}/build
-	rm -rf cache/chroot/package
-	mv -f $verbose cache/chroot/package{.new,}
-	mv -f $verbose cache/chroot/fakeroot-options{.new,}
+	mv -f $verbose "$cache_dir"/chroot/list{.new,}/init
+	mv -f $verbose "$cache_dir"/chroot/list{.new,}/build
+	rm -rf "$cache_dir"/chroot/package
+	mv -f $verbose "$cache_dir"/chroot/package{.new,}
+	mv -f $verbose "$cache_dir"/chroot/fakeroot-options{.new,}
 } # archive_chroot_cache
 
 check_chroot_cache()
@@ -69,23 +69,23 @@ check_chroot_cache()
 	[ -z "$no_cache" ] || return 0
 
 	local f n
-	local bad="cache/chroot/list.new/bad"
+	local bad="$cache_dir/chroot/list.new/bad"
 	rm -f "$bad"
-	cat cache/chroot/list.new/{init,build} |
+	cat "$cache_dir"/chroot/list.new/{init,build} |
 		while read f; do
 			[ -n "$f" ] || continue
 			n="${f##*/}"
-			if ! touch -r "$f" "cache/chroot/package.new/$n"; then
+			if ! touch -r "$f" "$cache_dir/chroot/package.new/$n"; then
 				printf %s\\n "$n" >"$bad"
 				break
 			fi
 		done
 	[ ! -f "$bad" ] || Fatal 'Failed to check chroot cache.'
 
-	printf %s "$save_fakeroot" >cache/chroot/fakeroot-options.new
+	printf %s "$save_fakeroot" >"$cache_dir/chroot/fakeroot-options.new"
 
 	while :; do
-		for f in cache/chroot/{rpmdb.tar,chroot.cpio}; do
+		for f in "$cache_dir"/chroot/{rpmdb.tar,chroot.cpio}; do
 			if [ ! -s "$f" ]; then
 				Verbose "Missing $f archive, invalidating chroot cache."
 				rebuild_chroot_cache=1
@@ -93,30 +93,30 @@ check_chroot_cache()
 			fi
 		done
 
-		if ! cmp -s cache/chroot/fakeroot-options{.new,}; then
+		if ! cmp -s "$cache_dir"/chroot/fakeroot-options{.new,}; then
 			Verbose 'Fakeroot options changed, invalidating chroot cache.'
 			rebuild_chroot_cache=1
 			break
 		fi
 
-		if ! cmp -s cache/chroot/list{.new,}/init; then
+		if ! cmp -s "$cache_dir"/chroot/list{.new,}/init; then
 			Verbose 'Init list changed, invalidating chroot cache.'
 			rebuild_chroot_cache=1
 			break
 		fi
 
-		if ! cmp -s cache/chroot/list{.new,}/build; then
+		if ! cmp -s "$cache_dir"/chroot/list{.new,}/build; then
 			Verbose 'Build list changed, invalidating chroot cache.'
 			rebuild_chroot_cache=1
 			break
 		fi
 
 		rm -f "$bad"
-		cat cache/chroot/list.new/{init,build} |
+		cat "$cache_dir"/chroot/list.new/{init,build} |
 			while read f; do
 				n="${f##*/}"
-				if [ "cache/chroot/package.new/$n" -nt "cache/chroot/package/$n" -o \
-				     "cache/chroot/package.new/$n" -ot "cache/chroot/package/$n" ]; then
+				if [ "$cache_dir/chroot/package.new/$n" -nt "$cache_dir/chroot/package/$n" -o \
+				     "$cache_dir/chroot/package.new/$n" -ot "$cache_dir/chroot/package/$n" ]; then
 					Verbose "package $n changed, invalidating chroot cache"
 					printf %s\\n "$n" >"$bad"
 					break
@@ -135,14 +135,14 @@ unpack_chroot_cache()
 	local f
 
 	# rpmdb
-	f="cache/chroot/rpmdb.tar"
+	f="$cache_dir/chroot/rpmdb.tar"
 	find aptbox/var/lib/rpm/ -mindepth 1 -delete
 	tar -xf "$f" -C aptbox/var/lib/rpm/ &&
 		Verbose "Unpacked $f." ||
 		Fatal "Unpack of $f failed."
-		
+
 	# chroot
-	f="cache/chroot/chroot.cpio"
+	f="$cache_dir/chroot/chroot.cpio"
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 	    chrootuid1 /.host/cpio --extract --make-directories --sparse --quiet <"$f" &&
 		Verbose "Unpacked $f." ||

@@ -32,8 +32,9 @@ Usage: $PROG [options] [<path-to-workdir>]
 
 Options:
   --excludedocs             do not install documentation files;
-  --hasher-priv-dir=DIR     hasher-priv directory;
+  --hasher-priv-dir=DIR     alternative hasher-priv directory;
   --install-langs=LI        colon-separated list of languages to install;
+  --cache-dir=DIR           alternative cache directory;
   --no-cache                do not use cache;
   --no-contents-indices     do not use content indices;
   --no-repackage-source     do not repackage source along with binaries;
@@ -55,7 +56,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o h,q,v,V -l cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -69,6 +70,8 @@ while :; do
 		--hasher-priv-dir)
 			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
 			shift
+			;;
+		--cache-dir) shift; cache_dir="$1"
 			;;
 		--install-langs) shift; install_langs="$1"
 			;;
@@ -135,11 +138,13 @@ fi
 
 [ -z "$save_fakeroot" ] || init_list="$init_list cpio"
 
-mkdir -p -m700 $verbose cache
+mkdir -p -m700 $verbose -- "$cache_dir"
+cache_dir="$(readlink -ev -- "$cache_dir")"
+
 rm -rf $verbose \
-	cache/chroot/{list,package}.new cache/contents/{list,index}.new
-mkdir -p -m700 $verbose cache/chroot/{list,package}{,.new}
-mkdir -p -m700 $verbose cache/contents/{list,index}{,.new}
+	"$cache_dir"/chroot/{list,package}.new "$cache_dir"/contents/{list,index}.new
+mkdir -p -m700 $verbose "$cache_dir"/chroot/{list,package}{,.new}
+mkdir -p -m700 $verbose "$cache_dir"/contents/{list,index}{,.new}
 
 check_helpers
 
@@ -197,10 +202,10 @@ else
 fi # $build_list
 
 if [ -z "$no_cache" ]; then
-	printf %s "$initlist" >cache/chroot/list.new/init
-	[ ! -s cache/chroot/list.new/init ] || echo >>cache/chroot/list.new/init
-	printf %s "$buildlist" >cache/chroot/list.new/build
-	[ ! -s cache/chroot/list.new/build ] || echo >>cache/chroot/list.new/build
+	printf %s "$initlist" >"$cache_dir/chroot/list.new/init"
+	[ ! -s "$cache_dir/chroot/list.new/init" ] || echo >>"$cache_dir/chroot/list.new/init"
+	printf %s "$buildlist" >"$cache_dir/chroot/list.new/build"
+	[ ! -s "$cache_dir/chroot/list.new/build" ] || echo >>"$cache_dir/chroot/list.new/build"
 fi
 
 . hsh-sh-cache-chroot-functions

@@ -30,7 +30,7 @@ archive_contents_cache()
 	local terminated=
 	trap 'terminated=1' HUP INT QUIT TERM
 
-	local contents_archive="cache/contents/contents_index_bin"
+	local contents_archive="$cache_dir/contents/contents_index_bin"
 	if install -p -m644 $verbose -- "$contents_index_bin" "$contents_archive" && [ -z "$terminated" ]; then
 		Verbose "archived contents index"
 	else
@@ -41,16 +41,16 @@ archive_contents_cache()
 	trap - HUP INT QUIT TERM
 
 	# Regenerate data for later cache validation.
-	mv -f $verbose cache/contents/list{.new,}/index
-	rm -rf $verbose cache/contents/index
-	mv -f $verbose cache/contents/index{.new,}
+	mv -f $verbose "$cache_dir"/contents/list{.new,}/index
+	rm -rf $verbose "$cache_dir"/contents/index
+	mv -f $verbose "$cache_dir"/contents/index{.new,}
 } # archive_contents_cache
 
 unpack_contents_cache()
 {
 	[ -z "$no_contents_indices" ] || return 0
 
-	local f=cache/contents/contents_index_bin
+	local f="$cache_dir/contents/contents_index_bin"
 	install -p -m644 $verbose -- "$f" \
 		"$contents_index_bin" &&
 		Verbose 'Unpacked contents index.' ||
@@ -86,18 +86,18 @@ check_contents_cache()
 
 	[ -z "$no_cache" ] || return 0
 
-	printf %s "$contents_index_list" >cache/contents/list.new/index
-	[ ! -s cache/contents/list.new/index ] || echo >>cache/contents/list.new/index
+	printf %s "$contents_index_list" >"$cache_dir/contents/list.new/index"
+	[ ! -s "$cache_dir/contents/list.new/index" ] || echo >>"$cache_dir/contents/list.new/index"
 
 	local f n
-	local bad="cache/contents/list.new/bad"
+	local bad="$cache_dir/contents/list.new/bad"
 	rm -f "$bad"
-	cat cache/contents/list.new/index |
+	cat "$cache_dir/contents/list.new/index" |
 		while read f; do
 			[ -n "$f" ] || continue
 			local n
 			n="$(printf %s "$f" |sed -e s,/,_,g)"
-			if ! touch -r "$f" "cache/contents/index.new/$n"; then
+			if ! touch -r "$f" "$cache_dir/contents/index.new/$n"; then
 				printf %s\\n "$n" >"$bad"
 				break
 			fi
@@ -105,25 +105,25 @@ check_contents_cache()
 	[ ! -f "$bad" ] || Fatal 'Failed to check contents cache.'
 
 	while :; do
-		if [ ! -s cache/contents/contents_index_bin ]; then
+		if [ ! -s "$cache_dir/contents/contents_index_bin" ]; then
 			Verbose 'Missing contents_index_bin archive, invalidating contents cache.'
 			rebuild_contents_cache=1
 			break
 		fi
 
-		if ! cmp -s cache/contents/list{.new,}/index; then
+		if ! cmp -s "$cache_dir"/contents/list{.new,}/index; then
 			Verbose 'Index list changed, invalidating contents cache.'
 			rebuild_contents_cache=1
 			break
 		fi
 
 		rm -f "$bad"
-		cat cache/contents/list.new/index |
+		cat "$cache_dir/contents/list.new/index" |
 			while read f; do
 				[ -n "$f" ] || continue
 				n="$(printf %s "$f" |sed -e s,/,_,g)"
-				if [ "cache/contents/index.new/$n" -nt "cache/contents/index/$n" -o \
-				     "cache/contents/index.new/$n" -ot "cache/contents/index/$n" ]; then
+				if [ "$cache_dir/contents/index.new/$n" -nt "$cache_dir/contents/index/$n" -o \
+				     "$cache_dir/contents/index.new/$n" -ot "$cache_dir/contents/index/$n" ]; then
 					Verbose "Index $n changed, invalidating contents cache."
 					printf %s\\n "$n" >"$bad"
 					break
@@ -175,13 +175,13 @@ create_contents()
 		return 0
 	fi
 
-	local tmpdir=cache/contents/tmp
+	local tmpdir="$cache_dir/contents/tmp"
 	rm -rf "$tmpdir"
 	mkdir -p "$tmpdir"
 	local bad="$tmpdir/bad"
 	local contents="$tmpdir/contents"
 
-	cat cache/contents/list.new/index 2>/dev/null |
+	cat "$cache_dir/contents/list.new/index" 2>/dev/null |
 		while read f; do
 			if ! egrep '^/((usr/)?bin|(usr/)?sbin|usr/X11R6/bin|etc)/' "$f"; then
 				Verbose "Failed to process contents index $f."

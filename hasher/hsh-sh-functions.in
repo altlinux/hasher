@@ -110,6 +110,10 @@ Helpify install_langs def_install_langs
 known_mountpoints=
 Helpify mountpoints known_mountpoints
 
+# override default cache directory $workdir/cache
+cache_dir=
+Helpify cache_dir
+
 # whether to use initroot cache
 no_cache=
 Helpify no_cache
@@ -308,6 +312,7 @@ set_workdir()
 	Verbose "changed working directory to \`$workdir'"
 	aptbox="$workdir/aptbox"
 	chroot="$workdir/chroot"
+	cache_dir="${cache_dir:-$workdir/cache}"
 	entry="$chroot/.host/entry"
 }
 
