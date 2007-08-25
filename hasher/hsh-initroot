@@ -141,10 +141,9 @@ fi
 mkdir -p -m700 $verbose -- "$cache_dir"
 cache_dir="$(readlink -ev -- "$cache_dir")"
 
-rm -rf $verbose \
-	"$cache_dir"/chroot/{list,package}.new "$cache_dir"/contents/{list,index}.new
+rm -rf $verbose "$cache_dir"/chroot/{list,package}.new
 mkdir -p -m700 $verbose "$cache_dir"/chroot/{list,package}{,.new}
-mkdir -p -m700 $verbose "$cache_dir"/contents/{list,index}{,.new}
+mkdir -p -m700 $verbose "$cache_dir"/contents
 
 check_helpers
 
@@ -248,12 +247,13 @@ __EOF__
 fi
 
 . hsh-sh-cache-contents-functions
-check_contents_cache
-
-if [ -n "$no_cache" -o -n "$rebuild_contents_cache" ]; then
+if [ -n "$no_contents_indices" ]; then
+	contents_index_bin=
+	contents_index_all=
+elif [ -n "$no_cache" ]; then
 	create_contents
 else
-	unpack_contents_cache
+	update_contents
 fi
 
 if [ -n "$build_list" ]; then
@@ -272,7 +272,8 @@ cat >>/usr/src/.rpmmacros <<\EOF
 %buildhost ${USER:-`id -nu`}.hasher.altlinux.org
 %__BTE hasher
 %__nprocs $nprocs
-${contents_index_bin:+%_pkg_contents_index_bin /.host/contents_index_bin}
+${contents_index_bin:+%_pkg_contents_index_bin /.host/${contents_index_bin##*/}}
+${contents_index_all:+%_pkg_contents_index_all /.host/${contents_index_all##*/}}
 %_rpmbuild_clean 0
 ${repackage_source:+%_rpmbuild_packagesource 1}
 EOF

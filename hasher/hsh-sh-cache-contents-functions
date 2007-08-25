@@ -1,8 +1,17 @@
 #!/bin/sh -ef
 #
 # Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2007       Alexey Tourbin <at@altlinux.org>
 # 
 # The contents cache functions for the hsh-initroot
+#
+# This file provides two top-level entry points: create_contents()
+# and update_contents().  The former always rebuilds the contents
+# form scratch, while the latter possibly reuses the cache.  After
+# either of these functions is called, the contents_index_bin and
+# contents_index_all global variables set to valid pathnames (however,
+# if there is no single sources.list repo that provides contents_index
+# file, the variables are set to null).
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,193 +28,177 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-rebuild_contents_cache=
+# Quick protection against unintended filesystem changes.
+[ -d "$cache_dir/contents" ] ||
+	Fatal "Internal error: cache/contents directory not set up."
+
+# Find contents_index files corresponding to sources.list repositories.
 contents_index_list=
-contents_index_bin=chroot/.host/contents_index_bin
-
-archive_contents_cache()
+init_contents_index_list()
 {
-	[ -z "$no_contents_indices" -a -n "$rebuild_contents_cache" ] || return 0
-
-	local terminated=
-	trap 'terminated=1' HUP INT QUIT TERM
-
-	local contents_archive="$cache_dir/contents/contents_index_bin"
-	if install -p -m644 $verbose -- "$contents_index_bin" "$contents_archive" && [ -z "$terminated" ]; then
-		Verbose "archived contents index"
+	contents_index_list="$(awk '
+		(NF==4 && $1=="rpm"){printf("%s/%s/base/contents_index\n",$2,$3)}
+		(NF==5 && $1=="rpm"){printf("%s/%s/base/contents_index\n",$3,$4)}
+		' <aptbox/etc/apt/sources.list |
+			while IFS=: read uri_scheme f; do
+				[ -r "$f" ] || continue
+				printf %s\\n "$f"
+			done)"
+	if [ -n "$contents_index_list" ]; then
+		Verbose 'Initialized contents index list.'
 	else
-		rm -f -- "$contents_archive"
-		Fatal 'Archiving of contents index failed.'
+		Verbose "No contents indices available, nothing to do."
+		contents_index_bin=
+		contents_index_all=
+	fi
+}
+
+# Create list.new/ and index.new/ state.
+create_contents_state()
+{
+	rm -rf "$cache_dir/contents/list.new"
+	mkdir $verbose "$cache_dir/contents/list.new"
+	printf %s\\n "$contents_index_list" >"$cache_dir/contents/list.new/index"
+
+	rm -rf "$cache_dir/contents/index.new"
+	mkdir $verbose "$cache_dir/contents/index.new"
+
+	local f f_mangled
+	while read f; do
+		f_mangled="$(printf %s "$f" |sed -e s,/,_,g)"
+		touch -r "$f" "$cache_dir/contents/index.new/$f_mangled" ||
+			Fatal "Failed to access contents index $f."
+	done <"$cache_dir/contents/list.new/index"
+}
+
+# Compare {list,index}.new/ state with previous {list,index}/ state.
+# Also check that contents_index files are present.
+rebuild_contents_cache=
+validate_contents_cache()
+{
+	if [ ! -s "$cache_dir/contents/contents_index_bin" ]; then
+		Verbose 'Missing contents_index_bin archive, invalidating contents cache.'
+		rebuild_contents_cache=1
+		return
 	fi
 
-	trap - HUP INT QUIT TERM
+	if [ ! -s "$cache_dir/contents/contents_index_all" ]; then
+		Verbose 'Missing contents_index_all archive, invalidating contents cache.'
+		rebuild_contents_cache=1
+		return
+	fi
 
-	# Regenerate data for later cache validation.
-	mv -f $verbose "$cache_dir"/contents/list{.new,}/index
-	rm -rf $verbose "$cache_dir"/contents/index
-	mv -f $verbose "$cache_dir"/contents/index{.new,}
-} # archive_contents_cache
+	if ! cmp -s "$cache_dir"/contents/list{.new,}/index; then
+		Verbose 'Index list changed, invalidating contents cache.'
+		rebuild_contents_cache=1
+		return
+	fi
 
-unpack_contents_cache()
+	local f f_mangled
+	while read f; do
+		f_mangled="$(printf %s "$f" |sed -e s,/,_,g)"
+		if [ "$cache_dir/contents/index.new/$f_mangled" -nt \
+		     "$cache_dir/contents/index/$f_mangled" -o \
+		     "$cache_dir/contents/index.new/$f_mangled" -ot \
+		     "$cache_dir/contents/index/$f_mangled" ]; then
+			Verbose "Index $f changed, invalidating contents cache."
+			rebuild_contents_cache=1
+			return
+		fi
+	done <"$cache_dir/contents/list.new/index"
+
+	Verbose "Contents cache is up to date."
+	rebuild_contents_cache=
+}
+
+# Create contents_index_bin and contents_index_all files;
+# also set up contents_index_bin contents_index_all variables.
+contents_index_bin_dirs=/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/etc
+create_contents_data()
 {
-	[ -z "$no_contents_indices" ] || return 0
+	rm -rf "$cache_dir/contents/tmp"
+	mkdir "$cache_dir/contents/tmp"
+	local contents="$cache_dir/contents/tmp/contents"
 
-	local f="$cache_dir/contents/contents_index_bin"
-	install -p -m644 $verbose -- "$f" \
-		"$contents_index_bin" &&
-		Verbose 'Unpacked contents index.' ||
-		Fatal 'Unpacking of contents index failed.'
-} # unpack_contents_cache
-
-make_contents_index_list()
-{
-	[ -z "$no_contents_indices" ] || return 0
-
-	contents_index_list="$(
 	local f
-	awk '
-/^rpm[[:space:]]/ {
-	if(NF==4){printf("%s/%s/base/contents_index\n",$2,$3);next}
-	if(NF==5){printf("%s/%s/base/contents_index\n",$3,$4);next}
-}' <aptbox/etc/apt/sources.list |
-		cut -d: -f2- |while read f; do
-			[ -r "$f" ] || continue
-			printf %s\\n "$f"
-		done
-	)"
-	contents_index_list="$(printf %s "$contents_index_list" |grep -v '^$' ||:)"
+	while read f; do
+		grep '^/' "$f" ||
+			Fatal "Failed to process contents index $f."
+	done <"$cache_dir/contents/list.new/index" >"$contents"
+
+	# sort (path,pkg)
+	LC_COLLATE=C sort -k1,1 -k2,2 -u -o "$contents" "$contents"
+
+	# (path,pkg) -> (pkg,path)
+	awk '{print$2,$1}' "$contents" |
+		# (pkg,path) -> (n_path,pkg0,path)
+		uniq -c -f1 |
+		# if (n_path > 1) -> (path,path) else -> (path,pkg0)
+		awk '($1>1){$2=$3}{print$3"\t"$2}' >"$contents".sorted
+	mv -f "$contents".sorted "$contents"
+	[ -s "$contents" ] ||
+		Fatal "Failed to process contents indices."
+
+	local dir
+	for dir in $(IFS=:; echo $contents_index_bin_dirs); do
+		grep ^"${dir%/}"/ "$contents" || [ $? -eq 1 ]
+	done >"$contents.bin"
+	[ -s "$contents.bin" ] ||
+		Fatal "Failed to generate non-empty contents_index_bin."
+
+	contents_index_bin=chroot/.host/contents_index_bin
+	contents_index_all=chroot/.host/contents_index_all
+	mv "$contents.bin" "$contents_index_bin"
+	mv "$contents" "$contents_index_all"
+	chmod 644 "$contents_index_bin" "$contents_index_all"
+	Verbose 'Prepared contents index.'
+	rm -rf "$cache_dir/contents/tmp"
 }
 
-check_contents_cache()
+# Save data files from chroot/.host/ host to "$cache_dir"/contents/;
+# also rotate {list,index}.new/ state.
+archive_contents()
 {
-	[ -z "$no_contents_indices" ] || return 0
-
-	make_contents_index_list &&
-		Verbose 'Created contents index list.' ||
-		Fatal 'Failed to create contents index list.'
-
-	[ -z "$no_cache" ] || return 0
-
-	printf %s "$contents_index_list" >"$cache_dir/contents/list.new/index"
-	[ ! -s "$cache_dir/contents/list.new/index" ] || echo >>"$cache_dir/contents/list.new/index"
-
-	local f n
-	local bad="$cache_dir/contents/list.new/bad"
-	rm -f "$bad"
-	cat "$cache_dir/contents/list.new/index" |
-		while read f; do
-			[ -n "$f" ] || continue
-			local n
-			n="$(printf %s "$f" |sed -e s,/,_,g)"
-			if ! touch -r "$f" "$cache_dir/contents/index.new/$n"; then
-				printf %s\\n "$n" >"$bad"
-				break
-			fi
-		done
-	[ ! -f "$bad" ] || Fatal 'Failed to check contents cache.'
-
-	while :; do
-		if [ ! -s "$cache_dir/contents/contents_index_bin" ]; then
-			Verbose 'Missing contents_index_bin archive, invalidating contents cache.'
-			rebuild_contents_cache=1
-			break
-		fi
-
-		if ! cmp -s "$cache_dir"/contents/list{.new,}/index; then
-			Verbose 'Index list changed, invalidating contents cache.'
-			rebuild_contents_cache=1
-			break
-		fi
-
-		rm -f "$bad"
-		cat "$cache_dir/contents/list.new/index" |
-			while read f; do
-				[ -n "$f" ] || continue
-				n="$(printf %s "$f" |sed -e s,/,_,g)"
-				if [ "$cache_dir/contents/index.new/$n" -nt "$cache_dir/contents/index/$n" -o \
-				     "$cache_dir/contents/index.new/$n" -ot "$cache_dir/contents/index/$n" ]; then
-					Verbose "Index $n changed, invalidating contents cache."
-					printf %s\\n "$n" >"$bad"
-					break
-				fi
-			done
-		if [ -f "$bad" ]; then
-			rebuild_contents_cache=1
-			break
-		fi
-		break
-	done
-} # check_contents_cache
-
-prepare_contents()
-{
-	local tmpdir
-	tmpdir="$1"
-	shift
-
-	local contents="$tmpdir/contents"
-	local dups="$tmpdir/dups"
-	local uniq="$tmpdir/uniq"
-	local index="$tmpdir/index"
-
-	# find dups.
-	cut -f1 <"$contents" |
-		uniq -c |
-		awk '{if ($1 != "1") printf("%s\t%s\n",$2,$2)}' >"$dups"
-
-	# find uniquie lines.
-	cut -f1 "$dups" |
-		join -v1 "$contents" - |
-		tr -s ' ' '\t' >"$uniq"
-
-	sort -u "$dups" "$uniq" >"$index"
-
-	grep '^/bin/' "$index" || [ $? -eq 1 ]
-	grep '^/usr/bin/' "$index" || [ $? -eq 1 ]
-	grep '^/sbin/' "$index" || [ $? -eq 1 ]
-	grep '^/usr/sbin/' "$index" || [ $? -eq 1 ]
-	grep '^/usr/X11R6/bin/' "$index" || [ $? -eq 1 ]
-	grep '^/etc/' "$index" || [ $? -eq 1 ]
+	rm -rf "$cache_dir"/contents/{index,list}
+	ln -f $verbose chroot/.host/contents_index_bin "$cache_dir/contents/contents_index_bin"
+	ln -f $verbose chroot/.host/contents_index_all "$cache_dir/contents/contents_index_all"
+	mv $verbose "$cache_dir"/contents/index{.new,}
+	mv $verbose "$cache_dir"/contents/list{.new,}
+	Verbose "Archived contents index."
 }
 
+# Copy data files from "$cache_dir"/contents/ to chroot/.host/.
+# also set up contents_index_bin contents_index_all variables.
+unpack_contents()
+{
+	contents_index_bin=chroot/.host/contents_index_bin
+	contents_index_all=chroot/.host/contents_index_all
+	ln -f $verbose "$cache_dir/contents/contents_index_bin" "$contents_index_bin"
+	ln -f $verbose "$cache_dir/contents/contents_index_all" "$contents_index_all"
+	Verbose 'Unpacked contents index.'
+}
+
+# Entry point: do whatever is needed, always rebuilding contents from scratch.
 create_contents()
 {
-	if [ -n "$no_contents_indices" ]; then
-		contents_index_bin=
-		return 0
-	fi
+	init_contents_index_list
+	[ -n "$contents_index_list" ] || return 0
+	create_contents_state
+	create_contents_data
+	archive_contents
+}
 
-	local tmpdir="$cache_dir/contents/tmp"
-	rm -rf "$tmpdir"
-	mkdir -p "$tmpdir"
-	local bad="$tmpdir/bad"
-	local contents="$tmpdir/contents"
-
-	cat "$cache_dir/contents/list.new/index" 2>/dev/null |
-		while read f; do
-			if ! egrep '^/((usr/)?bin|(usr/)?sbin|usr/X11R6/bin|etc)/' "$f"; then
-				Verbose "Failed to process contents index $f."
-				printf %s\\n "$f" >"$bad"
-				break
-			fi
-		done >"$contents"
-
-	if [ -f "$bad" ]; then
-		rm -rf "$tmpdir"
-		Fatal 'Failed to create contents index.'
-	fi
-
-	if ! LC_COLLATE=C prepare_contents "$tmpdir" >"$contents_index_bin"; then
-		rm -rf "$tmpdir"
-		Fatal 'Failed to prepare contents index.'
-	fi
-	rm -rf "$tmpdir"
-	Verbose 'Prepared contents index.'
-
-	if [ -s "$contents_index_bin" ]; then
-		chmod 644 "$contents_index_bin"
-		archive_contents_cache
+# Entry point: do whatever is needed, possibly reusing the cache.
+update_contents()
+{
+	init_contents_index_list
+	[ -n "$contents_index_list" ] || return 0
+	create_contents_state
+	validate_contents_cache
+	if [ -n "$rebuild_contents_cache" ]; then
+		create_contents_data
+		archive_contents
 	else
-		contents_index_bin=
+		unpack_contents
 	fi
 }
