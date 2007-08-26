@@ -1,6 +1,7 @@
 #!/bin/sh -ef
 #
 # Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2007  Kirill A. Shutemov <kas@altlinux.org>
 # 
 # The hsh-mkchroot utility for the hasher project
 #

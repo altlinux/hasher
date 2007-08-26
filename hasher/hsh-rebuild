@@ -1,6 +1,7 @@
 #!/bin/sh -ef
 #
 # Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2006  Alexey Gladkov <legion@altlinux.org>
 # 
 # The hsh-rebuild utility for the hasher project
 #

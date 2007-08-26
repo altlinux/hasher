@@ -1,6 +1,8 @@
 #!/bin/sh -ef
 #
 # Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2006  Alexey Gladkov <legion@altlinux.org>
+# Copyright (C) 2007  Alex V. Myltsev <avm@altlinux.org>
 # 
 # The mkaptbox utility for the hasher project
 #
