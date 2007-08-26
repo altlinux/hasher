@@ -137,7 +137,7 @@ unpack_chroot_cache()
 
 	# rpmdb
 	f="$cache_dir/chroot/rpmdb.tar"
-	find aptbox/var/lib/rpm/ -mindepth 1 -delete
+	find aptbox/var/lib/rpm/ -mindepth 1 -depth -delete
 	tar -xf "$f" -C aptbox/var/lib/rpm/ &&
 		Verbose "Unpacked $f." ||
 		Fatal "Unpack of $f failed."
