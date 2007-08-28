@@ -28,7 +28,7 @@ calc_check_install_build_deps()
 		      chrootuid2)" &&
 		Verbose "$sname: fetched build dependencies." ||
 		Fatal "$sname: failed to fetch build dependencies."
-	build_deps="$(printf %s "$build_deps" |grep -v '^rpmlib(' |LC_ALL=C tr -d [[:blank:]])"
+	build_deps="$(printf %s "$build_deps" |LC_ALL=C grep -v '^rpmlib(' |LC_ALL=C tr -d [[:blank:]])"
 	Verbose "$sname: calculated build dependencies: $(printf %s "$build_deps" |tr -s '[:space:]' ' ')"
 
 	local bad_deps
@@ -205,7 +205,7 @@ calculate_required_mountpoints()
 
 	local deps file_deps mpoint
 
-	deps="$(printf %s "$1" |grep ^/ |LC_ALL=C tr -d '[[:blank:]]' |LC_ALL=C sort -u)"
+	deps="$(printf %s "$1" |LC_ALL=C grep ^/ |LC_ALL=C tr -d '[[:blank:]]' |LC_ALL=C sort -u)"
 
 	for file_deps in ${deps}; do
 		for mpoint in $(printf %s "$known_mountpoints" |tr -s , ' '); do

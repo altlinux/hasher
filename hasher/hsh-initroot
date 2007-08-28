@@ -162,11 +162,11 @@ uid2="$(printf %s "$ugid2" |cut -d: -f1)"
 gid2="$(printf %s "$ugid2" |cut -d: -f2)"
 
 [ -n "$nprocs" ] ||
-	nprocs="$(N=`egrep -cs ^cpu[0-9]+ /proc/stat ||:`; [ "$N" -gt 0 ] 2>/dev/null && printf %s "$N" || echo 1)"
+	nprocs="$(N=`LC_ALL=C egrep -cs ^cpu[0-9]+ /proc/stat ||:`; [ "$N" -gt 0 ] 2>/dev/null && printf %s "$N" || echo 1)"
 
 check_tty
 
-init_list=`printf %s "$init_list" |tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//'`
+init_list=`printf %s "$init_list" |LC_ALL=C tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//'`
 [ -n "$init_list" ] ||
 	Fatal 'Initial package file list is empty, cannot setup chroot.'
 
@@ -177,22 +177,22 @@ initlist="$(print_uris $init_list)" ||
 	Fatal 'Failed to generate non-empty initial package file list; check your sources.list'
 
 # reorder to get setup and filesystem first.
-initlist="$(printf %s "$initlist" |grep '/setup[-_]' ||:)
-$(printf %s "$initlist" |grep '/filesystem[-_]' ||:)
-$(printf %s "$initlist" |egrep -v '/(setup|filesystem)[-_]' ||:)"
-initlist="$(printf %s "$initlist" |grep -v '^$' ||:)"
+initlist="$(printf %s "$initlist" |LC_ALL=C grep '/setup[-_]' ||:)
+$(printf %s "$initlist" |LC_ALL=C grep '/filesystem[-_]' ||:)
+$(printf %s "$initlist" |LC_ALL=C egrep -v '/(setup|filesystem)[-_]' ||:)"
+initlist="$(printf %s "$initlist" |LC_ALL=C grep -v '^$' ||:)"
 
-build_list=`printf %s "$build_list" |tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//'`
+build_list=`printf %s "$build_list" |LC_ALL=C tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//'`
 if [ -n "$build_list" ]; then
 	buildlist="$(print_uris $build_list)" ||
 		Fatal 'Failed to generate build package file list.'
 	buildlist="$(
 		printf %s\\n "$buildlist" |while read bp; do
 			[ -n "$bp" ] || continue
-			printf %s "$initlist" |grep -qs "^$bp\$" || printf %s\\n "$bp"
+			printf %s "$initlist" |LC_ALL=C grep -qs "^$bp\$" || printf %s\\n "$bp"
 		done
 	)"
-	buildlist="$(printf %s "$buildlist" |grep -v '^$' ||:)"
+	buildlist="$(printf %s "$buildlist" |LC_ALL=C grep -v '^$' ||:)"
 	[ -n "$buildlist" ] &&
 		Verbose 'Generated build package file list.' ||
 		Fatal 'Failed to generate non-empty build package file list; check your sources.list'

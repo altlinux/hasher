@@ -306,7 +306,7 @@ set_workdir()
 
 	[ -n "$(printf %s "$workdir" |tr -d /.)" ] ||
 		Fatal "$workdir: illegal working directory."
-	if printf %s "$workdir" |grep -qs '[`"$\]'; then
+	if printf %s "$workdir" |LC_ALL=C grep -qs '[`"$\]'; then
 		Fatal "$workdir: illegal symbols in pathname."
 	fi
 	[ -w . ] || Fatal "$workdir: unwritable working directory."
@@ -650,7 +650,7 @@ print_uris()
 			Fatal 'failed to calculate local package file list.'
 		fi
 
-		if ! cached_uris="$(printf %s "$out" |grep ^/)" || [ -z "$cached_uris" ]; then
+		if ! cached_uris="$(printf %s "$out" |LC_ALL=C grep ^/)" || [ -z "$cached_uris" ]; then
 			printf %s\\n "$out" >&2
 			Fatal 'failed to calculate local package file list.'
 		fi

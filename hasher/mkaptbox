@@ -163,7 +163,7 @@ else
 	[ -d "$apt_prefix" ] ||
 		Fatal "$apt_prefix: directory not available."
 
-	if printf %s "$apt_prefix" |grep -qs '[`"$\]'; then
+	if printf %s "$apt_prefix" |LC_ALL=C grep -qs '[`"$\]'; then
 		Fatal "$apt_prefix: illegal symbols in apt prefix."
 	fi
 
@@ -183,7 +183,7 @@ else
 		eval "$var=\"$(quote_arg "$prog")\""
 	done
 fi
-if printf %s "$apt_libdir" |grep -qs '[`"$\]'; then
+if printf %s "$apt_libdir" |LC_ALL=C grep -qs '[`"$\]'; then
 	Fatal "$LD_LIBRARY_PATH: illegal symbols in LD_LIBRARY_PATH."
 fi
 
@@ -195,7 +195,7 @@ current_arch="$(printf %s "$rpm_showrc" |sed -ne 's/^install arch[[:space:]]*:[[
 	current_arch="$(uname -m)"
 if [ "$current_arch" != "${target:-$def_target}" ] &&
    ! printf %s "$rpm_showrc" |
-     grep -qs "^compatible archs[[:space:]]*:.*\<${target:-$def_target}\>"; then
+     LC_ALL=C grep -qs "^compatible archs[[:space:]]*:.*\<${target:-$def_target}\>"; then
 	aptbox_home="$aptbox/home/user"
 	for f in "$HOME/.rpmrc" "$HOME/.rpmmacros"; do
 		[ ! -f "$f" ] ||
@@ -265,7 +265,7 @@ Verbose "Created APT configuration file \`$apt_config_file'."
 target_config="./etc/apt/sources.list"
 cat >"$target_config" <<__EOF__
 ${no_stuff:+#}rpm file:${repo:-$workdir/$def_repo} ${target:-$def_target} hasher
-$(grep '^[^#]' "$sl_value")
+$(LC_ALL=C grep '^[^#]' "$sl_value")
 __EOF__
 Verbose "Created APT source list file \`$target_config'."
 

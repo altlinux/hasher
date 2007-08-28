@@ -122,7 +122,7 @@ create_contents_data()
 
 	local f
 	while read f; do
-		grep '^/' "$f" ||
+		LC_ALL=C grep '^/' "$f" ||
 			Fatal "Failed to process contents index $f."
 	done <"$cache_dir/contents/list.new/index" >"$contents"
 
@@ -141,7 +141,7 @@ create_contents_data()
 
 	local dir
 	for dir in $(IFS=:; echo $contents_index_bin_dirs); do
-		grep ^"${dir%/}"/ "$contents" || [ $? -eq 1 ]
+		LC_ALL=C grep ^"${dir%/}"/ "$contents" || [ $? -eq 1 ]
 	done >"$contents.bin"
 	[ -s "$contents.bin" ] ||
 		Fatal "Failed to generate non-empty contents_index_bin."

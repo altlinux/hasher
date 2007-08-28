@@ -38,8 +38,8 @@ archive_chroot_cache()
 
 	# chroot
 	local list
-	list=`ls -1 chroot/ |grep -v ^dev` && [ -n "$list" ] &&
-		list=`printf %s "$list" |tr '[:space:]' ' '` ||
+	list=`ls -1 chroot/ |LC_ALL=C grep -v ^dev` && [ -n "$list" ] &&
+		list=`printf %s "$list" |LC_ALL=C tr '[:space:]' ' '` ||
 		Fatal 'Chroot is not ready for archivation.'
 
 	create_entry_fakeroot_header

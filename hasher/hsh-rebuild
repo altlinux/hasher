@@ -220,7 +220,7 @@ fi
 if [ -z "$nodeps" -a -n "$known_mountpoints" ]; then
 	create_entry_header
 	cat >>"$entry" <<__EOF__
-rpmquery -aR |grep ^/ |LC_ALL=C tr -d '[[:blank:]]' |sort -u
+rpmquery -aR |LC_ALL=C grep ^/ |LC_ALL=C tr -d '[[:blank:]]' |sort -u
 __EOF__
 
 	deps="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
@@ -238,7 +238,7 @@ run_rebuild
 run_sisyphus_check '/.out' "$no_sisyphus_check_out" gpg
 
 # Copy binaries from chroot.
-case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |grep -c '\.src\.rpm$'` in
+case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |LC_ALL=C grep -c '\.src\.rpm$'` in
 	0) subdir=.in ;;
 	1) subdir=.out ;;
 	*) Fatal 'Too many src.rpm files written.' ;;
