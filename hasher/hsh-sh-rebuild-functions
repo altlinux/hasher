@@ -54,7 +54,7 @@ make_srpm_from_pkgtar()
 		cat >chroot/.host/filter_spec_buildreq <<\__EOF__
 #!/bin/sh -ef
 tr -s '[:blank:],' ' ' |
-	while read; do
+	while read REPLY; do
 		set -- $REPLY
 		while [ -n "$1" ]; do
 			case "$2" in
