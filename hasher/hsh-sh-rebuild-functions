@@ -85,6 +85,13 @@ sed '/^buildrequires(pre):[[:space:]]*/I!d;s///' "\$HOME/in/spec"/* |
 __EOF__
 		calc_check_install_build_deps
 
+		local buildreq_helper
+		buildreq_helper="$(type -p hsh-buildreq-filter)" &&
+			[ -r "$buildreq_helper" ] ||
+			fatal "hsh-buildreq-filter: Not available"
+
+		install -p -m755 $verbose "$buildreq_helper" chroot/.host/hsh-buildreq-filter
+
 		# Calculate, check and install other build dependencies.
 		create_entry_header
 		cat >>"$entry" <<__EOF__
@@ -95,7 +102,7 @@ spec="\$(rpmbuild -bE \\
 	--define "_sourcedir \$HOME/in/source" \\
 	-- "\$HOME/in/spec"/*)" || exit
 printf %s "\$spec" |
-	sed '/^\\(buildrequires\\|buildprereq\\)\\(([^[:space:]):]*)\\)\\?:[[:space:]]*/I!d;s///' |
+	/.host/hsh-buildreq-filter |
 	/.host/filter_spec_buildreq
 __EOF__
 		calc_check_install_build_deps

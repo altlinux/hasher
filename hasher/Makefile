@@ -22,6 +22,7 @@ PROJECT = hasher
 VERSION = $(shell sed '/^Version: */!d;s///;q' hasher.spec)
 ALIASES = hsh-shell
 AUTO_FUNCTIONS = hsh-sh-functions
+FILTERS = hsh-buildreq-filter
 FUNCTIONS = $(AUTO_FUNCTIONS) hsh-sh-cache-chroot-functions hsh-sh-cache-contents-functions hsh-sh-rebuild-functions
 PROGRAMS = hsh hsh-fakedev hsh-initroot hsh-install hsh-mkchroot hsh-rebuild hsh-rmchroot hsh-run mkaptbox
 MAN1PAGES = $(PROGRAMS:=.1) $(ALIASES:=.1)
@@ -87,7 +88,7 @@ html: $(HTMLPAGES)
 
 install: all
 	$(MKDIR_P) -m755 $(DESTDIR)$(bindir)
-	$(INSTALL) -pm755 $(PROGRAMS) $(FUNCTIONS) $(DESTDIR)$(bindir)/
+	$(INSTALL) -pm755 $(FILTERS) $(FUNCTIONS) $(PROGRAMS) $(DESTDIR)$(bindir)/
 
 	$(MKDIR_P) -m755 $(DESTDIR)$(man1dir)
 	$(INSTALL) -pm644 $(MAN1PAGES) $(DESTDIR)$(man1dir)/
