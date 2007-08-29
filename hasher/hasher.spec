@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.2.5
+Version: 1.2.6
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -43,6 +43,21 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Wed Aug 29 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.6-alt1
+- hsh-fakedev, hsh-sh-functions.in, mkaptbox:
+  Secured readlink(1) usage (ldv).
+- Added qemu support (kas).
+- mkaptbox:
+  Added setarch to apt wrappers (ldv).
+- cache-contents-functions:
+  Refactored; introduced contents_index_all (at).
+- Implemented alternative cache directory support (legion, ldv).
+- hsh-sh-functions.in (lock_workdir):
+  Rewritten locking using lock files (ldv).
+- Run grep in C locale to speedup grep calls (ldv).
+- hsh-sh-rebuild-functions:
+  Fixed pkg.tar build deps filter (legion, ldv).
+
 * Mon May 21 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.5-alt1
 - hsh-initroot: Do not pass --nodeps option to rpmi
   unless some packages were filtered out (avm).
