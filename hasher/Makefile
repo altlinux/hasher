@@ -23,7 +23,7 @@ VERSION = $(shell sed '/^Version: */!d;s///;q' hasher.spec)
 ALIASES = hsh-shell
 AUTO_FUNCTIONS = hsh-sh-functions
 FUNCTIONS = $(AUTO_FUNCTIONS) hsh-sh-cache-chroot-functions hsh-sh-cache-contents-functions hsh-sh-rebuild-functions
-PROGRAMS = hsh hsh-initroot hsh-install hsh-fakedev hsh-mkchroot hsh-rebuild hsh-rmchroot hsh-run mkaptbox
+PROGRAMS = hsh hsh-fakedev hsh-initroot hsh-install hsh-mkchroot hsh-rebuild hsh-rmchroot hsh-run mkaptbox
 MAN1PAGES = $(PROGRAMS:=.1) $(ALIASES:=.1)
 MAN7PAGES = $(PROJECT).7
 MANPAGES = $(MAN1PAGES) $(MAN7PAGES)
