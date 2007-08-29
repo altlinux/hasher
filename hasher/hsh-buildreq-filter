@@ -1,0 +1,22 @@
+#!/bin/awk -f
+
+BEGIN {
+	skip = 0
+	IGNORECASE = 1
+}
+
+# Taken from rpm/build/parseSpec.c
+/^%(build|changelog|check|clean|description|files|install|post|posttrans|postun|pre|prep|pretrans|preun|trigger|triggerin|triggerpostun|triggerprein|triggerun|verifyscript)/ {
+	skip = 1
+	next
+}
+
+/%package/ {
+	skip = 0
+	next
+}
+
+!skip && /^(buildrequires|buildprereq)(\([^[:space:]):]+\))?[[:space:]]*:/ {
+	gsub(/^(buildrequires|buildprereq)(\([^[:space:]):]+\))?[[:space:]]*:[[:space:]]*/, "")
+	print
+}
