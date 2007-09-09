@@ -35,6 +35,7 @@ Options:
   --args=ARGS                       extra arguments for rpmbuild;
   --excludedocs                     do not install documentation files;
   --hasher-priv-dir=DIR             hasher-priv directory;
+  --install-only                    do not build, stop after installing build dependencies;
   --mountpoints=LIST                comma-separated list of known mount points;
   --nodeps                          ignore package dependencies (dangerous);
   --no-sisyphus-check-in[=LIST]     do not run sisyphus_check input tests [specified in LIST];
@@ -64,11 +65,12 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l args:,excludedocs,hasher-priv-dir:,mountpoints:,nodeps,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,save-fakeroot,source-only,target:,without-stuff,with-stuff,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o h,q,v,V -l args:,excludedocs,hasher-priv-dir:,install-only,mountpoints:,nodeps,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,save-fakeroot,source-only,target:,without-stuff,with-stuff,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
 nodeps=
+install_only=
 source_only=
 while :; do
 	case "$1" in
@@ -79,6 +81,8 @@ while :; do
 		--hasher-priv-dir)
 			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
 			shift
+			;;
+		--install-only) install_only=1
 			;;
 		--mountpoints) shift; known_mountpoints="$1"
 			;;
@@ -235,6 +239,8 @@ __EOF__
 		Fatal "$sname: failed to fetch installed file dependencies."
 	calculate_required_mountpoints "$deps"
 fi
+
+[ -z "$install_only" ] || exit 0
 
 # Build the package.
 purge_chroot_out
