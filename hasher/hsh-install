@@ -143,7 +143,7 @@ if [ -x /.host/postin ]; then
 fi
 __EOF__
 
-chrootuid1 &&
+chrootuid1 </dev/null &&
 	Verbose 'Packages installation complete.' ||
 	Fatal 'Packages installation failed.'
 

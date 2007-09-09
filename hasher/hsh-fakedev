@@ -230,6 +230,6 @@ sed -i 's/,ino=$tmp_inode,/,ino=$dev_inode,/' /.fakedata
 __EOF__
 chmod 755 "$entry"
 
-chrootuid1 &&
+chrootuid1 </dev/null &&
 	Verbose 'Fake device creation complete.' ||
 	Fatal 'Fake device creation failed.'

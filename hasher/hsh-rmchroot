@@ -113,12 +113,12 @@ __EOF__
 chmod 755 .host/entry
 
 wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
-    chrootuid2 &&
+    chrootuid2 </dev/null &&
 	Verbose 'Removed files owned by user2.' ||
 	Fatal 'Failed to remove files owned by user2.'
 
 wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
-    chrootuid1 &&
+    chrootuid1 </dev/null &&
 	Verbose 'Removed files owned by user1.' ||
 	Fatal 'Failed to remove files owned by user1.'
 

@@ -224,7 +224,7 @@ if [ -n "$save_fakeroot" ]; then
 rmdir $verbose /proc /sys
 __EOF__
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
-	    chrootuid1 &&
+	    chrootuid1 </dev/null &&
 		Verbose "Removed old mount points." ||
 		Fatal "Failed to remove old mount points."
 else
@@ -242,7 +242,7 @@ if [ -n "$save_fakeroot" ]; then
 chgrp $verbose proc /proc
 __EOF__
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
-	    chrootuid1 &&
+	    chrootuid1 </dev/null &&
 		Verbose 'Updated faked /proc permissions.' ||
 		Fatal 'Failed to update faked /proc permissions.'
 fi
@@ -281,7 +281,7 @@ EOF
 __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-	    chrootuid2 &&
+	    chrootuid2 </dev/null &&
 		Verbose "Created RPM build directory tree." ||
 		Fatal 'Failed to create RPM build directory tree.'
 fi # $build_list

@@ -234,7 +234,7 @@ rpmquery -aR |LC_ALL=C grep ^/ |LC_ALL=C tr -d '[[:blank:]]' |sort -u
 __EOF__
 
 	deps="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-		    chrootuid2)" &&
+		    chrootuid2 </dev/null)" &&
 		Verbose "$sname: fetched installed file dependencies." ||
 		Fatal "$sname: failed to fetch installed file dependencies."
 	calculate_required_mountpoints "$deps"

@@ -51,7 +51,7 @@ cpio --version >/dev/null 2>&1 && cpio=cpio || cpio=/.host/cpio
 __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
-	    chrootuid1 >"$chroot_archive" &&
+	    chrootuid1 </dev/null >"$chroot_archive" &&
 		Verbose 'Chroot archivation complete.' ||
 		Fatal 'Chroot archivation failed.'
 
@@ -150,7 +150,7 @@ unpack_chroot_cache()
 		Fatal "Unpack of $f failed."
 	if [ -n "$save_fakeroot" ]; then
 		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
-		    chrootuid1 /bin/touch /.fakedata &&
+		    chrootuid1 /bin/touch /.fakedata </dev/null &&
 			Verbose "Created fakedata." ||
 			Fatal "Failed to create fakedata."
 		create_entry_fakeroot_header
@@ -164,7 +164,7 @@ __EOF__
 			Fatal "Unpack of $f for fakedata failed."
 	fi
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-	    chrootuid1 /bin/chmod $verbose 1777 /usr/src
+	    chrootuid1 /bin/chmod $verbose 1777 /usr/src </dev/null
 } # unpack_chroot_cache
 
 create_chroot()
@@ -181,7 +181,7 @@ create_chroot()
 	Verbose 'Unpacked initial package list.'
 	if [ -n "$save_fakeroot" ]; then
 		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
-		    chrootuid1 /bin/touch /.fakedata &&
+		    chrootuid1 /bin/touch /.fakedata </dev/null &&
 			Verbose "Created fakedata." ||
 			Fatal "Failed to create fakedata."
 		create_entry_fakeroot_header
@@ -214,7 +214,7 @@ __EOF__
 	Verbose "Created entry point: $entry"
 
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-	    chrootuid1 &&
+	    chrootuid1 </dev/null &&
 		Verbose 'Created RPM database.' ||
 		Fatal 'Failed to create RPM database.'
 
@@ -226,7 +226,7 @@ ${rpmi:-$def_rpmi} -i $verbose $exclude_docs --justdb --nodeps $(for f in $initl
 __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_short \
-	    chrootuid1 &&
+	    chrootuid1 </dev/null &&
 		Verbose 'Installed initial package list.' ||
 		Fatal 'Failed to install initial package list.'
 
@@ -281,7 +281,7 @@ done)"
 __EOF__
 
 		wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_short \
-		    chrootuid1 &&
+		    chrootuid1 </dev/null &&
 			Verbose 'Installed build package list.' ||
 			Fatal 'Failed to install build package list.'
 
@@ -305,9 +305,9 @@ useradd -M -u $uid2 -g $gid2 -d /usr/src builder
 __EOF__
 
 		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-		    chrootuid1 /bin/chmod $verbose 1777 /usr/src &&
+		    chrootuid1 /bin/chmod $verbose 1777 /usr/src </dev/null &&
 		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-		    chrootuid1 &&
+		    chrootuid1 </dev/null &&
 			Verbose 'First time initialization complete.' ||
 			Fatal 'First time initialization failed.'
 	fi # $buildlist

@@ -25,7 +25,7 @@ calc_check_install_build_deps()
 	build_deps="$(wlimit_time_elapsed=$wlimit_time_short \
 		      wlimit_time_idle=$wlimit_time_short \
 		      wlimit_bytes_written=$wlimit_bytes_out \
-		      chrootuid2)" &&
+		      chrootuid2 </dev/null)" &&
 		Verbose "$sname: fetched build dependencies." ||
 		Fatal "$sname: failed to fetch build dependencies."
 	build_deps="$(printf %s "$build_deps" |LC_ALL=C grep -v '^rpmlib(' |LC_ALL=C tr -d [[:blank:]])"
@@ -124,7 +124,7 @@ rpmbuild -bs --nodeps \\
 rm -rf "\$HOME/in/spec" "\$HOME/in/source"
 __EOF__
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-	    chrootuid2 &&
+	    chrootuid2 </dev/null &&
 		Verbose "$sname: created src.rpm file." ||
 		Fatal "$sname: failed to create src.rpm file"
 } # make_srpm_from_pkgtar
@@ -162,7 +162,7 @@ fi
 __EOF__
 	local source_type
 	source_type="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-		       chrootuid2)" &&
+		       chrootuid2 </dev/null)" &&
 		Verbose "$sname: installed source file." ||
 		Fatal "$sname: failed to install source file."
 	purge_chroot_in
@@ -199,7 +199,7 @@ sisyphus_check --no-check="$(quote_arg "$no_check")" "$dir"
 __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long wlimit_bytes_written=$wlimit_bytes_out \
-	    chrootuid2 &&
+	    chrootuid2 </dev/null &&
 		Verbose "$sname: sisyphus_check passed." ||
 		Fatal "$sname: sisyphus_check failed."
 } # run_sisyphus_check
@@ -248,7 +248,7 @@ find /usr/src/RPM/RPMS/ -mindepth 2 -maxdepth 2 -type f -name \*.rpm -print0 |
 __EOF__
 
 	mountpoints="$required_mountpoints" \
-	    chrootuid2 &&
+	    chrootuid2 </dev/null &&
 		Verbose "rebuild of \`$sname' complete." ||
 		Fatal "rebuild of \`$sname' failed."
 } # run_rebuild
