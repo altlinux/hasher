@@ -205,6 +205,10 @@ if [ "$current_arch" != "${target:-$def_target}" ] &&
 fi
 
 # create apt wrappers.
+setarch=
+if setarch "${target:-$def_target}" true 2>/dev/null; then
+	setarch="setarch \"$(quote_arg "${target:-$def_target}")\""
+fi
 apt_config_file="$aptbox/etc/apt/apt.conf"
 for n in apt-cache apt-config apt-get genbasedir; do
 	cat >"$n" <<__EOF__
@@ -212,7 +216,7 @@ for n in apt-cache apt-config apt-get genbasedir; do
 ${apt_libdir:+export LD_LIBRARY_PATH="$apt_libdir"}
 APT_CONFIG="$apt_config_file" \
 ${aptbox_home:+HOME="$aptbox_home"} \
-exec setarch "${target:-$def_target}" $(eval printf %s "$(printf '$prog_%s' "$n" |tr - _)") "\$@"
+exec $setarch $(eval printf %s "$(printf '$prog_%s' "$n" |tr - _)") "\$@"
 __EOF__
 	Verbose "created $n wrapper"
 	chmod $verbose a+x "$n"

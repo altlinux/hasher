@@ -15,7 +15,7 @@ Source: %url/%name-%version.tar
 %define helperdir %_libexecdir/%name-priv
 
 Requires: %helperdir
-Requires: getopt, ash-static, cpio-static, find-static, setarch
+Requires: getopt, ash-static, cpio-static, find-static
 Requires: hasher-priv >= 0:1.0, apt-utils >= 0:0.5.5cnc4.1-alt7
 # Due to "readlink -e".
 Requires: coreutils >= 0:5.2.1-alt3
