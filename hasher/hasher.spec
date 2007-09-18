@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.2.6
+Version: 1.2.7
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -43,6 +43,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Tue Sep 18 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.7-alt1
+- mkaptbox: If setarch does not support given arch, do not use setarch.
+- hsh-rebuild: Added --source-only and --install-only options.
+- Redirected chrootuid{1,2} stdin to /dev/null where appropriate.
+- hsh-initroot: Replaced non-portable rpminit with raw initialization (#11586).
+
 * Wed Aug 29 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.6-alt1
 - hsh-fakedev, hsh-sh-functions.in, mkaptbox:
   Secured readlink(1) usage (ldv).
