@@ -267,8 +267,12 @@ if [ -n "$build_list" ]; then
 	cat >>"$entry" <<__EOF__
 [ ! -d /etc/skel ] || cp -a $verbose /etc/skel/* /etc/skel/.[^.]* "\$HOME"/ ||:
 mkdir -p $verbose -m700 -- "\$TMPDIR"
-rpminit $verbose
-cat >>/usr/src/.rpmmacros <<\EOF
+mkdir -p $verbose "\$HOME/RPM"/{BUILD,SOURCES,SPECS,SRPMS,RPMS/noarch}
+cat >"\$HOME/.rpmmacros" <<EOF
+%_tmppath \$TMPDIR
+%_topdir \$HOME/RPM
+EOF
+cat >>"\$HOME/.rpmmacros" <<\EOF
 %packager ${packager:-Automated package hasher <hasher@localhost>}
 %buildhost ${USER:-`id -nu`}.hasher.altlinux.org
 %__BTE hasher

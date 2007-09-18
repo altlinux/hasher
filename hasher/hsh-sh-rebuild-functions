@@ -236,14 +236,14 @@ run_rebuild()
 	cat >>"$entry" <<__EOF__
 cd "\$HOME/in/srpm"
 packager=\$(rpmquery -p --qf '%{PACKAGER}' *)
-cat >>/usr/src/.rpmmacros <<EOF
+cat >>"\$HOME/.rpmmacros" <<EOF
 %packager \$packager
 EOF
 
 target="$(quote_arg "${target:-$def_target}")" /.host/rebuild *
-find /usr/src/RPM/SRPMS/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
+find "\$HOME/RPM/SRPMS/" -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
 	xargs -r0 mv -f $verbose --target-directory=/.out/ --
-find /usr/src/RPM/RPMS/ -mindepth 2 -maxdepth 2 -type f -name \*.rpm -print0 |
+find "\$HOME/RPM/RPMS/" -mindepth 2 -maxdepth 2 -type f -name \*.rpm -print0 |
 	xargs -r0 mv -f $verbose --target-directory=/.out/ --
 __EOF__
 
