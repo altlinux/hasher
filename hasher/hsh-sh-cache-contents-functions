@@ -113,7 +113,7 @@ validate_contents_cache()
 
 # Create contents_index_bin and contents_index_all files;
 # also set up contents_index_bin contents_index_all variables.
-contents_index_bin_dirs=/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/etc
+contents_index_bin_dirs=/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/usr/games:/etc
 create_contents_data()
 {
 	rm -rf "$cache_dir/contents/tmp"
