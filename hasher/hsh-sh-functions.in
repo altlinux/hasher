@@ -515,39 +515,6 @@ hasher_exit_handler()
 	exit $rc
 }
 
-create_lock_file()
-{
-	local dest="$1"; shift
-	local item="$1"; shift
-	local silent="${1:-}"; shift ||:
-	local temp
-	temp="$(mktemp -- "$dest.XXXXXXXX")" ||
-		Fatal "Unable to lock $item."
-	if ! echo $$ >"$temp"; then
-		rm -f $verbose -- "$temp"
-		Fatal "Unable to lock $item."
-	fi
-
-	if ln -- "$temp" "$dest" 2>/dev/null; then
-		rm -f -- "$temp"
-		Verbose "Locked $item."
-		return 0
-	fi
-
-	rm -f -- "$temp"
-	local pid
-	if pid="$(head -c32 -- "$dest")" &&
-	   kill -0 -- "$pid" 2>/dev/null; then
-		Info "$item is locked, pid=$pid."
-		ps hp "$pid" >&2
-		return 2
-	fi
-
-	[ -n "$silent" ] ||
-		Info "$item is locked, stale pid=$pid."
-	return 1
-}
-
 lock_workdir()
 {
 	[ -z "$lock_file" ] || return 0
@@ -555,42 +522,25 @@ lock_workdir()
 	local lockdir="$workdir/lockdir"
 	mkdir -p $verbose "$lockdir" ||
 		Fatal 'Unable to lock working directory.'
-	lock_file="$lockdir/lockfile"
 
-	if create_lock_file "$lock_file" "working directory \`$workdir'"; then
+	enable -f /usr/lib/bash/lockf lockf
+	lock_file="$lockdir/pid"
+	if lockf -n "$lock_file"; then
 		trap hasher_exit_handler HUP PIPE INT QUIT TERM EXIT
+		echo $$ >"$lock_file"
 		return 0
-	elif [ $? -eq 1 ]; then
-		# stale lock detected
-		local unlock_file="$lockdir/unlockfile"
-		create_lock_file "$unlock_file" "stale lock \`$lock_file'" ||
-			Fatal 'Unable to remove stale lock.'
-
-		if create_lock_file "$lock_file" "working directory \`$workdir'" silent; then
-			# stale lock disappeared
-			trap hasher_exit_handler HUP PIPE INT QUIT TERM EXIT
-			rm -f -- "$unlock_file"
-			return 0
-		elif [ $? -eq 2 ]; then
-			# actual lock detected
-			rm -f -- "$unlock_file"
-			Fatal 'Unable to lock working directory.'
-		elif [ $? -eq 1 ] &&
-		     rm -f $verbose -- "$lock_file"; then
-			# stale lock removed
-			if create_lock_file "$lock_file" "working directory \`$workdir'"; then
-				trap hasher_exit_handler HUP PIPE INT QUIT TERM EXIT
-				rm -f -- "$unlock_file"
-				return 0
-			fi
-			rm -f -- "$unlock_file"
-			Fatal 'Unable to lock working directory.'
-		fi
-		# error removing stale lock
-		rm -f -- "$unlock_file"
-		Fatal 'Unable to remove stale lock.'
 	fi
-	# actual lock detected
+
+	local pid
+	if pid="$(head -c32 -- "$lock_file")" &&
+	   [ "$pid" -gt 0 ] 2>/dev/null; then
+		if kill -0 -- "$pid" 2>/dev/null; then
+			Info "working directory \`$workdir' is already locked by pid=$pid."
+			ps hp "$pid" >&2
+		else
+			Info "working directory \`$workdir' is already locked by stale pid=$pid."
+		fi
+	fi
 	Fatal 'Unable to lock working directory.'
 }
 
