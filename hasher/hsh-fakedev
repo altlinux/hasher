@@ -33,16 +33,18 @@ Arguments <name>, <type>, <major> and <minor> have the same meaning as in
 mknod(1) utility.  They are required iff --reference option is not given.
 
 Options:
-  --hasher-priv-dir=DIR             hasher-priv directory;
-  --number=NUMBER                   subconfig identifier;
-  -m, --mode=MODE                   set permission mode as in mknod(1);
-  -g, --group=GROUP                 set group ownership as in install(1);
-  -o, --owner=OWNER                 set ownership as in install(1);
-  -r, --reference=FILE              use this file properties
-  -q, --quiet                       try to be more quiet;
-  -v, --verbose                     print a message for each action;
-  -V, --version                     print program version and exit;
-  -h, --help                        show this text and exit.
+  --hasher-priv-dir=DIR     hasher-priv directory;
+  --number=NUMBER           subconfig identifier;
+  -m, --mode=MODE           set permission mode as in mknod(1);
+  -g, --group=GROUP         set group ownership as in install(1);
+  -o, --owner=OWNER         set ownership as in install(1);
+  -r, --reference=FILE      use this file properties
+  --wait-lock               wait for workdir lock;
+  --no-wait-lock            do not wait for workdir lock;
+  -q, --quiet               try to be more quiet;
+  -v, --verbose             print a message for each action;
+  -V, --version             print program version and exit;
+  -h, --help                show this text and exit.
 
 Report bugs to http://bugs.altlinux.ru/
 
@@ -59,7 +61,7 @@ opt_check_dev()
 	printf %s "$value"
 }
 
-TEMP=`getopt -n $PROG -o g:,m:,o:,r:,h,q,v,V -l hasher-priv-dir:,number:,mode:,group:,owner:,reference:,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o g:,m:,o:,r:,h,q,v,V -l hasher-priv-dir:,number:,mode:,group:,owner:,reference:,wait-lock,no-wait-lock,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -92,6 +94,10 @@ while :; do
 		-r|--reference)
 			reference="$(opt_check_dev "$1" "$2")"
 			shift
+			;;
+		--wait-lock) lock_wait=y
+			;;
+		--no-wait-lock) lock_wait=
 			;;
 		--) shift; break
 			;;

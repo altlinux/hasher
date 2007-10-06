@@ -68,6 +68,8 @@ EOF
 		cat <<EOF
   --rooter                  run program as pseudoroot;
   --shell[=SHELL]           run interactive shell;
+  --wait-lock               wait for workdir lock;
+  --no-wait-lock            do not wait for workdir lock;
   --x11-timeout=SECONDS     how long X11 authorization will be valid;
   -x                        disable X11 forwarding;
   -X                        enable X11 forwarding;
@@ -83,7 +85,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,${i_am_hsh_run:+execute:,}hasher-priv-dir:,mountpoints:,no-lock,number:,${i_am_hsh_run:+pty,}rooter,save-fakeroot,shell::,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,${i_am_hsh_run:+execute:,}hasher-priv-dir:,mountpoints:,no-lock,number:,${i_am_hsh_run:+pty,}rooter,save-fakeroot,shell::,wait-lock,no-wait-lock,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -130,6 +132,10 @@ while :; do
 			use_pty=yes; export use_pty
 			shift
 			[ -z "$1" ] || shell_prog="$1"
+			;;
+		--wait-lock) lock_wait=y
+			;;
+		--no-wait-lock) lock_wait=
 			;;
 		--x11-timeout) shift; x11_timeout="$1"
 			;;

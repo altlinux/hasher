@@ -112,6 +112,11 @@ Helpify install_langs def_install_langs
 known_mountpoints=
 Helpify mountpoints known_mountpoints
 
+# whether to wait for lock
+lock_wait=
+Helpify wait_lock lock_wait
+Helpify no_wait_lock lock_wait
+
 # override default cache directory $workdir/cache
 cache_dir=
 Helpify cache_dir
@@ -521,13 +526,14 @@ lock_workdir()
 
 	local lockdir="$workdir/lockdir"
 	mkdir -p $verbose "$lockdir" ||
-		Fatal 'Unable to lock working directory.'
+		Fatal "Unable to lock working directory \`$workdir'"
 
 	enable -f /usr/lib/bash/lockf lockf
 	lock_file="$lockdir/pid"
 	if lockf -n "$lock_file"; then
 		trap hasher_exit_handler HUP PIPE INT QUIT TERM EXIT
 		echo $$ >"$lock_file"
+		Verbose "Locked working directory \`$workdir'"
 		return 0
 	fi
 
@@ -541,7 +547,18 @@ lock_workdir()
 			Info "working directory \`$workdir' is already locked by stale pid=$pid."
 		fi
 	fi
-	Fatal 'Unable to lock working directory.'
+
+	if [ -n "$lock_wait" ]; then
+		Verbose "Waiting for working directory lock..."
+		if lockf "$lock_file"; then
+			trap hasher_exit_handler HUP PIPE INT QUIT TERM EXIT
+			echo $$ >"$lock_file"
+			Verbose "Locked working directory \`$workdir'"
+			return 0
+		fi
+	fi
+
+	Fatal "Unable to lock working directory \`$workdir'"
 }
 
 # assumed: defined aptbox

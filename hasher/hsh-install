@@ -34,6 +34,8 @@ Options:
   --excludedocs             do not install documentation files;
   --hasher-priv-dir=DIR     hasher-priv directory;
   --number=NUMBER           subconfig identifier;
+  --wait-lock               wait for workdir lock;
+  --no-wait-lock            do not wait for workdir lock;
   -q, --quiet               try to be more quiet;
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;
@@ -45,7 +47,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l excludedocs,hasher-priv-dir:,no-lock,number:,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o h,q,v,V -l excludedocs,hasher-priv-dir:,no-lock,number:,save-fakeroot,wait-lock,no-wait-lock,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -65,6 +67,10 @@ while :; do
 			shift
 			;;
 		--save-fakeroot) Info "Warning: obsolete option $1 ignored."
+			;;
+		--wait-lock) lock_wait=y
+			;;
+		--no-wait-lock) lock_wait=
 			;;
 		--) shift; break
 			;;
