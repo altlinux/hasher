@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.2.7
+Version: 1.2.8
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Sat Oct 06 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.8-alt1
+- hsh-sh-functions.in (lock_workdir):
+  Rewritten locking using lockf bash builtin.
+- hsh, hsh-fakedev, hsh-install, hsh-run, hsh-sh-functions.in:
+  Added --wait-lock/--no-wait-lock options.
+
 * Tue Sep 18 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.7-alt1
 - mkaptbox: If setarch does not support given arch, do not use setarch.
 - hsh-rebuild: Added --source-only and --install-only options.
