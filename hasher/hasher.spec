@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.2.8
+Version: 1.2.9
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -44,6 +44,10 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Mon Oct 08 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.9-alt1
+- hsh-sh-functions.in (lock_workdir, hasher_exit_handler):
+  Do not remove pid file.
+
 * Sat Oct 06 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.8-alt1
 - hsh-sh-functions.in (lock_workdir):
   Rewritten locking using lockf bash builtin.
