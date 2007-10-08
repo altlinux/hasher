@@ -510,35 +510,23 @@ __EOF__
 	chmod 755 "$entry"
 }
 
-lock_file=
-hasher_exit_handler()
-{
-	local rc=$?
-	trap - EXIT
-	[ -z "$lock_file" ] ||
-		rm -f $verbose -- "$lock_file"
-	exit $rc
-}
-
 lock_workdir()
 {
-	[ -z "$lock_file" ] || return 0
-
 	local lockdir="$workdir/lockdir"
 	mkdir -p $verbose "$lockdir" ||
 		Fatal "Unable to lock working directory \`$workdir'"
 
 	enable -f /usr/lib/bash/lockf lockf
-	lock_file="$lockdir/pid"
+	local lock_file="$lockdir/pid"
 	if lockf -n "$lock_file"; then
-		trap hasher_exit_handler HUP PIPE INT QUIT TERM EXIT
 		echo $$ >"$lock_file"
 		Verbose "Locked working directory \`$workdir'"
 		return 0
 	fi
 
 	local pid
-	if pid="$(head -c32 -- "$lock_file")" &&
+	if [ -n "$verbose" -o -z "$lock_wait" ] &&
+	   pid="$(head -c32 -- "$lock_file")" &&
 	   [ "$pid" -gt 0 ] 2>/dev/null; then
 		if kill -0 -- "$pid" 2>/dev/null; then
 			Info "working directory \`$workdir' is already locked by pid=$pid."
@@ -551,7 +539,6 @@ lock_workdir()
 	if [ -n "$lock_wait" ]; then
 		Verbose "Waiting for working directory lock..."
 		if lockf "$lock_file"; then
-			trap hasher_exit_handler HUP PIPE INT QUIT TERM EXIT
 			echo $$ >"$lock_file"
 			Verbose "Locked working directory \`$workdir'"
 			return 0
