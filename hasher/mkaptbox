@@ -57,11 +57,12 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,h,q,v,V -l apt-config:,apt-prefix:,force,no-stuff,no-update,repo:,repo-bin:,repo-src:,target:,update,without-stuff,with-stuff,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o f,u,h,q,v,V -l apt-config:,apt-prefix:,force,no-lock,no-stuff,no-update,repo:,repo-bin:,repo-src:,target:,update,without-stuff,with-stuff,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
 force=
+no_lock=
 update=1
 while :; do
 	case "$1" in
@@ -74,6 +75,8 @@ while :; do
 			shift
 			;;
 		-f|--force) force=1
+			;;
+		--no-lock) no_lock=1
 			;;
 		--no-update) update=
 			;;
@@ -116,6 +119,8 @@ if [ "$#" -ge 1 ]; then
 else
 	set_workdir
 fi
+
+[ -n "$no_lock" ] || lock_workdir
 
 [ -n "$no_stuff" ] ||
 	make_repo

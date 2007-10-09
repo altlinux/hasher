@@ -296,7 +296,7 @@ handle_package()
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
 
 	rm -rf aptbox
-	mkaptbox "$workdir" \
+	mkaptbox --no-lock "$workdir" \
 		${target:+--target="$target"} \
 		${repo:+--repo="$repo"} \
 		${repo_bin:+--repo-bin="$repo_bin"} \
