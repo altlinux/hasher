@@ -279,7 +279,7 @@ cleanup_workdir()
 			Fatal 'Failed to remove repo.'
 	fi
 	if [ -d chroot ]; then
-		hsh-rmchroot "$workdir" \
+		hsh-rmchroot --no-lock "$workdir" \
 			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 			${quiet:+$quiet} \
 			${verbose:+$verbose} \
@@ -307,7 +307,7 @@ handle_package()
 		${verbose:+$verbose} \
 		${no_stuff:+--no-stuff} \
 		#
-	[ ! -d chroot ] || hsh-rmchroot "$workdir" \
+	[ ! -d chroot ] || hsh-rmchroot --no-lock "$workdir" \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
@@ -361,7 +361,7 @@ handle_package()
 		-- "$f"
 	if [ -z "$lazy_cleanup" -a -z "$initroot_only" ]; then
 		rm -rf aptbox
-		[ ! -d chroot ] || hsh-rmchroot "$workdir" \
+		[ ! -d chroot ] || hsh-rmchroot --no-lock "$workdir" \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \

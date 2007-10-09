@@ -44,15 +44,18 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l hasher-priv-dir:,number:,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o h,q,v,V -l hasher-priv-dir:,no-lock,number:,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
+no_lock=
 while :; do
 	case "$1" in
 		--hasher-priv-dir)
 			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
 			shift
+			;;
+		--no-lock) no_lock=1
 			;;
 		--number)
 			number="$(opt_check_number "$1" "$2")"
@@ -83,6 +86,7 @@ else
 fi
 
 check_helpers
+[ -n "$no_lock" ] || lock_workdir
 
 cd chroot
 Verbose "Changed working directory to \`$chroot'."
