@@ -320,7 +320,7 @@ handle_package()
 		${number:+--number=$number} \
 		${qemu_arch:+--with-qemu=$qemu_arch} \
 		#
-	hsh-initroot "$workdir" \
+	hsh-initroot --no-lock "$workdir" \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \

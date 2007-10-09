@@ -57,13 +57,14 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o h,q,v,V -l cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-lock,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
 : ${init_list:=$pkg_init_list}
 : ${build_list:=$pkg_build_list}
 
+no_lock=
 while :; do
 	case "$1" in
 		--excludedocs) exclude_docs=--excludedocs
@@ -79,6 +80,8 @@ while :; do
 		--no-cache) no_cache=1
 			;;
 		--no-contents-indices) no_contents_indices=1
+			;;
+		--no-lock) no_lock=1
 			;;
 		--no-repackage-source) repackage_source=
 			;;
@@ -134,6 +137,8 @@ else
 	set_workdir
 fi
 
+check_helpers
+[ -n "$no_lock" ] || lock_workdir
 [ -d "$chroot" ] || Fatal "$chroot: cannot access chroot."
 [ -d "$aptbox" ] || Fatal "$aptbox: cannot access aptbox."
 
@@ -145,8 +150,6 @@ cache_dir="$(readlink -ev -- "$cache_dir")"
 rm -rf $verbose "$cache_dir"/chroot/{list,package}.new
 mkdir -p -m700 $verbose "$cache_dir"/chroot/{list,package}{,.new}
 mkdir -p -m700 $verbose "$cache_dir"/contents
-
-check_helpers
 
 uid0="$(id -u)"
 gid0="$(id -g)"
