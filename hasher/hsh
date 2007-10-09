@@ -338,7 +338,7 @@ handle_package()
 		${build_list:+--pkg-build-list="$build_list"} \
 		#
 	[ -n "$f" ] || return 0
-	hsh-rebuild "$workdir" \
+	hsh-rebuild --no-lock "$workdir" \
 		${target:+--target="$target"} \
 		${repo:+--repo="$repo"} \
 		${repo_bin:+--repo-bin="$repo_bin"} \

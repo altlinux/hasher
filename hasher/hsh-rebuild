@@ -65,11 +65,12 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l args:,excludedocs,hasher-priv-dir:,install-only,mountpoints:,nodeps,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,save-fakeroot,source-only,target:,without-stuff,with-stuff,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o h,q,v,V -l args:,excludedocs,hasher-priv-dir:,install-only,mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,save-fakeroot,source-only,target:,without-stuff,with-stuff,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
 nodeps=
+no_lock=
 install_only=
 source_only=
 while :; do
@@ -87,6 +88,8 @@ while :; do
 		--mountpoints) shift; known_mountpoints="$1"
 			;;
 		--nodeps) nodeps=--nodeps
+			;;
+		--no-lock) no_lock=1
 			;;
 		--no-sisyphus-check) shift
 			[ -n "$1" ] && no_sisyphus_check="$1" || no_sisyphus_check=all
@@ -164,9 +167,9 @@ source="$1"
 sname="${source##*/}"
 shift
 
-[ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
-
 check_helpers
+[ -n "$no_lock" ] || lock_workdir
+[ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
 
 # Create rebuild script.
 if [ -n "$prog_rebuild" ]; then
