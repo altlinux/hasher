@@ -141,6 +141,7 @@ check_helpers
 [ -n "$no_lock" ] || lock_workdir
 [ -d "$chroot" ] || Fatal "$chroot: cannot access chroot."
 [ -d "$aptbox" ] || Fatal "$aptbox: cannot access aptbox."
+deduce_number_from_directory
 
 [ -z "$save_fakeroot" ] || init_list="$init_list cpio"
 

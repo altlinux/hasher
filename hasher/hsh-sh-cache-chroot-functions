@@ -163,8 +163,25 @@ __EOF__
 			Verbose "Unpacked $f for fakedata." ||
 			Fatal "Unpack of $f for fakedata failed."
 	fi
+	create_entry_fakeroot_header
+	cat >>"$entry" <<__EOF__
+if grep -qs ^rooter: /etc/passwd 2>/dev/null; then
+	userdel rooter
+	groupadd -g $gid1 rooter
+	useradd -M -u $uid1 -g $gid1 -d /root rooter
+fi
+if grep -qs ^builder: /etc/passwd 2>/dev/null; then
+	userdel builder
+	groupadd -g $gid2 builder
+	useradd -M -u $uid2 -g $gid2 -d /usr/src builder
+	chmod $verbose 1777 /usr/src
+fi
+__EOF__
+
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-	    chrootuid1 /bin/chmod $verbose 1777 /usr/src </dev/null
+	    chrootuid1 </dev/null &&
+		Verbose 'First time initialization complete.' ||
+		Fatal 'First time initialization failed.'
 } # unpack_chroot_cache
 
 create_chroot()
@@ -302,10 +319,9 @@ groupadd -g $gid1 rooter
 useradd -M -u $uid1 -g $gid1 -d /root rooter
 groupadd -g $gid2 builder
 useradd -M -u $uid2 -g $gid2 -d /usr/src builder
+chmod $verbose 1777 /usr/src
 __EOF__
 
-		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-		    chrootuid1 /bin/chmod $verbose 1777 /usr/src </dev/null &&
 		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 		    chrootuid1 </dev/null &&
 			Verbose 'First time initialization complete.' ||

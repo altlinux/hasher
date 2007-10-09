@@ -209,6 +209,8 @@ dev_name="$chroot/dev/$name"
 [ ! -e "$dev_name" ] ||
 	Fatal "$dev_name: File exists."
 
+deduce_number_from_directory
+
 [ -n "$owner" ] || owner=0
 [ -n "$group" ] || group=0
 

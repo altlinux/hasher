@@ -548,6 +548,49 @@ lock_workdir()
 	Fatal "Unable to lock working directory \`$workdir'"
 }
 
+# assumed: $chroot, variables initialized by check_helpers()
+deduce_number_from_directory()
+{
+	local dir="${1:-$chroot}" cgid gid1 n
+
+	# take gid from directory ownership
+	cgid="$(find "$dir" -maxdepth 0 -type d -printf '%G')"
+	[ "$cgid" -ge 0 ] 2>/dev/null || return 0
+
+	# compare with default user1's gid
+	gid1="$("$getugid1")" || Fatal 'getugid1 failed.'
+	gid1="${gid1#*:}"
+	if [ "$cgid" = "$gid1" ]; then
+		number=
+		return
+	fi
+
+	# browse subconfigs and compare with their user1's gid numbers
+	for n in $(cd /etc/hasher-priv/user.d/ && set +f && ls $(id -un):[1-9]* 2>/dev/null); do
+		n="${n#*:}"
+		[ "$n" -gt 0 ] 2>/dev/null || continue
+		gid1="$("$getugid1" -"$n" 2>/dev/null)" || continue
+		gid1="${gid1##*:}"
+		if [ "$cgid" = "$gid1" ]; then
+			number="$n"
+			return
+		fi
+	done
+
+	# last resort, check subconfigs one by one
+	n=1
+	while :; do
+		[ "$n" -gt 0 ] || return 0
+		gid1="$("$getugid1" -"$n" 2>/dev/null)" || return 0
+		gid1="${gid1##*:}"
+		if [ "$cgid" = "$gid1" ]; then
+			number="$n"
+			return
+		fi
+		n="$(($n+1))"
+	done
+}
+
 # assumed: defined aptbox
 APT_Get_PrintLocalFile=
 print_uris()

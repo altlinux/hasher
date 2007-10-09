@@ -90,6 +90,7 @@ check_helpers
 
 cd chroot
 Verbose "Changed working directory to \`$chroot'."
+deduce_number_from_directory
 
 mkdir -p -m711 $verbose .host
 install_static_helper ash sh
