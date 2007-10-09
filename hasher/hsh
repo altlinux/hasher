@@ -313,7 +313,7 @@ handle_package()
 		${verbose:+$verbose} \
 		${number:+--number=$number} \
 		#
-	hsh-mkchroot "$workdir" \
+	hsh-mkchroot --no-lock "$workdir" \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
