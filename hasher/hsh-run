@@ -68,8 +68,8 @@ EOF
 		cat <<EOF
   --rooter                  run program as pseudoroot;
   --shell[=SHELL]           run interactive shell;
-  --wait-lock               wait for workdir lock;
-  --no-wait-lock            do not wait for workdir lock;
+  --wait-lock               wait for workdir and hasher-priv locks;
+  --no-wait-lock            do not wait for workdir and hasher-priv locks;
   --x11-timeout=SECONDS     how long X11 authorization will be valid;
   -x                        disable X11 forwarding;
   -X                        enable X11 forwarding;

@@ -75,8 +75,8 @@ Options:
                                     overriding --repo option for source packages;
   --save-fakeroot                   save fakeroot state;
   --target=ARCH                     target architecture;
-  --wait-lock                       wait for workdir lock;
-  --no-wait-lock                    do not wait for workdir lock;
+  --wait-lock                       wait for workdir and hasher-priv locks;
+  --no-wait-lock                    do not wait for workdir and hasher-priv locks;
   --without-stuff                   do not use built packages;
   --with-stuff                      allow use of built packages;
   --with-qemu=ARCH                  copy qemu executable into the chroot .host directory;
@@ -261,6 +261,9 @@ for f in "$@"; do
 		Fatal "$f: empty source file."
 done
 
+wait_param=--wait-lock
+[ -n "$lock_wait" ] || wait_param=--no-wait-lock
+
 cleanup_workdir()
 {
 	if [ -d aptbox ]; then
@@ -280,6 +283,7 @@ cleanup_workdir()
 	fi
 	if [ -d chroot ]; then
 		hsh-rmchroot --no-lock "$workdir" \
+			$wait_param \
 			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 			${quiet:+$quiet} \
 			${verbose:+$verbose} \
@@ -297,6 +301,7 @@ handle_package()
 
 	rm -rf aptbox
 	mkaptbox --no-lock "$workdir" \
+		$wait_param \
 		${target:+--target="$target"} \
 		${repo:+--repo="$repo"} \
 		${repo_bin:+--repo-bin="$repo_bin"} \
@@ -308,12 +313,14 @@ handle_package()
 		${no_stuff:+--no-stuff} \
 		#
 	[ ! -d chroot ] || hsh-rmchroot --no-lock "$workdir" \
+		$wait_param \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
 		${number:+--number=$number} \
 		#
 	hsh-mkchroot --no-lock "$workdir" \
+		$wait_param \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
@@ -321,6 +328,7 @@ handle_package()
 		${qemu_arch:+--with-qemu=$qemu_arch} \
 		#
 	hsh-initroot --no-lock "$workdir" \
+		$wait_param \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
@@ -339,6 +347,7 @@ handle_package()
 		#
 	[ -n "$f" ] || return 0
 	hsh-rebuild --no-lock "$workdir" \
+		$wait_param \
 		${target:+--target="$target"} \
 		${repo:+--repo="$repo"} \
 		${repo_bin:+--repo-bin="$repo_bin"} \
@@ -362,6 +371,7 @@ handle_package()
 	if [ -z "$lazy_cleanup" -a -z "$initroot_only" ]; then
 		rm -rf aptbox
 		[ ! -d chroot ] || hsh-rmchroot --no-lock "$workdir" \
+		$wait_param \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \

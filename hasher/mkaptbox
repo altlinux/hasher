@@ -44,6 +44,8 @@ Options:
                             overriding --repo option for source packages;
   --target=ARCH             target architecture of the work repository;
   -u, --update              run "apt-get update" after creation;
+  --wait-lock               wait for workdir lock;
+  --no-wait-lock            do not wait for workdir lock;
   --without-stuff           do not configure sources.list for the work repository;
   --with-stuff              configure sources.list for the work repository;
   -q, --quiet               try to be more quiet;
@@ -57,7 +59,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,h,q,v,V -l apt-config:,apt-prefix:,force,no-lock,no-stuff,no-update,repo:,repo-bin:,repo-src:,target:,update,without-stuff,with-stuff,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o f,u,h,q,v,V -l apt-config:,apt-prefix:,force,no-lock,no-stuff,no-update,repo:,repo-bin:,repo-src:,target:,update,wait-lock,no-wait-lock,without-stuff,with-stuff,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -91,6 +93,10 @@ while :; do
 				Fatal "--target: $target: invalid architecture."
 			;;
 		-u|--update) update=1
+			;;
+		--wait-lock) lock_wait=--wait-lock
+			;;
+		--no-wait-lock) lock_wait=
 			;;
 		--without-stuff|--no-stuff) no_stuff=1
 			;;

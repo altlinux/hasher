@@ -46,6 +46,8 @@ Options:
   --pkg-init-list=LIST      override default initial package file list;
   --repackage-source        repackage source along with binaries;
   --save-fakeroot           save fakeroot state;
+  --wait-lock               wait for workdir and hasher-priv locks;
+  --no-wait-lock            do not wait for workdir and hasher-priv locks;
   -q, --quiet               try to be more quiet;
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;
@@ -57,7 +59,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-lock,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o h,q,v,V -l cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-lock,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,wait-lock,no-wait-lock,help,quiet,verbose,version -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -108,6 +110,10 @@ while :; do
 		--repackage-source) repackage_source=1
 			;;
 		--save-fakeroot) save_fakeroot=1
+			;;
+		--wait-lock) lock_wait=y
+			;;
+		--no-wait-lock) lock_wait=
 			;;
 		--contents-index-*)
 			Info "Warning: obsolete option $1 ignored."

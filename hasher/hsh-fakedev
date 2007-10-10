@@ -39,8 +39,8 @@ Options:
   -g, --group=GROUP         set group ownership as in install(1);
   -o, --owner=OWNER         set ownership as in install(1);
   -r, --reference=FILE      use this file properties
-  --wait-lock               wait for workdir lock;
-  --no-wait-lock            do not wait for workdir lock;
+  --wait-lock               wait for workdir and hasher-priv locks;
+  --no-wait-lock            do not wait for workdir and hasher-priv locks;
   -q, --quiet               try to be more quiet;
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;

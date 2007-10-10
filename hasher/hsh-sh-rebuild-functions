@@ -37,7 +37,10 @@ calc_check_install_build_deps()
 	fi
 
 	if [ -n "$build_deps" ]; then
+		local wait_param=--wait-lock
+		[ -n "$lock_wait" ] || wait_param=--no-wait-lock
 		hsh-install --no-lock \
+			$wait_param \
 			${quiet:+$quiet} \
 			${verbose:+$verbose} \
 			${number:+--number=$number} \
