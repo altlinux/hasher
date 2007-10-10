@@ -110,7 +110,11 @@ if [ -z "$filelist" ]; then
 	exit 0
 fi
 
-deduce_number_from_directory
+if [ -n "$no_lock" ]; then
+	deduce_number_from_directory "$chroot"
+else
+	deduce_lock_hasher_priv
+fi
 
 copy_chroot_incoming $filelist
 

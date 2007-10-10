@@ -181,7 +181,11 @@ fi
 check_helpers
 [ -n "$no_lock" ] || lock_workdir
 [ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
-deduce_number_from_directory
+if [ -n "$no_lock" ]; then
+	deduce_number_from_directory "$chroot"
+else
+	deduce_lock_hasher_priv
+fi
 
 prepare_x11_forwarding || x11_forwarding=
 

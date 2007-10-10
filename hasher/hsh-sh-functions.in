@@ -396,6 +396,10 @@ check_helpers()
 	[ -d "${hasher_priv_dir:-$def_hasher_priv_dir}" ] ||
 		Fatal "${hasher_priv_dir:-$def_hasher_priv_dir}: cannot access hasher-priv helper directory."
 
+	getconf="${hasher_priv_dir:-$def_hasher_priv_dir}/getconf.sh"
+	[ -x "$getconf" ] ||
+		Fatal "$getconf: cannot access getconf helper."
+
 	getugid1="${hasher_priv_dir:-$def_hasher_priv_dir}/getugid1.sh"
 	[ -x "$getugid1" ] ||
 		Fatal "$getugid1: cannot access getugid1 helper."
@@ -548,10 +552,31 @@ lock_workdir()
 	Fatal "Unable to lock working directory \`$workdir'"
 }
 
-# assumed: $chroot, variables initialized by check_helpers()
+lock_hasher_config()
+{
+	local file
+	file="$("$getconf" ${number:+-$number})" ||
+		Fatal 'hasher-priv getconf failed.'
+
+	enable -f /usr/lib/bash/lockf lockf
+	local lock_param=
+	[ -n "$lock_wait" ] || lock_param=-n
+	Verbose "Acquiring lock for config file \`$file'..."
+	if lockf $lock_param "$file"; then
+		Verbose "Locked config file \`$file'"
+		return 0
+	else
+		Verbose "Config file \`$file' is busy"
+		return 1
+	fi
+}
+
+
+# assumed: variables initialized by check_helpers()
 deduce_number_from_directory()
 {
-	local dir="${1:-$chroot}" cgid gid1 n
+	local dir="$1"; shift
+	local cgid gid1 n
 
 	# take gid from directory ownership
 	cgid="$(find "$dir" -maxdepth 0 -type d -printf '%G')"
@@ -588,6 +613,58 @@ deduce_number_from_directory()
 			return
 		fi
 		n="$(($n+1))"
+	done
+}
+
+deduce_lock_hasher_priv()
+{
+	deduce_number_from_directory "$chroot"
+	lock_hasher_config ||
+		Fatal 'Failed to lock hasher-priv'
+}
+
+allocate_lock_hasher_priv()
+{
+	# if subconfig is already defined, just use it
+	if [ -n "$number" ]; then
+		lock_hasher_config ||
+			Fatal 'Failed to lock hasher-priv'
+	fi
+
+	# switch into non-blocking mode
+	local saved_lock_wait="$lock_wait"
+	local lock_wait=
+
+	while :; do
+		# first, try main config
+		number=
+		! lock_hasher_config || return 0
+
+		# second, browse subconfigs and try them
+		for number in $(cd /etc/hasher-priv/user.d/ && set +f && ls $(id -un):[1-9]* 2>/dev/null); do
+			number="${number#*:}"
+			[ "$number" -gt 0 ] 2>/dev/null || continue
+			! lock_hasher_config || return 0
+		done
+
+		# third, try subconfigs one by one
+		number=1
+		while :; do
+			[ "$number" -gt 0 ] || return 0
+			! lock_hasher_config || return 0
+			number="$(($number+1))"
+		done
+
+		# if all configs are busy and lock_wait was not set, bail out
+		if [ -z "$saved_lock_wait" ]; then
+			number=
+			lock_hasher_config ||
+				Fatal 'Failed to lock hasher-priv'
+			return
+		fi
+
+		# wait for next iteration
+		sleep 1
 	done
 }
 

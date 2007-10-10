@@ -98,6 +98,8 @@ check_helpers
 [ ! -e chroot -a ! -L chroot ] ||
 	Fatal "Remove $chroot first."
 
+allocate_lock_hasher_priv
+
 ugid1="$("$getugid1" ${number:+-$number})" ||
 	Fatal "getugid1 failed."
 gid1="$(printf %s "$ugid1" |cut -d: -f2)"

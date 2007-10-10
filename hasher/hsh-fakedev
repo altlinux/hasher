@@ -209,7 +209,7 @@ dev_name="$chroot/dev/$name"
 [ ! -e "$dev_name" ] ||
 	Fatal "$dev_name: File exists."
 
-deduce_number_from_directory
+deduce_lock_hasher_priv
 
 [ -n "$owner" ] || owner=0
 [ -n "$group" ] || group=0

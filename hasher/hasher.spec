@@ -17,7 +17,7 @@ Source: %url/%name-%version.tar
 Requires: %helperdir
 Requires: getopt, ash-static, cpio-static, find-static
 Requires: bash-builtin-lockf
-Requires: hasher-priv >= 0:1.0, apt-utils >= 0:0.5.5cnc4.1-alt7
+Requires: hasher-priv >= 0:1.2.11, apt-utils >= 0:0.5.5cnc4.1-alt7
 # Due to "readlink -e".
 Requires: coreutils >= 0:5.2.1-alt3
 
