@@ -113,9 +113,9 @@ known_mountpoints=
 Helpify mountpoints known_mountpoints
 
 # whether to wait for lock
-lock_wait=
-Helpify wait_lock lock_wait
-Helpify no_wait_lock lock_wait
+lock_nowait=
+Helpify wait_lock lock_nowait
+Helpify no_wait_lock lock_nowait
 
 # override default cache directory $workdir/cache
 cache_dir=
@@ -524,7 +524,7 @@ lock_workdir()
 	fi
 
 	local pid
-	if [ -n "$verbose" -o -z "$lock_wait" ] &&
+	if [ -n "$verbose" -o -n "$lock_nowait" ] &&
 	   pid="$(head -c32 -- "$workdir/pid")" &&
 	   [ "$pid" -gt 0 ] 2>/dev/null; then
 		if kill -0 -- "$pid" 2>/dev/null; then
@@ -535,7 +535,7 @@ lock_workdir()
 		fi
 	fi
 
-	if [ -n "$lock_wait" ]; then
+	if [ -z "$lock_nowait" ]; then
 		Verbose "Waiting for working directory lock..."
 		if lockf "$workdir"; then
 			echo $$ >"$workdir/pid"
@@ -555,7 +555,7 @@ lock_hasher_config()
 
 	enable -f /usr/lib/bash/lockf lockf
 	local lock_param=
-	[ -n "$lock_wait" ] || lock_param=-n
+	[ -z "$lock_nowait" ] || lock_param=-n
 	Verbose "Acquiring lock for config file \`$file'..."
 	if lockf $lock_param "$file"; then
 		Verbose "Locked config file \`$file'"
@@ -627,8 +627,8 @@ allocate_lock_hasher_priv()
 	fi
 
 	# switch into non-blocking mode
-	local saved_lock_wait="$lock_wait"
-	local lock_wait=
+	local saved_lock_nowait="$lock_nowait"
+	local lock_nowait=1
 
 	while :; do
 		# first, try main config
@@ -650,8 +650,8 @@ allocate_lock_hasher_priv()
 			number="$(($number+1))"
 		done
 
-		# if all configs are busy and lock_wait was not set, bail out
-		if [ -z "$saved_lock_wait" ]; then
+		# if all configs are busy and lock_nowait was set, bail out
+		if [ -n "$saved_lock_nowait" ]; then
 			number=
 			lock_hasher_config ||
 				Fatal 'Failed to lock hasher-priv'

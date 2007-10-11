@@ -180,9 +180,9 @@ while :; do
 			[ -z "${target##[A-Za-z]*}" ] ||
 				Fatal "--target: $target: invalid architecture."
 			;;
-		--wait-lock) lock_wait=y
+		--wait-lock) lock_nowait=
 			;;
-		--no-wait-lock) lock_wait=
+		--no-wait-lock) lock_nowait=1
 			;;
 		--without-stuff|--no-stuff) no_stuff=1
 			;;
@@ -261,8 +261,8 @@ for f in "$@"; do
 		Fatal "$f: empty source file."
 done
 
-wait_param=--wait-lock
-[ -n "$lock_wait" ] || wait_param=--no-wait-lock
+wait_param=--no-wait-lock
+[ -n "$lock_nowait" ] || wait_param=--wait-lock
 
 cleanup_workdir()
 {

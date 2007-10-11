@@ -68,9 +68,9 @@ while :; do
 			;;
 		--save-fakeroot) Info "Warning: obsolete option $1 ignored."
 			;;
-		--wait-lock) lock_wait=y
+		--wait-lock) lock_nowait=
 			;;
-		--no-wait-lock) lock_wait=
+		--no-wait-lock) lock_nowait=1
 			;;
 		--) shift; break
 			;;

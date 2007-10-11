@@ -65,9 +65,9 @@ while :; do
 			number="$(opt_check_number "$1" "$2")"
 			shift
 			;;
-		--wait-lock) lock_wait=y
+		--wait-lock) lock_nowait=
 			;;
-		--no-wait-lock) lock_wait=
+		--no-wait-lock) lock_nowait=1
 			;;
 		--with-qemu)
 			qemu_arch="$2"

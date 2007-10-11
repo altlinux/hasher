@@ -111,9 +111,9 @@ while :; do
 			;;
 		--save-fakeroot) save_fakeroot=1
 			;;
-		--wait-lock) lock_wait=y
+		--wait-lock) lock_nowait=
 			;;
-		--no-wait-lock) lock_wait=
+		--no-wait-lock) lock_nowait=1
 			;;
 		--contents-index-*)
 			Info "Warning: obsolete option $1 ignored."

@@ -95,9 +95,9 @@ while :; do
 			reference="$(opt_check_dev "$1" "$2")"
 			shift
 			;;
-		--wait-lock) lock_wait=y
+		--wait-lock) lock_nowait=
 			;;
-		--no-wait-lock) lock_wait=
+		--no-wait-lock) lock_nowait=1
 			;;
 		--) shift; break
 			;;

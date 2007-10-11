@@ -94,9 +94,9 @@ while :; do
 			;;
 		-u|--update) update=1
 			;;
-		--wait-lock) lock_wait=--wait-lock
+		--wait-lock) lock_nowait=
 			;;
-		--no-wait-lock) lock_wait=
+		--no-wait-lock) lock_nowait=1
 			;;
 		--without-stuff|--no-stuff) no_stuff=1
 			;;

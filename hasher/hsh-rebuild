@@ -130,9 +130,9 @@ while :; do
 			[ -z "${target##[A-Za-z]*}" ] ||
 				Fatal "--target: $target: invalid architecture."
 			;;
-		--wait-lock) lock_wait=y
+		--wait-lock) lock_nowait=
 			;;
-		--no-wait-lock) lock_wait=
+		--no-wait-lock) lock_nowait=1
 			;;
 		--without-stuff|--no-stuff) no_stuff=1
 			;;

@@ -133,9 +133,9 @@ while :; do
 			shift
 			[ -z "$1" ] || shell_prog="$1"
 			;;
-		--wait-lock) lock_wait=y
+		--wait-lock) lock_nowait=
 			;;
-		--no-wait-lock) lock_wait=
+		--no-wait-lock) lock_nowait=1
 			;;
 		--x11-timeout) shift; x11_timeout="$1"
 			;;
