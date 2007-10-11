@@ -596,19 +596,6 @@ deduce_number_from_directory()
 			return
 		fi
 	done
-
-	# last resort, check subconfigs one by one
-	n=1
-	while :; do
-		[ "$n" -gt 0 ] || return 0
-		gid1="$("$getugid1" -"$n" 2>/dev/null)" || return 0
-		gid1="${gid1##*:}"
-		if [ "$cgid" = "$gid1" ]; then
-			number="$n"
-			return
-		fi
-		n="$(($n+1))"
-	done
 }
 
 deduce_lock_hasher_priv()
@@ -631,32 +618,20 @@ allocate_lock_hasher_priv()
 	local lock_nowait=1
 
 	while :; do
-		# first, try main config
+		# try main config
 		number=
 		! lock_hasher_config || return 0
 
-		# second, browse subconfigs and try them
+		# browse subconfigs and try them
 		for number in $(cd /etc/hasher-priv/user.d/ && set +f && ls $(id -un):[1-9]* 2>/dev/null); do
 			number="${number#*:}"
 			[ "$number" -gt 0 ] 2>/dev/null || continue
 			! lock_hasher_config || return 0
 		done
 
-		# third, try subconfigs one by one
-		number=1
-		while :; do
-			[ "$number" -gt 0 ] || return 0
-			! lock_hasher_config || return 0
-			number="$(($number+1))"
-		done
-
 		# if all configs are busy and lock_nowait was set, bail out
-		if [ -n "$saved_lock_nowait" ]; then
-			number=
-			lock_hasher_config ||
-				Fatal 'Failed to lock hasher-priv'
-			return
-		fi
+		[ -z "$saved_lock_nowait" ] ||
+			Fatal 'Failed to lock hasher-priv'
 
 		# wait for next iteration
 		sleep 1
