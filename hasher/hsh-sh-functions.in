@@ -517,7 +517,7 @@ __EOF__
 lock_workdir()
 {
 	enable -f /usr/lib/bash/lockf lockf
-	if lockf -n "$workdir"; then
+	if builtin lockf -n "$workdir"; then
 		echo $$ >"$workdir/pid"
 		Verbose "Locked working directory \`$workdir'"
 		return 0
@@ -537,7 +537,7 @@ lock_workdir()
 
 	if [ -z "$lock_nowait" ]; then
 		Verbose "Waiting for working directory lock..."
-		if lockf "$workdir"; then
+		if builtin lockf "$workdir"; then
 			echo $$ >"$workdir/pid"
 			Verbose "Locked working directory \`$workdir'"
 			return 0
@@ -547,6 +547,7 @@ lock_workdir()
 	Fatal "Unable to lock working directory \`$workdir'"
 }
 
+# assumed: variables initialized by check_helpers()
 lock_hasher_config()
 {
 	local file
@@ -557,7 +558,7 @@ lock_hasher_config()
 	local lock_param=
 	[ -z "$lock_nowait" ] || lock_param=-n
 	Verbose "Acquiring lock for config file \`$file'..."
-	if lockf $lock_param "$file"; then
+	if builtin lockf $lock_param "$file"; then
 		Verbose "Locked config file \`$file'"
 		return 0
 	else
@@ -566,38 +567,53 @@ lock_hasher_config()
 	fi
 }
 
+iterate_config_files_set_number()
+{
+	local n saved_number="$number"
+
+	# browse config files and try them one by one
+	for n in '' $(cd /etc/hasher-priv/user.d/ && set +f && ls $(id -un):[1-9]* 2>/dev/null); do
+		if [ -n "$n" ]; then
+			[ -n "${n##*\*}" ] || continue
+			n="${n#*:}"
+			[ "$n" -gt 0 ] 2>/dev/null || continue
+		fi
+		number="$n"
+		if "$@"; then
+			return 0
+		fi
+	done
+
+	# if no suitable config file found, restore number clobbered by the loop
+	number="$saved_number"
+	return 1
+}
+
+is_config_matches_gid()
+{
+	local sample="$1"; shift
+	local gid
+
+	gid="$("$getugid1" ${number:+-$number} 2>/dev/null)" || return
+	gid="${gid##*:}"
+	[ "$sample" = "$gid" ] || return
+}
 
 # assumed: variables initialized by check_helpers()
 deduce_number_from_directory()
 {
 	local dir="$1"; shift
-	local cgid gid1 n
+	local gid
 
 	# take gid from directory ownership
-	cgid="$(find "$dir" -maxdepth 0 -type d -printf '%G')"
-	[ "$cgid" -ge 0 ] 2>/dev/null || return 0
+	gid="$(find "$dir" -maxdepth 0 -type d -printf '%G')"
+	[ "$gid" -ge 0 ] 2>/dev/null || return 0
 
-	# compare with default user1's gid
-	gid1="$("$getugid1")" || Fatal 'getugid1 failed.'
-	gid1="${gid1#*:}"
-	if [ "$cgid" = "$gid1" ]; then
-		number=
+	iterate_config_files_set_number is_config_matches_gid "$gid" ||
 		return
-	fi
-
-	# browse subconfigs and compare with their user1's gid numbers
-	for n in $(cd /etc/hasher-priv/user.d/ && set +f && ls $(id -un):[1-9]* 2>/dev/null); do
-		n="${n#*:}"
-		[ "$n" -gt 0 ] 2>/dev/null || continue
-		gid1="$("$getugid1" -"$n" 2>/dev/null)" || continue
-		gid1="${gid1##*:}"
-		if [ "$cgid" = "$gid1" ]; then
-			number="$n"
-			return
-		fi
-	done
 }
 
+# assumed: variables initialized by check_helpers()
 deduce_lock_hasher_priv()
 {
 	deduce_number_from_directory "$chroot"
@@ -605,6 +621,7 @@ deduce_lock_hasher_priv()
 		Fatal 'Failed to lock hasher-priv'
 }
 
+# assumed: variables initialized by check_helpers()
 allocate_lock_hasher_priv()
 {
 	# if subconfig is already defined, just use it
@@ -618,16 +635,9 @@ allocate_lock_hasher_priv()
 	local lock_nowait=1
 
 	while :; do
-		# try main config
-		number=
-		! lock_hasher_config || return 0
-
-		# browse subconfigs and try them
-		for number in $(cd /etc/hasher-priv/user.d/ && set +f && ls $(id -un):[1-9]* 2>/dev/null); do
-			number="${number#*:}"
-			[ "$number" -gt 0 ] 2>/dev/null || continue
-			! lock_hasher_config || return 0
-		done
+		if iterate_config_files_set_number lock_hasher_config; then
+			return 0;
+		fi
 
 		# if all configs are busy and lock_nowait was set, bail out
 		[ -z "$saved_lock_nowait" ] ||
