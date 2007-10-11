@@ -516,21 +516,16 @@ __EOF__
 
 lock_workdir()
 {
-	local lockdir="$workdir/lockdir"
-	mkdir -p $verbose "$lockdir" ||
-		Fatal "Unable to lock working directory \`$workdir'"
-
 	enable -f /usr/lib/bash/lockf lockf
-	local lock_file="$lockdir/pid"
-	if lockf -n "$lock_file"; then
-		echo $$ >"$lock_file"
+	if lockf -n "$workdir"; then
+		echo $$ >"$workdir/pid"
 		Verbose "Locked working directory \`$workdir'"
 		return 0
 	fi
 
 	local pid
 	if [ -n "$verbose" -o -z "$lock_wait" ] &&
-	   pid="$(head -c32 -- "$lock_file")" &&
+	   pid="$(head -c32 -- "$workdir/pid")" &&
 	   [ "$pid" -gt 0 ] 2>/dev/null; then
 		if kill -0 -- "$pid" 2>/dev/null; then
 			Info "working directory \`$workdir' is already locked by pid=$pid."
@@ -542,8 +537,8 @@ lock_workdir()
 
 	if [ -n "$lock_wait" ]; then
 		Verbose "Waiting for working directory lock..."
-		if lockf "$lock_file"; then
-			echo $$ >"$lock_file"
+		if lockf "$workdir"; then
+			echo $$ >"$workdir/pid"
 			Verbose "Locked working directory \`$workdir'"
 			return 0
 		fi
@@ -778,12 +773,13 @@ prepare_x11_forwarding()
 		xentry="$(xauth list "$display")" ||
 			return 1
 	elif [ "$x11_forwarding" = untrusted ]; then
-		local xfile="$workdir/lockdir/xauth"
-		touch "$xfile" &&
+		local xfile
+		xfile="$(mktemp -t xauth.XXXXXXXX)"
 		$xauth -f "$xfile" generate "$DISPLAY" . untrusted timeout "$x11_timeout" ||
-			return 1
+			{ rm -f "$xfile"; return 1; }
 		xentry="$(xauth -f "$xfile" list "$DISPLAY")" ||
-			return 1
+			{ rm -f "$xfile"; return 1; }
+		rm -f "$xfile"
 	else
 		Fatal 'Invalid $x11_forwarding value.'
 	fi

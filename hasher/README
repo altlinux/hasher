@@ -25,7 +25,7 @@
   Working directory ("$HOME/hasher" by default) MUST exist.
 
   Working directory shouldn't contain self-made files or directories
-  with reserved names "aptbox", "cache", "chroot", "lockdir" and "repo".
+  with reserved names "aptbox", "cache", "chroot", "pid" and "repo".
 
   During the work hasher creates there a subdirectory named "repo" to
   store work repository.  Result of successful builds will be placed

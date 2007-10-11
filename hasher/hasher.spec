@@ -16,10 +16,15 @@ Source: %url/%name-%version.tar
 
 Requires: %helperdir
 Requires: getopt, ash-static, cpio-static, find-static
-Requires: bash-builtin-lockf
-Requires: hasher-priv >= 0:1.2.11, apt-utils >= 0:0.5.5cnc4.1-alt7
-# Due to "readlink -e".
+Requires: apt-utils >= 0:0.5.5cnc4.1-alt7
+# due to "enable -f /usr/lib/bash/lockf lockf"
+Requires: bash-builtin-lockf >= 0:0.2
+# due to "readlink -e"
 Requires: coreutils >= 0:5.2.1-alt3
+# due to "hasher-priv getconf"
+Requires: hasher-priv >= 0:1.2.11
+# due to prepare_x11_forwarding()
+Requires: mktemp >= 1:1.3.1
 
 Obsoletes: pkg-build-utils, libbte
 

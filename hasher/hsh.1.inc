@@ -67,8 +67,8 @@ by initroot.
 .B chroot
 - build environment, created automatically by mkchroot.
 .TP
-.B lockdir
-- lock directory, handled internally by
+.B pid
+- pid file, handled internally by
 .BR hsh .
 .TP
 .B repo
