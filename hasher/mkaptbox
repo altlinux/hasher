@@ -64,7 +64,6 @@ TEMP=`getopt -n $PROG -o f,u,h,q,v,V -l apt-config:,apt-prefix:,force,no-lock,no
 eval set -- "$TEMP"
 
 force=
-no_lock=
 update=1
 while :; do
 	case "$1" in
@@ -126,7 +125,7 @@ else
 	set_workdir
 fi
 
-[ -n "$no_lock" ] || lock_workdir
+lock_workdir
 
 [ -n "$no_stuff" ] ||
 	make_repo

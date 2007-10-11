@@ -89,7 +89,6 @@ TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,${i_am_hsh_run:+execute:,}hash
 	show_usage
 eval set -- "$TEMP"
 
-no_lock=
 run_as_rooter=
 run_script=
 run_shell=
@@ -178,14 +177,9 @@ fi
 [ "$#" -ge 1 -o -n "$run_script" ] ||
 	show_usage 'Insufficient arguments.'
 
-check_helpers
-[ -n "$no_lock" ] || lock_workdir
+lock_workdir
 [ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
-if [ -n "$no_lock" ]; then
-	deduce_number_from_directory "$chroot"
-else
-	deduce_lock_hasher_priv
-fi
+deduce_lock_hasher_priv
 
 prepare_x11_forwarding || x11_forwarding=
 

@@ -261,9 +261,6 @@ for f in "$@"; do
 		Fatal "$f: empty source file."
 done
 
-wait_param=--no-wait-lock
-[ -n "$lock_nowait" ] || wait_param=--wait-lock
-
 cleanup_workdir()
 {
 	if [ -d aptbox ]; then
@@ -282,8 +279,8 @@ cleanup_workdir()
 			Fatal 'Failed to remove repo.'
 	fi
 	if [ -d chroot ]; then
+		deduce_lock_hasher_priv
 		hsh-rmchroot --no-lock "$workdir" \
-			$wait_param \
 			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 			${quiet:+$quiet} \
 			${verbose:+$verbose} \
@@ -301,7 +298,6 @@ handle_package()
 
 	rm -rf aptbox
 	mkaptbox --no-lock "$workdir" \
-		$wait_param \
 		${target:+--target="$target"} \
 		${repo:+--repo="$repo"} \
 		${repo_bin:+--repo-bin="$repo_bin"} \
@@ -312,15 +308,18 @@ handle_package()
 		${verbose:+$verbose} \
 		${no_stuff:+--no-stuff} \
 		#
-	[ ! -d chroot ] || hsh-rmchroot --no-lock "$workdir" \
-		$wait_param \
+	if [ -d chroot ]; then
+		deduce_lock_hasher_priv
+		hsh-rmchroot --no-lock "$workdir" \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
 		${number:+--number=$number} \
 		#
+	else
+		allocate_lock_hasher_priv
+	fi
 	hsh-mkchroot --no-lock "$workdir" \
-		$wait_param \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
@@ -328,7 +327,6 @@ handle_package()
 		${qemu_arch:+--with-qemu=$qemu_arch} \
 		#
 	hsh-initroot --no-lock "$workdir" \
-		$wait_param \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
@@ -347,7 +345,6 @@ handle_package()
 		#
 	[ -n "$f" ] || return 0
 	hsh-rebuild --no-lock "$workdir" \
-		$wait_param \
 		${target:+--target="$target"} \
 		${repo:+--repo="$repo"} \
 		${repo_bin:+--repo-bin="$repo_bin"} \
@@ -371,7 +368,6 @@ handle_package()
 	if [ -z "$lazy_cleanup" -a -z "$initroot_only" ]; then
 		rm -rf aptbox
 		[ ! -d chroot ] || hsh-rmchroot --no-lock "$workdir" \
-		$wait_param \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \

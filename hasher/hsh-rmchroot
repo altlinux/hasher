@@ -50,7 +50,6 @@ TEMP=`getopt -n $PROG -o h,q,v,V -l hasher-priv-dir:,no-lock,number:,wait-lock,n
 	show_usage
 eval set -- "$TEMP"
 
-no_lock=
 while :; do
 	case "$1" in
 		--hasher-priv-dir)
@@ -91,8 +90,7 @@ else
 	set_workdir
 fi
 
-check_helpers
-[ -n "$no_lock" ] || lock_workdir
+lock_workdir
 
 cd chroot
 Verbose "Changed working directory to \`$chroot'."

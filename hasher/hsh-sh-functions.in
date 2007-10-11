@@ -514,8 +514,15 @@ __EOF__
 	chmod 755 "$entry"
 }
 
+no_lock=
+workdir_is_locked=
 lock_workdir()
 {
+	[ -z "$workdir_is_locked" ] || return 0
+	workdir_is_locked=1
+	check_helpers
+	[ -z "$no_lock" ] || return 0
+
 	enable -f /usr/lib/bash/lockf lockf
 	if builtin lockf -n "$workdir"; then
 		echo $$ >"$workdir/pid"
@@ -548,8 +555,11 @@ lock_workdir()
 }
 
 # assumed: variables initialized by check_helpers()
+config_is_locked=
 lock_hasher_config()
 {
+	[ -z "$no_lock" -a -z "$config_is_locked" ] || return 0
+
 	local file
 	file="$("$getconf" ${number:+-$number})" ||
 		Fatal 'hasher-priv getconf failed.'
@@ -559,6 +569,7 @@ lock_hasher_config()
 	[ -z "$lock_nowait" ] || lock_param=-n
 	Verbose "Acquiring lock for config file \`$file'..."
 	if builtin lockf $lock_param "$file"; then
+		config_is_locked=1
 		Verbose "Locked config file \`$file'"
 		return 0
 	else
@@ -607,10 +618,11 @@ deduce_number_from_directory()
 
 	# take gid from directory ownership
 	gid="$(find "$dir" -maxdepth 0 -type d -printf '%G')"
-	[ "$gid" -ge 0 ] 2>/dev/null || return 0
+	[ "$gid" -ge 0 ] 2>/dev/null ||
+		Fatal 'Failed to get directory ownership.'
 
 	iterate_config_files_set_number is_config_matches_gid "$gid" ||
-		return
+		Fatal 'Failed to deduce hasher config number from directory ownership.'
 }
 
 # assumed: variables initialized by check_helpers()
@@ -628,6 +640,7 @@ allocate_lock_hasher_priv()
 	if [ -n "$number" ]; then
 		lock_hasher_config ||
 			Fatal 'Failed to lock hasher-priv'
+		return 0
 	fi
 
 	# switch into non-blocking mode

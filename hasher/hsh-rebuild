@@ -72,7 +72,6 @@ TEMP=`getopt -n $PROG -o h,q,v,V -l args:,excludedocs,hasher-priv-dir:,install-o
 eval set -- "$TEMP"
 
 nodeps=
-no_lock=
 install_only=
 source_only=
 while :; do
@@ -173,8 +172,7 @@ source="$1"
 sname="${source##*/}"
 shift
 
-check_helpers
-[ -n "$no_lock" ] || lock_workdir
+lock_workdir
 [ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
 deduce_lock_hasher_priv
 

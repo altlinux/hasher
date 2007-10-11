@@ -66,7 +66,6 @@ eval set -- "$TEMP"
 : ${init_list:=$pkg_init_list}
 : ${build_list:=$pkg_build_list}
 
-no_lock=
 while :; do
 	case "$1" in
 		--excludedocs) exclude_docs=--excludedocs
@@ -143,8 +142,7 @@ else
 	set_workdir
 fi
 
-check_helpers
-[ -n "$no_lock" ] || lock_workdir
+lock_workdir
 [ -d "$chroot" ] || Fatal "$chroot: cannot access chroot."
 [ -d "$aptbox" ] || Fatal "$aptbox: cannot access aptbox."
 deduce_lock_hasher_priv

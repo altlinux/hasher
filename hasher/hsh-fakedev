@@ -200,7 +200,6 @@ else
 	name="${reference##*/}"
 fi
 
-check_helpers
 lock_workdir
 [ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
 [ -f "$chroot/.fakedata" ] ||
