@@ -636,6 +636,8 @@ deduce_lock_hasher_priv()
 # assumed: variables initialized by check_helpers()
 allocate_lock_hasher_priv()
 {
+	[ -z "$no_lock" -a -z "$config_is_locked" ] || return 0
+
 	# if subconfig is already defined, just use it
 	if [ -n "$number" ]; then
 		lock_hasher_config ||
@@ -646,10 +648,11 @@ allocate_lock_hasher_priv()
 	# switch into non-blocking mode
 	local saved_lock_nowait="$lock_nowait"
 	local lock_nowait=1
+	local n=0
 
 	while :; do
 		if iterate_config_files_set_number lock_hasher_config; then
-			return 0;
+			return 0
 		fi
 
 		# if all configs are busy and lock_nowait was set, bail out
@@ -657,7 +660,8 @@ allocate_lock_hasher_priv()
 			Fatal 'Failed to lock hasher-priv'
 
 		# wait for next iteration
-		sleep 1
+		n="$(($n+1))"
+		sleep "$n"
 	done
 }
 
