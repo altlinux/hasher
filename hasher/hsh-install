@@ -147,7 +147,8 @@ if [ -x /.host/postin ]; then
 fi
 __EOF__
 
-chrootuid1 </dev/null &&
+wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
+    chrootuid1 </dev/null &&
 	Verbose 'Packages installation complete.' ||
 	Fatal 'Packages installation failed.'
 
