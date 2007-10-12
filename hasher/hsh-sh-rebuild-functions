@@ -88,7 +88,7 @@ __EOF__
 		local buildreq_helper
 		buildreq_helper="$(type -p hsh-buildreq-filter)" &&
 			[ -r "$buildreq_helper" ] ||
-			fatal "hsh-buildreq-filter: Not available"
+			Fatal 'hsh-buildreq-filter: Not available'
 
 		install -p -m755 $verbose "$buildreq_helper" chroot/.host/hsh-buildreq-filter
 
