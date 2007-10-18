@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.2.9
+Version: 1.3.0
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -49,6 +49,17 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Fri Oct 19 2007 Dmitry V. Levin <ldv@altlinux.org> 1.3.0-alt1
+- Changed utilities to lock workdir by default.
+- Changed utilities which operate with prepared chroot to
+  deduce subconfig identifier from chroot directory ownership.
+- Changed workdir locking algorithm to lock workdir itself.
+- Implemented hasher-priv locking.
+- hsh, hsh-mkchroot: Choose subconfig identifier randomly
+  unless --number option is used.
+- Enabled wait-for-lock behavior by default.
+  Added --wait-lock/--no-wait-lock options to control wait mode.
+
 * Mon Oct 08 2007 Dmitry V. Levin <ldv@altlinux.org> 1.2.9-alt1
 - hsh-sh-functions.in (lock_workdir, hasher_exit_handler):
   Do not remove pid file.
