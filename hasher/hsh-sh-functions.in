@@ -578,18 +578,38 @@ lock_hasher_config()
 	fi
 }
 
-iterate_config_files_set_number()
+list_user_subconfig_numbers()
 {
-	local n saved_number="$number"
-
-	# browse config files and try them one by one
+	local n
 	for n in '' $(cd /etc/hasher-priv/user.d/ && set +f && ls $(id -un):[1-9]* 2>/dev/null); do
 		if [ -n "$n" ]; then
 			[ -n "${n##*\*}" ] || continue
 			n="${n#*:}"
 			[ "$n" -gt 0 ] 2>/dev/null || continue
+			echo "$n"
+		else
+			echo 0
 		fi
-		number="$n"
+	done
+}
+
+show_user_subconfig_numbers()
+{
+	local randomize="$1"; shift
+	set -- `list_user_subconfig_numbers`
+	[ $# -gt 0 ] || return 0
+	[ -z "$randomize" ] || shift $((${RANDOM-0}%$#))
+	echo "$@"
+}
+
+iterate_config_files_set_number()
+{
+	local randomize="$1"; shift
+	local saved_number="$number"
+
+	# try config files one by one
+	for number in `show_user_subconfig_numbers "$randomize"`; do
+		[ "$number" != 0 ] || number=
 		if "$@"; then
 			return 0
 		fi
@@ -621,7 +641,7 @@ deduce_number_from_directory()
 	[ "$gid" -ge 0 ] 2>/dev/null ||
 		Fatal 'Failed to get directory ownership.'
 
-	iterate_config_files_set_number is_config_matches_gid "$gid" ||
+	iterate_config_files_set_number '' is_config_matches_gid "$gid" ||
 		Fatal 'Failed to deduce hasher config number from directory ownership.'
 }
 
@@ -649,9 +669,10 @@ allocate_lock_hasher_priv()
 	local saved_lock_nowait="$lock_nowait"
 	local lock_nowait=1
 	local n=0
+	local randomize=1
 
 	while :; do
-		if iterate_config_files_set_number lock_hasher_config; then
+		if iterate_config_files_set_number "$randomize" lock_hasher_config; then
 			return 0
 		fi
 
@@ -662,6 +683,7 @@ allocate_lock_hasher_priv()
 		# wait for next iteration
 		n="$(($n+1))"
 		sleep "$n"
+		randomize=
 	done
 }
 
