@@ -88,7 +88,8 @@ html: $(HTMLPAGES)
 
 install: all
 	$(MKDIR_P) -m755 $(DESTDIR)$(bindir)
-	$(INSTALL) -pm755 $(FILTERS) $(FUNCTIONS) $(PROGRAMS) $(DESTDIR)$(bindir)/
+	$(INSTALL) -pm644 $(FUNCTIONS) $(DESTDIR)$(bindir)/
+	$(INSTALL) -pm755 $(FILTERS) $(PROGRAMS) $(DESTDIR)$(bindir)/
 
 	$(MKDIR_P) -m755 $(DESTDIR)$(man1dir)
 	$(INSTALL) -pm644 $(MAN1PAGES) $(DESTDIR)$(man1dir)/
