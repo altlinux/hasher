@@ -640,10 +640,13 @@ deduce_number_from_directory()
 	local dir="$1"; shift
 	local gid
 
+	[ -d "$dir" ] ||
+		Fatal "$dir: Directory not available."
+
 	# take gid from directory ownership
 	gid="$(find "$dir" -maxdepth 0 -type d -printf '%G')"
 	[ "$gid" -ge 0 ] 2>/dev/null ||
-		Fatal 'Failed to get directory ownership.'
+		Fatal "$dir: Failed to get directory ownership."
 
 	iterate_config_files_set_number '' is_config_matches_gid "$gid" ||
 		Fatal 'Failed to deduce hasher config number from directory ownership.'
