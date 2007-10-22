@@ -391,8 +391,11 @@ check_tty()
 	fi
 }
 
+check_helpers_done=
 check_helpers()
 {
+	[ -z "$check_helpers_done" ] || return 0
+
 	[ -d "${hasher_priv_dir:-$def_hasher_priv_dir}" ] ||
 		Fatal "${hasher_priv_dir:-$def_hasher_priv_dir}: cannot access hasher-priv helper directory."
 
@@ -419,6 +422,8 @@ check_helpers()
 	makedev="${hasher_priv_dir:-$def_hasher_priv_dir}/makedev.sh"
 	[ -x "$makedev" ] ||
 		Fatal "$makedev: cannot access makedev helper."
+
+	check_helpers_done=1
 }
 
 # assumed: cwd == workdir
@@ -520,7 +525,6 @@ lock_workdir()
 {
 	[ -z "$workdir_is_locked" ] || return 0
 	workdir_is_locked=1
-	check_helpers
 	[ -z "$no_lock" ] || return 0
 
 	enable -f /usr/lib/bash/lockf lockf
@@ -645,17 +649,18 @@ deduce_number_from_directory()
 		Fatal 'Failed to deduce hasher config number from directory ownership.'
 }
 
-# assumed: variables initialized by check_helpers()
 deduce_lock_hasher_priv()
 {
-	deduce_number_from_directory "$chroot"
+	local dir="${1-$chroot}"
+	check_helpers
+	deduce_number_from_directory "$dir"
 	lock_hasher_config ||
 		Fatal 'Failed to lock hasher-priv'
 }
 
-# assumed: variables initialized by check_helpers()
 allocate_lock_hasher_priv()
 {
+	check_helpers
 	[ -z "$no_lock" -a -z "$config_is_locked" ] || return 0
 
 	# if subconfig is already defined, just use it
