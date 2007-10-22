@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.0
+Version: 1.3.1
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -49,6 +49,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Tue Oct 23 2007 Dmitry V. Levin <ldv@altlinux.org> 1.3.1-alt1
+- Packaged functions files without execute permissions set.
+- hsh, hsh-mkchroot: Extended --number option syntax:
+  When --number argument starts with slash character, it
+  specifies a directory to deduce hasher config number from.
+
 * Fri Oct 19 2007 Dmitry V. Levin <ldv@altlinux.org> 1.3.0-alt1
 - Changed utilities to lock workdir by default.
 - Changed utilities which operate with prepared chroot to
