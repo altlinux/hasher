@@ -149,7 +149,13 @@ while :; do
 			shift
 			;;
 		--number)
-			number="$(opt_check_number "$1" "$2")"
+			if [ -z "${2##/*}" ]; then
+				[ -d "$2" ] ||
+					Fatal "$1: $2: Directory not available."
+				number="$2"
+			else
+				number="$(opt_check_number "$1" "$2")"
+			fi
 			shift
 			;;
 		--packager) shift; packager="$1"
@@ -317,7 +323,11 @@ handle_package()
 		${number:+--number=$number} \
 		#
 	else
-		allocate_lock_hasher_priv
+		if [ -n "$number" -a -z "${number##/*}" ]; then
+			deduce_lock_hasher_priv "$number"
+		else
+			allocate_lock_hasher_priv
+		fi
 	fi
 	hsh-mkchroot --no-lock "$workdir" \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \

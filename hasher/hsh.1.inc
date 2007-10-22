@@ -34,6 +34,8 @@ point of time.  To overcome this restriction, additional pseudouser
 pairs should be created by
 .BR hasher\-useradd (8).
 The subconfig identifier defines the pair to use.
+Additionally, when \fINUMBER\fR starts with slash character, it specifies
+a directory to deduce subconfig identifier from.
 .TP
 \fB\-\-mountpoints\fR=\fILIST\fR
 Defines list of known mount points.  Every build dependence which belongs

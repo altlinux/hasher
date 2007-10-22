@@ -61,7 +61,13 @@ while :; do
 		--no-lock) no_lock=1
 			;;
 		--number)
-			number="$(opt_check_number "$1" "$2")"
+			if [ -z "${2##/*}" ]; then
+				[ -d "$2" ] ||
+					Fatal "$1: $2: Directory not available."
+				number="$2"
+			else
+				number="$(opt_check_number "$1" "$2")"
+			fi
 			shift
 			;;
 		--wait-lock) lock_nowait=
@@ -102,7 +108,11 @@ lock_workdir
 [ ! -e chroot -a ! -L chroot ] ||
 	Fatal "Remove $chroot first."
 
-allocate_lock_hasher_priv
+if [ -n "$number" -a -z "${number##/*}" ]; then
+	deduce_lock_hasher_priv "$number"
+else
+	allocate_lock_hasher_priv
+fi
 
 ugid1="$("$getugid1" ${number:+-$number})" ||
 	Fatal "getugid1 failed."
