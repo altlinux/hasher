@@ -21,4 +21,4 @@ q="* $d $p $n\n"
 add_changelog -e "$e" -a "-q --qf '$q'" "$specfile"
 
 # build source package from specfile
-exec nice time rpmbuild -bs --nodeps "$specfile"
+exec time rpmbuild -bs --nodeps "$specfile"
