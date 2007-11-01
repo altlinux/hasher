@@ -77,8 +77,9 @@ check_chroot_cache()
 			[ -n "$f" ] || continue
 			n="${f##*/}"
 			if ! touch -r "$f" "$cache_dir/chroot/package.new/$n"; then
-				printf %s\\n "$n" >"$bad"
-				break
+				# Don't break early, show the whole list of missing RPMs.
+				printf %s\\n "$n" >>"$bad"
+				#break
 			fi
 		done
 	[ ! -f "$bad" ] || Fatal 'Failed to check chroot cache.'
