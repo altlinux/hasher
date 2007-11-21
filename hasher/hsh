@@ -230,6 +230,8 @@ if [ -z "$initroot_only" -a -z "$cleanup_only" ]; then
 		[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
 	fi
 
+	[ -e "$1" ] || Fatal "$1: no such file or directory."
+
 	if [ -z "$workdir" -o -d "${1:-}" ]; then
 		set_workdir "${1:-}"
 		shift
@@ -259,6 +261,8 @@ fi
 
 for f in "$@"; do
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
+	[ -e "$f" ] ||
+		Fatal "$f: file not found."
 	[ -f "$f" ] ||
 		Fatal "$f: not a regular file."
 	[ -r "$f" ] ||
