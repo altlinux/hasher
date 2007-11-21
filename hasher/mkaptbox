@@ -129,8 +129,8 @@ lock_workdir
 
 [ -n "$no_stuff" ] ||
 	make_repo
-[ -z "$repo" ] ||
-	repo="$(readlink -ef -- "$repo")"
+[ -n "$repo" ] || repo="$def_repo"
+repo="$(readlink -ef -- "$repo")"
 
 # does aptbox exist yet?
 if [ -e aptbox -o -L aptbox ]; then
@@ -234,7 +234,7 @@ done
 
 cat >regenbasedir <<__EOF__
 #!/bin/sh -ef
-"$aptbox/genbasedir" --topdir="${repo:-$workdir/$def_repo}" --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher "\$@"
+"$aptbox/genbasedir" --topdir="$repo" --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher "\$@"
 "$aptbox/apt-get" ${quiet:+-qq} update
 __EOF__
 Verbose "created regenbasedir"
@@ -278,7 +278,7 @@ Verbose "Created APT configuration file \`$apt_config_file'."
 # create a new sources.list file.
 target_config="./etc/apt/sources.list"
 cat >"$target_config" <<__EOF__
-${no_stuff:+#}rpm file:${repo:-$workdir/$def_repo} ${target:-$def_target} hasher
+${no_stuff:+#}rpm file:$repo ${target:-$def_target} hasher
 $(LC_ALL=C grep '^[^#]' "$sl_value")
 __EOF__
 Verbose "Created APT source list file \`$target_config'."
