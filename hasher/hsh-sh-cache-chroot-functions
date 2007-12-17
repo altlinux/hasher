@@ -157,7 +157,7 @@ unpack_chroot_cache()
 		create_entry_fakeroot_header
 		cat >>"$entry" <<__EOF__
 cd /
-cpio --extract --make-directories --sparse --quiet --unconditional
+cpio --extract --make-directories --sparse --quiet --unconditional --preserve-modification-time
 __EOF__
 		wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 		    chrootuid1 <"$f" &&
@@ -205,7 +205,7 @@ create_chroot()
 		create_entry_fakeroot_header
 		cat >>"$entry" <<__EOF__
 cd /
-cpio --extract --make-directories --sparse --quiet --unconditional
+cpio --extract --make-directories --sparse --quiet --unconditional --preserve-modification-time
 __EOF__
 		for f in $initlist; do
 			rpm2cpio "$f" |wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
