@@ -189,7 +189,7 @@ else
 		prog="$apt_prefix/bin/$n"
 		[ -x "$prog" ] ||
 			Fatal "$prog: program not available."
-		var="$(printf '$prog_%s' "$n" |tr - _)"
+		var="$(printf 'prog_%s' "$n" |tr - _)"
 		eval "$var=\"$(quote_arg "$prog")\""
 	done
 fi
