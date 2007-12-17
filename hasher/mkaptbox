@@ -177,7 +177,10 @@ else
 		Fatal "$apt_prefix: illegal symbols in apt prefix."
 	fi
 
-	apt_libdir="$apt_prefix/lib"
+	slibdir="$(getconf SLIB ||:)"
+	[ -n slibdir ] || slibdir="lib"
+
+	apt_libdir="$apt_prefix/$slibdir"
 	[ -d "$apt_libdir" ] ||
 		Fatal "$apt_libdir: directory not available."
 
