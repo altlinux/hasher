@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.1
+Version: 1.3.2
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -49,6 +49,20 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Fri Dec 21 2007 Dmitry V. Levin <ldv@altlinux.org> 1.3.2-alt1
+- Alex V. Myltsev:
+  hsh: Clearer diagnostic if the workdir does not exist (#13476).
+  mkaptbox: Support absolute def_repo.
+  mkaptbox: Use `getconf SLIB` instead of hardcoded "lib".
+- Alexey Tourbin:
+  hsh-sh-cache-contents-functions (contents_index_bin_dirs): Added /usr/games.
+  hsh-rebuild, rebuild-prog.sh: Removed nice(1).
+  cache-chroot-functions: Don't break early, show the whole list of missing RPMs.
+- Dmitry V. Levin:
+  mkaptbox: Fixed typo which made --apt-prefix option unusable.
+  hsh-sh-cache-chroot-functions (unpack_chroot_cache, create_chroot):
+  Pass --preserve-modification-time option to cpio --extract.
+
 * Tue Oct 23 2007 Dmitry V. Levin <ldv@altlinux.org> 1.3.1-alt1
 - Packaged functions files without execute permissions set.
 - hsh, hsh-mkchroot: Extended --number option syntax:
