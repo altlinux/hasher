@@ -260,7 +260,8 @@ use_pty=
 opt_check_read()
 {
 	local value
-	value="$(readlink -ev -- "$2")" &&
+	[ -r "$2" ] &&
+		value="$(readlink -ev -- "$2")" &&
 		[ -r "$value" ] ||
 		Fatal "$1: $2: file not available."
 	printf %s "$value"
@@ -269,7 +270,8 @@ opt_check_read()
 opt_check_dir()
 {
 	local value
-	value="$(readlink -ev -- "$2")" &&
+	[ -d "$2" -a -x "$2" ] &&
+		value="$(readlink -ev -- "$2")" &&
 		[ -d "$value" -a -x "$value" ] ||
 		Fatal "$1: $2: directory not available."
 	printf %s "$value"
