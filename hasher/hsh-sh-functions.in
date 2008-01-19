@@ -287,9 +287,6 @@ opt_check_number()
 
 parse_common_options()
 {
-	local prog
-	prog="$1" && shift
-
 	case "$1" in
 		-h|--help) show_help
 			;;
@@ -297,7 +294,7 @@ parse_common_options()
 			;;
 		-v|--verbose) verbose=-v
 			;;
-		-V|--version) print_version "$prog"
+		-V|--version) print_version "$PROG"
 			;;
 		*) Fatal "Unrecognized option: $1"
 			;;

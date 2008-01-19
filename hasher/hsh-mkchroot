@@ -80,7 +80,7 @@ while :; do
 			;;
 		--) shift; break
 			;;
-		*) parse_common_options hsh-mkchroot "$1"
+		*) parse_common_options "$1"
 			;;
 	esac
 	shift

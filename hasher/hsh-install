@@ -73,7 +73,7 @@ while :; do
 			;;
 		--) shift; break
 			;;
-		*) parse_common_options hsh-install "$1"
+		*) parse_common_options "$1"
 			;;
 	esac
 	shift
