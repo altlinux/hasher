@@ -30,7 +30,7 @@ Requires: libshell >= 0:0.0.2-alt4
 
 Obsoletes: pkg-build-utils, libbte
 
-BuildPreReq: help2man
+BuildPreReq: help2man, libshell >= 0:0.0.2-alt4
 
 %description
 This package contains package hasher user utilities.
