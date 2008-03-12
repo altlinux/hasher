@@ -114,30 +114,37 @@ copy_chroot_incoming $filelist
 
 check_tty
 
+# Calculate list of packages which should not be installed
+for f in $filelist; do
+	f="${f##*/}"
+	for p in $noinstall_pattern_list; do
+		if [ -z "${f##$p}" ]; then
+			printf '%s\n' "$f"
+			continue 2
+		fi
+	done
+done >"$chroot"/.in/.rpmi-justdb.list
+
+# Calculate list of packages which should be installed
+for f in $filelist; do
+	f="${f##*/}"
+	for p in $noinstall_pattern_list; do
+		if [ -z "${f##$p}" ]; then
+			continue 2
+		fi
+	done
+	printf '%s\n' "$f"
+done >"$chroot"/.in/.rpmi-install.list
+
 create_entry_fakeroot_header
 cat >>"$entry" <<__EOF__
 ${exclude_docs:+export RPM_EXCLUDEDOCS=1}
-# Exclude packages which should not be installed
-noinst_list="$(for f in $filelist; do
-	f="${f##*/}"
-	for p in $noinstall_pattern_list; do
-		if [ -z "${f##$p}" ]; then
-			printf %s "$(quote_shell "$f") "
-			continue 2
-		fi
-	done
-done)"
-[ -z "\$noinst_list" ] || ${rpmi:-$def_rpmi} -i $verbose $exclude_docs --nodeps --justdb \$noinst_list
-inst_list="$(for f in $filelist; do
-	f="${f##*/}"
-	for p in $noinstall_pattern_list; do
-		if [ -z "${f##$p}" ]; then
-			continue 2
-		fi
-	done
-	printf %s "$(quote_shell "$f") "
-done)"
-[ -z "\$inst_list" ] || ${rpmi:-$def_rpmi} -i $rpm_verbose $hash $exclude_docs \$inst_list
+if [ -s .rpmi-justdb.list ]; then
+	${rpmi:-$def_rpmi} -i $verbose $exclude_docs --nodeps --justdb .rpmi-justdb.list
+fi
+if [ -s .rpmi-install.list ]; then
+	${rpmi:-$def_rpmi} -i $rpm_verbose $hash $exclude_docs .rpmi-install.list
+fi
 ldconfig
 if type adjust_kernel_headers >/dev/null 2>&1; then
 	adjust_kernel_headers --first
