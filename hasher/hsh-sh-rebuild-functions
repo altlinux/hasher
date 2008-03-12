@@ -96,7 +96,7 @@ __EOF__
 		create_entry_header
 		cat >>"$entry" <<__EOF__
 spec="\$(rpmbuild -bE \\
-	--target="$(quote_arg "${target:-$def_target}")" \\
+	--target="$(quote_shell "${target:-$def_target}")" \\
 	$rpmargs \\
 	--define "_specdir \$HOME/in/spec" \\
 	--define "_sourcedir \$HOME/in/source" \\
@@ -113,7 +113,7 @@ __EOF__
 	cat >>"$entry" <<__EOF__
 mkdir $verbose -m700 -- "\$HOME/in/srpm"
 rpmbuild -bs --nodeps \\
-	--target="$(quote_arg "${target:-$def_target}")" \\
+	--target="$(quote_shell "${target:-$def_target}")" \\
 	--define '_allow_undefined_macros 1' \\
 	$rpmargs \\
 	--define "_specdir \$HOME/in/spec" \\
@@ -138,11 +138,11 @@ mkdir -p $verbose -m700 -- "\$TMPDIR"
 rm -rf "\$HOME/in"
 mkdir $verbose -m700 -- "\$HOME/in"
 # Check source file.
-header="\$(od -A n -N 8 -t x1 -- "$(quote_arg "$sname")")"
+header="\$(od -A n -N 8 -t x1 -- "$(quote_shell "$sname")")"
 case "\$header" in
 	' ed ab ee db '??' '??' 00 01')
 		mkdir $verbose -m700 -- "\$HOME/in/srpm" >&2
-		install -pm644 $verbose "$(quote_arg "$sname")" "\$HOME/in/srpm/" >&2
+		install -pm644 $verbose "$(quote_shell "$sname")" "\$HOME/in/srpm/" >&2
 		echo src.rpm
 		exit 0
 		;;
@@ -150,11 +150,11 @@ case "\$header" in
 		exit 0
 		;;
 esac
-spec="\$(LC_ALL=C tar -tvf "$(quote_arg "$sname")" 2>/dev/null |
+spec="\$(LC_ALL=C tar -tvf "$(quote_shell "$sname")" 2>/dev/null |
 	sed '/^V---------[[:space:]]\+0\/0[[:space:]]\+0[[:space:]]\+[^[:space:]]\+[[:space:]]\+[^[:space:]]\+[[:space:]]\+/!d;s///;s/--Volume Header--\$//;q')"
 if [ -n "\$spec" -a "\$spec" = "\${spec#*/}" ]; then
 	mkdir $verbose -m700 -- "\$HOME/in/spec" "\$HOME/in/source" >&2
-	tar $verbose -xf "$(quote_arg "$sname")" -C "\$HOME/in/source/" >&2
+	tar $verbose -xf "$(quote_shell "$sname")" -C "\$HOME/in/source/" >&2
 	mv $verbose "\$HOME/in/source/\$spec" "\$HOME/in/spec/" >&2
 	echo pkg.tar
 	exit 0
@@ -195,7 +195,7 @@ run_sisyphus_check()
 
 	create_entry_header
 	cat >>"$entry" <<__EOF__
-sisyphus_check --no-check="$(quote_arg "$no_check")" "$dir"
+sisyphus_check --no-check="$(quote_shell "$no_check")" "$dir"
 __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long wlimit_bytes_written=$wlimit_bytes_out \
@@ -240,7 +240,7 @@ cat >>"\$HOME/.rpmmacros" <<EOF
 %packager \$packager
 EOF
 
-target="$(quote_arg "${target:-$def_target}")" /.host/rebuild *
+target="$(quote_shell "${target:-$def_target}")" /.host/rebuild *
 find "\$HOME/RPM/SRPMS/" -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
 	xargs -r0 mv -f $verbose --target-directory=/.out/ --
 find "\$HOME/RPM/RPMS/" -mindepth 2 -maxdepth 2 -type f -name \*.rpm -print0 |

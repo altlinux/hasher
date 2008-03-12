@@ -122,7 +122,7 @@ noinst_list="$(for f in $filelist; do
 	f="${f##*/}"
 	for p in $noinstall_pattern_list; do
 		if [ -z "${f##$p}" ]; then
-			printf %s "$(quote_arg "$f") "
+			printf %s "$(quote_shell "$f") "
 			continue 2
 		fi
 	done
@@ -135,7 +135,7 @@ inst_list="$(for f in $filelist; do
 			continue 2
 		fi
 	done
-	printf %s "$(quote_arg "$f") "
+	printf %s "$(quote_shell "$f") "
 done)"
 [ -z "\$inst_list" ] || ${rpmi:-$def_rpmi} -i $rpm_verbose $hash $exclude_docs \$inst_list
 ldconfig

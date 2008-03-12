@@ -210,7 +210,7 @@ if [ -z "$nodeps" ]; then
 ${rpmi:-$def_rpmi} -i -- "\$@"
 cd \`rpm --eval %_specdir\`
 rpmbuild -bs --nodeps \\
-	--target="$(quote_arg "${target:-$def_target}")" \\
+	--target="$(quote_shell "${target:-$def_target}")" \\
 	--define '_allow_undefined_macros 1' \\
 	$rpmargs -- *.spec >/dev/null
 cd \`rpm --eval %_srcrpmdir\`

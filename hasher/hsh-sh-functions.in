@@ -357,7 +357,7 @@ read_apt_config()
 		value="$dir_value$value"
 	done
 
-	eval "$res_value=\"$(quote_arg "$value")\""
+	eval "$res_value=\"$(quote_shell "$value")\""
 }
 	
 hash=
@@ -806,15 +806,5 @@ prepare_x11_forwarding()
 	parse_xauth_entry $xentry || return 1
 
 	export XAUTH_DISPLAY XAUTH_PROTO XAUTH_KEY
-}
-
-# quote argument for /.host/entry.
-quote_arg()
-{
-	local out="$*"
-	if [ -z "${out##*[\"\$\`\\]*}" ]; then
-		out="$(printf %s "$out" |sed -e 's/["$`\]/\\&/g')" || return 1
-	fi
-	printf %s "$out"
 }
 

@@ -193,7 +193,7 @@ else
 fi
 
 cat >>"$entry" <<__EOF__
-exec ${run_script:+/.host/hsh-run} $(for n; do printf %s "\"$(quote_arg "$n")\" "; done)
+exec ${run_script:+/.host/hsh-run} $(for n; do printf %s "\"$(quote_shell "$n")\" "; done)
 __EOF__
 
 export mountpoints

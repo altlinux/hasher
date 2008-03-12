@@ -193,7 +193,7 @@ else
 		[ -x "$prog" ] ||
 			fatal "$prog: program not available."
 		var="$(printf 'prog_%s' "$n" |tr - _)"
-		eval "$var=\"$(quote_arg "$prog")\""
+		eval "$var=\"$(quote_shell "$prog")\""
 	done
 fi
 if printf %s "$apt_libdir" |LC_ALL=C grep -qs '[`"$\]'; then
@@ -220,7 +220,7 @@ fi
 # create apt wrappers.
 setarch=
 if setarch "${target:-$def_target}" true 2>/dev/null; then
-	setarch="setarch \"$(quote_arg "${target:-$def_target}")\""
+	setarch="setarch \"$(quote_shell "${target:-$def_target}")\""
 fi
 apt_config_file="$aptbox/etc/apt/apt.conf"
 for n in apt-cache apt-config apt-get genbasedir; do
