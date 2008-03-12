@@ -406,10 +406,15 @@ update_repo()
 # assumed: defined variables: hash
 update_RPM_database()
 {
+	local extra_args=
+	while [ -n "${1-}" -a -z "${1##-*}" ]; do
+		extra_args="$extra_args $1"
+		shift
+	done
 	for f; do
 		printf '%s\n' "$f"
 	done |sed 's/[][?*\]/\\&/g' >"$aptbox/rpmi.list"
-	rpmi -i $verbose $hash $exclude_docs --dbpath "$aptbox/var/lib/rpm" \
+	rpmi -i $verbose $hash $exclude_docs $extra_args --dbpath "$aptbox/var/lib/rpm" \
 	     --ignorearch --ignoresize --noorder --noscripts --notriggers --justdb \
 	     "$aptbox/rpmi.list" &&
 		verbose 'RPM database updated.' ||
