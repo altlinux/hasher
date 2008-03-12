@@ -406,9 +406,15 @@ update_repo()
 # assumed: defined variables: hash
 update_RPM_database()
 {
-	rpmi -i $verbose $hash --dbpath "$aptbox/var/lib/rpm" $exclude_docs --ignorearch --ignoresize --noorder --noscripts --notriggers --justdb "$@"
+	for f; do
+		printf '%s\n' "$f"
+	done >"$aptbox/rpmi.list"
+	rpmi -i $verbose $hash $exclude_docs --dbpath "$aptbox/var/lib/rpm" \
+	     --ignorearch --ignoresize --noorder --noscripts --notriggers --justdb \
+	     "$aptbox/rpmi.list" &&
 		verbose 'RPM database updated.' ||
 		fatal 'RPM database update failed.'
+	rm "$aptbox/rpmi.list"
 }
 
 # execute as pseudoroot.
