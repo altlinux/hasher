@@ -123,7 +123,7 @@ for f in $filelist; do
 			continue 2
 		fi
 	done
-done >"$chroot"/.in/.rpmi-justdb.list
+done |sed 's/[][?*\]/\\&/g' >"$chroot"/.in/.rpmi-justdb.list
 
 # Calculate list of packages which should be installed
 for f in $filelist; do
@@ -134,7 +134,7 @@ for f in $filelist; do
 		fi
 	done
 	printf '%s\n' "$f"
-done >"$chroot"/.in/.rpmi-install.list
+done |sed 's/[][?*\]/\\&/g' >"$chroot"/.in/.rpmi-install.list
 
 create_entry_fakeroot_header
 cat >>"$entry" <<__EOF__

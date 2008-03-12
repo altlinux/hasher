@@ -408,7 +408,7 @@ update_RPM_database()
 {
 	for f; do
 		printf '%s\n' "$f"
-	done >"$aptbox/rpmi.list"
+	done |sed 's/[][?*\]/\\&/g' >"$aptbox/rpmi.list"
 	rpmi -i $verbose $hash $exclude_docs --dbpath "$aptbox/var/lib/rpm" \
 	     --ignorearch --ignoresize --noorder --noscripts --notriggers --justdb \
 	     "$aptbox/rpmi.list" &&
@@ -765,4 +765,3 @@ prepare_x11_forwarding()
 
 	export XAUTH_DISPLAY XAUTH_PROTO XAUTH_KEY
 }
-
