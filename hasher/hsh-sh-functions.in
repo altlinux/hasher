@@ -378,8 +378,11 @@ purge_chroot_out()
 copy_chroot_incoming()
 {
 	purge_chroot_in
-	install -p -m644 $verbose -- "$@" chroot/.in/ ||
-		fatal 'failed to copy files.'
+	local f
+	for f; do
+		install -p -m644 $verbose -- "$f" chroot/.in/ ||
+			fatal 'failed to copy files.'
+	done
 }
 
 # assumed: cwd == workdir
