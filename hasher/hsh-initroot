@@ -59,7 +59,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-lock,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,wait-lock,no-wait-lock,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-lock,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,wait-lock,no-wait-lock,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 

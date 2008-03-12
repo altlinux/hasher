@@ -47,7 +47,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l excludedocs,hasher-priv-dir:,no-lock,number:,save-fakeroot,wait-lock,no-wait-lock,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l excludedocs,hasher-priv-dir:,no-lock,number:,save-fakeroot,wait-lock,no-wait-lock,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 

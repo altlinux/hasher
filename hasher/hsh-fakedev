@@ -61,7 +61,7 @@ opt_check_dev()
 	printf %s "$value"
 }
 
-TEMP=`getopt -n $PROG -o g:,m:,o:,r:,h,q,v,V -l hasher-priv-dir:,number:,mode:,group:,owner:,reference:,wait-lock,no-wait-lock,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o g:,m:,o:,r:,$getopt_common_opts -l hasher-priv-dir:,number:,mode:,group:,owner:,reference:,wait-lock,no-wait-lock,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 

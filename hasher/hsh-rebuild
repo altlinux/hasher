@@ -67,7 +67,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l args:,excludedocs,hasher-priv-dir:,install-only,mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,save-fakeroot,source-only,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l args:,excludedocs,hasher-priv-dir:,install-only,mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,save-fakeroot,source-only,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 

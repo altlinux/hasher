@@ -85,7 +85,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o x,X,Y,h,q,v,V -l builder,${i_am_hsh_run:+execute:,}hasher-priv-dir:,mountpoints:,no-lock,number:,${i_am_hsh_run:+pty,}rooter,save-fakeroot,shell::,wait-lock,no-wait-lock,x11-timeout:,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o x,X,Y,$getopt_common_opts -l builder,${i_am_hsh_run:+execute:,}hasher-priv-dir:,mountpoints:,no-lock,number:,${i_am_hsh_run:+pty,}rooter,save-fakeroot,shell::,wait-lock,no-wait-lock,x11-timeout:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 

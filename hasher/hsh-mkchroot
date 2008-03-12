@@ -48,7 +48,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o h,q,v,V -l hasher-priv-dir:,no-lock,number:,wait-lock,no-wait-lock,with-qemu:,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l hasher-priv-dir:,no-lock,number:,wait-lock,no-wait-lock,with-qemu:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 

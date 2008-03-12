@@ -59,7 +59,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o f,u,h,q,v,V -l apt-config:,apt-prefix:,force,no-lock,no-stuff,no-update,repo:,repo-bin:,repo-src:,target:,update,wait-lock,no-wait-lock,without-stuff,with-stuff,help,quiet,verbose,version -- "$@"` ||
+TEMP=`getopt -n $PROG -o f,u,$getopt_common_opts -l apt-config:,apt-prefix:,force,no-lock,no-stuff,no-update,repo:,repo-bin:,repo-src:,target:,update,wait-lock,no-wait-lock,without-stuff,with-stuff,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
