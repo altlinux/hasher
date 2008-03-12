@@ -238,22 +238,6 @@ wlimit_time_idle=
 wlimit_bytes_written=
 use_pty=
 
-parse_common_options()
-{
-	case "$1" in
-		-h|--help) show_help
-			;;
-		-q|--quiet) quiet=-q
-			;;
-		-v|--verbose) verbose=-v
-			;;
-		-V|--version) print_version "$PROG"
-			;;
-		*) fatal "Unrecognized option: $1"
-			;;
-	esac
-}
-
 set_workdir()
 {
 	[ -n "$workdir" -a -z "${1:-}" ] ||

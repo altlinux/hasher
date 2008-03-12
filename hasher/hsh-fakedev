@@ -101,7 +101,7 @@ while :; do
 			;;
 		--) shift; break
 			;;
-		*) parse_common_options "$1"
+		*) parse_common_option "$1"
 			;;
 	esac
 	shift
