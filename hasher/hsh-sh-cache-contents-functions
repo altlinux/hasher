@@ -30,7 +30,7 @@
 
 # Quick protection against unintended filesystem changes.
 [ -d "$cache_dir/contents" ] ||
-	Fatal "Internal error: cache/contents directory not set up."
+	fatal "Internal error: cache/contents directory not set up."
 
 # Find contents_index files corresponding to sources.list repositories.
 contents_index_list=
@@ -45,9 +45,9 @@ init_contents_index_list()
 				printf %s\\n "$f"
 			done)"
 	if [ -n "$contents_index_list" ]; then
-		Verbose 'Initialized contents index list.'
+		verbose 'Initialized contents index list.'
 	else
-		Verbose "No contents indices available, nothing to do."
+		verbose "No contents indices available, nothing to do."
 		contents_index_bin=
 		contents_index_all=
 	fi
@@ -67,7 +67,7 @@ create_contents_state()
 	while read f; do
 		f_mangled="$(printf %s "$f" |sed -e s,/,_,g)"
 		touch -r "$f" "$cache_dir/contents/index.new/$f_mangled" ||
-			Fatal "Failed to access contents index $f."
+			fatal "Failed to access contents index $f."
 	done <"$cache_dir/contents/list.new/index"
 }
 
@@ -77,19 +77,19 @@ rebuild_contents_cache=
 validate_contents_cache()
 {
 	if [ ! -s "$cache_dir/contents/contents_index_bin" ]; then
-		Verbose 'Missing contents_index_bin archive, invalidating contents cache.'
+		verbose 'Missing contents_index_bin archive, invalidating contents cache.'
 		rebuild_contents_cache=1
 		return
 	fi
 
 	if [ ! -s "$cache_dir/contents/contents_index_all" ]; then
-		Verbose 'Missing contents_index_all archive, invalidating contents cache.'
+		verbose 'Missing contents_index_all archive, invalidating contents cache.'
 		rebuild_contents_cache=1
 		return
 	fi
 
 	if ! cmp -s "$cache_dir"/contents/list{.new,}/index; then
-		Verbose 'Index list changed, invalidating contents cache.'
+		verbose 'Index list changed, invalidating contents cache.'
 		rebuild_contents_cache=1
 		return
 	fi
@@ -101,13 +101,13 @@ validate_contents_cache()
 		     "$cache_dir/contents/index/$f_mangled" -o \
 		     "$cache_dir/contents/index.new/$f_mangled" -ot \
 		     "$cache_dir/contents/index/$f_mangled" ]; then
-			Verbose "Index $f changed, invalidating contents cache."
+			verbose "Index $f changed, invalidating contents cache."
 			rebuild_contents_cache=1
 			return
 		fi
 	done <"$cache_dir/contents/list.new/index"
 
-	Verbose "Contents cache is up to date."
+	verbose "Contents cache is up to date."
 	rebuild_contents_cache=
 }
 
@@ -123,7 +123,7 @@ create_contents_data()
 	local f
 	while read f; do
 		LC_ALL=C grep '^/' "$f" ||
-			Fatal "Failed to process contents index $f."
+			fatal "Failed to process contents index $f."
 	done <"$cache_dir/contents/list.new/index" >"$contents"
 
 	# sort (path,pkg)
@@ -137,21 +137,21 @@ create_contents_data()
 		awk '($1>1){$2=$3}{print$3"\t"$2}' >"$contents".sorted
 	mv -f "$contents".sorted "$contents"
 	[ -s "$contents" ] ||
-		Fatal "Failed to process contents indices."
+		fatal "Failed to process contents indices."
 
 	local dir
 	for dir in $(IFS=:; echo $contents_index_bin_dirs); do
 		LC_ALL=C grep ^"${dir%/}"/ "$contents" || [ $? -eq 1 ]
 	done >"$contents.bin"
 	[ -s "$contents.bin" ] ||
-		Fatal "Failed to generate non-empty contents_index_bin."
+		fatal "Failed to generate non-empty contents_index_bin."
 
 	contents_index_bin=chroot/.host/contents_index_bin
 	contents_index_all=chroot/.host/contents_index_all
 	mv "$contents.bin" "$contents_index_bin"
 	mv "$contents" "$contents_index_all"
 	chmod 644 "$contents_index_bin" "$contents_index_all"
-	Verbose 'Prepared contents index.'
+	verbose 'Prepared contents index.'
 	rm -rf "$cache_dir/contents/tmp"
 }
 
@@ -177,7 +177,7 @@ archive_contents()
 	cp_l_file_from_to chroot/.host/contents_index_all "$cache_dir/contents/contents_index_all"
 	mv $verbose "$cache_dir"/contents/index{.new,}
 	mv $verbose "$cache_dir"/contents/list{.new,}
-	Verbose "Archived contents index."
+	verbose "Archived contents index."
 }
 
 # Copy data files from "$cache_dir"/contents/ to chroot/.host/.
@@ -188,7 +188,7 @@ unpack_contents()
 	contents_index_all=chroot/.host/contents_index_all
 	cp_l_file_from_to "$cache_dir/contents/contents_index_bin" "$contents_index_bin"
 	cp_l_file_from_to "$cache_dir/contents/contents_index_all" "$contents_index_all"
-	Verbose 'Unpacked contents index.'
+	verbose 'Unpacked contents index.'
 }
 
 # Entry point: do whatever is needed, always rebuilding contents from scratch.

@@ -65,7 +65,7 @@ while :; do
 			number="$(opt_check_number "$1" "$2")"
 			shift
 			;;
-		--save-fakeroot) Info "Warning: obsolete option $1 ignored."
+		--save-fakeroot) message "Warning: obsolete option $1 ignored."
 			;;
 		--wait-lock) lock_nowait=
 			;;
@@ -98,13 +98,13 @@ fi
 [ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
 
 lock_workdir
-[ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
-[ -d "$aptbox" ] || Fatal "$aptbox: cannot find aptbox."
+[ -d "$chroot" ] || fatal "$chroot: cannot find chroot."
+[ -d "$aptbox" ] || fatal "$aptbox: cannot find aptbox."
 
 filelist="$(print_uris "$@")" ||
-	Fatal 'Failed to generate package file list.'
+	fatal 'Failed to generate package file list.'
 if [ -z "$filelist" ]; then
-	Verbose 'Nothing to install.'
+	verbose 'Nothing to install.'
 	exit 0
 fi
 
@@ -149,8 +149,8 @@ __EOF__
 
 wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
     chrootuid1 </dev/null &&
-	Verbose 'Packages installation complete.' ||
-	Fatal 'Packages installation failed.'
+	verbose 'Packages installation complete.' ||
+	fatal 'Packages installation failed.'
 
 purge_chroot_in
 update_RPM_database $filelist

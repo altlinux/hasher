@@ -57,7 +57,7 @@ opt_check_dev()
 	local value
 	value="$(readlink -ev -- "$2")" &&
 		[ -b "$value" -o -c "$value" -o -p "$value" ] ||
-		Fatal "$1: $2: device not available."
+		fatal "$1: $2: device not available."
 	printf %s "$value"
 }
 
@@ -131,7 +131,7 @@ if [ -z "$reference" ]; then
 	name="$1" && shift
 	name="${name#/dev/}"
 	[ -n "${name##*/*}" -a -n "${name##*.*}" ] ||
-		Fatal "$name: invalid device file name"
+		fatal "$name: invalid device file name"
 
 	type="$1" && shift
 	case "$type" in
@@ -140,11 +140,11 @@ if [ -z "$reference" ]; then
 
 			major="$1" && shift
 			[ "$major" -gt 0 ] 2>/dev/null ||
-				Fatal "$major: invalid device file major number"
+				fatal "$major: invalid device file major number"
 
 			minor="$1" && shift
 			[ "$minor" -ge 0 ] 2>/dev/null ||
-				Fatal "$minor: invalid device file minor number"
+				fatal "$minor: invalid device file minor number"
 			;;
 		p)
 			[ "$#" -eq 0 ] || show_usage 'Too many arguments.'
@@ -152,7 +152,7 @@ if [ -z "$reference" ]; then
 			minor=
 			;;
 		*)
-			Fatal "$type: invalid device file type"
+			fatal "$type: invalid device file type"
 			;;
 	esac
 else
@@ -165,12 +165,12 @@ else
 		*\ special\ file|*\ fifo)
 			;;
 		*)
-			Fatal "$reference: unrecognized file type: $TEMP"
+			fatal "$reference: unrecognized file type: $TEMP"
 			;;
 	esac
 	eval set -- "$TEMP"
 	[ "$#" -ge 6 ] ||
-		Fatal "$reference: unrecognized file type: $TEMP"
+		fatal "$reference: unrecognized file type: $TEMP"
 
 	[ -n "$mode" ] || mode="$1"
 	shift
@@ -183,17 +183,17 @@ else
 
 	major="$1" && shift
 	[ "$major" -ge 0 ] 2>/dev/null ||
-		Fatal "$major: invalid device file major number"
+		fatal "$major: invalid device file major number"
 
 	minor="$1" && shift
 	[ "$minor" -ge 0 ] 2>/dev/null ||
-		Fatal "$minor: invalid device file minor number"
+		fatal "$minor: invalid device file minor number"
 
 	case "$1" in
 		block) type=b;;
 		character) type=c;;
 		fifo) type=p; major=; minor=;;
-		*) Fatal "$reference: unrecognized file type: $1";;
+		*) fatal "$reference: unrecognized file type: $1";;
 	esac
 	shift
 
@@ -201,12 +201,12 @@ else
 fi
 
 lock_workdir
-[ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
+[ -d "$chroot" ] || fatal "$chroot: cannot find chroot."
 [ -f "$chroot/.fakedata" ] ||
-	Fatal "$chroot: chroot was not created using --save-fakeroot option."
+	fatal "$chroot: chroot was not created using --save-fakeroot option."
 dev_name="$chroot/dev/$name"
 [ ! -e "$dev_name" ] ||
-	Fatal "$dev_name: File exists."
+	fatal "$dev_name: File exists."
 
 deduce_lock_hasher_priv
 
@@ -224,7 +224,7 @@ __EOF__
 tmp_inode="$(hsh-run --no-lock --root ${number:+--number="$number"} \
 	     ${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 	     --execute="$chroot/.host/fakedev" -- "$workdir")" ||
-	Fatal 'Fake device creation failed.'
+	fatal 'Fake device creation failed.'
 
 touch "$dev_name"
 dev_inode="$(stat -c %i -- "$dev_name")"
@@ -239,5 +239,5 @@ chmod 755 "$entry"
 
 wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
     chrootuid1 </dev/null &&
-	Verbose 'Fake device creation complete.' ||
-	Fatal 'Fake device creation failed.'
+	verbose 'Fake device creation complete.' ||
+	fatal 'Fake device creation failed.'

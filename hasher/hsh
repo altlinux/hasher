@@ -151,7 +151,7 @@ while :; do
 		--number)
 			if [ -z "${2##/*}" ]; then
 				[ -d "$2" ] ||
-					Fatal "$1: $2: Directory not available."
+					fatal "$1: $2: Directory not available."
 				number="$2"
 			else
 				number="$(opt_check_number "$1" "$2")"
@@ -184,7 +184,7 @@ while :; do
 			;;
 		--target) shift; target="$1"
 			[ -z "${target##[A-Za-z]*}" ] ||
-				Fatal "--target: $target: invalid architecture."
+				fatal "--target: $target: invalid architecture."
 			;;
 		--wait-lock) lock_nowait=
 			;;
@@ -199,7 +199,7 @@ while :; do
 			shift
 			;;
 		--contents-index-*)
-			Info "Warning: obsolete option $1 ignored."
+			message "Warning: obsolete option $1 ignored."
 			shift
 			;;
 		--) shift; break
@@ -230,7 +230,7 @@ if [ -z "$initroot_only" -a -z "$cleanup_only" ]; then
 		[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
 	fi
 
-	[ -e "$1" ] || Fatal "$1: no such file or directory."
+	[ -e "$1" ] || fatal "$1: no such file or directory."
 
 	if [ -z "$workdir" -o -d "${1:-}" ]; then
 		set_workdir "${1:-}"
@@ -262,31 +262,31 @@ fi
 for f in "$@"; do
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
 	[ -e "$f" ] ||
-		Fatal "$f: file not found."
+		fatal "$f: file not found."
 	[ -f "$f" ] ||
-		Fatal "$f: not a regular file."
+		fatal "$f: not a regular file."
 	[ -r "$f" ] ||
-		Fatal "$f: cannot access source."
+		fatal "$f: cannot access source."
 	[ -s "$f" ] ||
-		Fatal "$f: empty source file."
+		fatal "$f: empty source file."
 done
 
 cleanup_workdir()
 {
 	if [ -d aptbox ]; then
 		rm -rf aptbox &&
-			Verbose 'Removed aptbox.' ||
-			Fatal 'Failed to remove aptbox.'
+			verbose 'Removed aptbox.' ||
+			fatal 'Failed to remove aptbox.'
 	fi
 	if [ -d cache ]; then
 		rm -rf cache &&
-			Verbose 'Removed cache.' ||
-			Fatal 'Failed to remove cache.'
+			verbose 'Removed cache.' ||
+			fatal 'Failed to remove cache.'
 	fi
 	if [ -d repo ]; then
 		rm -rf repo &&
-			Verbose 'Removed repo.' ||
-			Fatal 'Failed to remove repo.'
+			verbose 'Removed repo.' ||
+			fatal 'Failed to remove repo.'
 	fi
 	if [ -d chroot ]; then
 		deduce_lock_hasher_priv
@@ -296,8 +296,8 @@ cleanup_workdir()
 			${verbose:+$verbose} \
 			${number:+--number=$number} \
 			&& 
-			Verbose 'Removed chroot.' ||
-			Fatal 'Failed to remove chroot.'
+			verbose 'Removed chroot.' ||
+			fatal 'Failed to remove chroot.'
 	fi
 }
 

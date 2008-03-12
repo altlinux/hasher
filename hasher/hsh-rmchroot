@@ -93,24 +93,24 @@ fi
 lock_workdir
 
 cd chroot
-Verbose "Changed working directory to \`$chroot'."
+verbose "Changed working directory to \`$chroot'."
 deduce_lock_hasher_priv
 
 mkdir -p -m711 $verbose .host
 install_static_helper ash sh
 install_static_helper find
-Verbose 'Installed .host programs.'
+verbose 'Installed .host programs.'
 
 if [ ! -c "dev/null" ]; then
 	ugid1="$("$getugid1" ${number:+-$number})" ||
-		Fatal 'getugid1 failed.'
+		fatal 'getugid1 failed.'
 	gid1="$(printf %s "$ugid1" |cut -d: -f2)"
 
 	mkdir -p -m755 $verbose dev
 	chgrp "$gid1" $verbose . dev
 	"$makedev" ${number:+-$number} "$chroot" ||
-		Fatal 'Failed to make devices.'
-	Verbose "Created devices in \`$chroot/dev/'."
+		fatal 'Failed to make devices.'
+	verbose "Created devices in \`$chroot/dev/'."
 fi
 
 cat >.host/entry <<__EOF__
@@ -123,13 +123,13 @@ chmod 755 .host/entry
 
 wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
     chrootuid2 </dev/null &&
-	Verbose 'Removed files owned by user2.' ||
-	Fatal 'Failed to remove files owned by user2.'
+	verbose 'Removed files owned by user2.' ||
+	fatal 'Failed to remove files owned by user2.'
 
 wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
     chrootuid1 </dev/null &&
-	Verbose 'Removed files owned by user1.' ||
-	Fatal 'Failed to remove files owned by user1.'
+	verbose 'Removed files owned by user1.' ||
+	fatal 'Failed to remove files owned by user1.'
 
 rm -rf $verbose -- "$chroot" ||
-	Fatal 'Failed to remove some files.'
+	fatal 'Failed to remove some files.'

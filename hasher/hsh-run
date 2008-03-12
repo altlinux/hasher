@@ -124,7 +124,7 @@ while :; do
 			;;
 		--rooter) run_as_rooter=1
 			;;
-		--save-fakeroot) Info "Warning: obsolete option $1 ignored."
+		--save-fakeroot) message "Warning: obsolete option $1 ignored."
 			;;
 		--shell)
 			run_shell=1
@@ -178,7 +178,7 @@ fi
 	show_usage 'Insufficient arguments.'
 
 lock_workdir
-[ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
+[ -d "$chroot" ] || fatal "$chroot: cannot find chroot."
 deduce_lock_hasher_priv
 
 prepare_x11_forwarding || x11_forwarding=

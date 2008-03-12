@@ -26,14 +26,14 @@ calc_check_install_build_deps()
 		      wlimit_time_idle=$wlimit_time_short \
 		      wlimit_bytes_written=$wlimit_bytes_out \
 		      chrootuid2 </dev/null)" &&
-		Verbose "$sname: fetched build dependencies." ||
-		Fatal "$sname: failed to fetch build dependencies."
+		verbose "$sname: fetched build dependencies." ||
+		fatal "$sname: failed to fetch build dependencies."
 	build_deps="$(printf %s "$build_deps" |LC_ALL=C grep -v '^rpmlib(' |LC_ALL=C tr -d [[:blank:]])"
-	Verbose "$sname: calculated build dependencies: $(printf %s "$build_deps" |tr -s '[:space:]' ' ')"
+	verbose "$sname: calculated build dependencies: $(printf %s "$build_deps" |tr -s '[:space:]' ' ')"
 
 	local bad_deps
 	if bad_deps="$(printf %s "$build_deps" |LC_ALL=C grep -v '^[[:alnum:]_/]')"; then
-		Fatal "$sname: invalid build dependencies: $(printf %s "$bad_deps" |tr -s '[:space:]' ' ')"
+		fatal "$sname: invalid build dependencies: $(printf %s "$bad_deps" |tr -s '[:space:]' ' ')"
 	fi
 
 	if [ -n "$build_deps" ]; then
@@ -88,7 +88,7 @@ __EOF__
 		local buildreq_helper
 		buildreq_helper="$(type -p hsh-buildreq-filter)" &&
 			[ -r "$buildreq_helper" ] ||
-			Fatal 'hsh-buildreq-filter: Not available'
+			fatal 'hsh-buildreq-filter: Not available'
 
 		install -p -m755 $verbose "$buildreq_helper" chroot/.host/hsh-buildreq-filter
 
@@ -125,8 +125,8 @@ rm -rf "\$HOME/in/spec" "\$HOME/in/source"
 __EOF__
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 	    chrootuid2 </dev/null &&
-		Verbose "$sname: created src.rpm file." ||
-		Fatal "$sname: failed to create src.rpm file"
+		verbose "$sname: created src.rpm file." ||
+		fatal "$sname: failed to create src.rpm file"
 } # make_srpm_from_pkgtar
 
 install_source_package()
@@ -163,8 +163,8 @@ __EOF__
 	local source_type
 	source_type="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 		       chrootuid2 </dev/null)" &&
-		Verbose "$sname: installed source file." ||
-		Fatal "$sname: failed to install source file."
+		verbose "$sname: installed source file." ||
+		fatal "$sname: failed to install source file."
 	purge_chroot_in
 	case "$source_type" in
 		src.rpm)
@@ -173,7 +173,7 @@ __EOF__
 			make_srpm_from_pkgtar
 			;;
 		*)
-			Fatal "$sname does not look like source package."
+			fatal "$sname does not look like source package."
 			;;
 	esac
 } # install_source_package
@@ -200,8 +200,8 @@ __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long wlimit_bytes_written=$wlimit_bytes_out \
 	    chrootuid2 </dev/null &&
-		Verbose "$sname: sisyphus_check passed." ||
-		Fatal "$sname: sisyphus_check failed."
+		verbose "$sname: sisyphus_check passed." ||
+		fatal "$sname: sisyphus_check failed."
 } # run_sisyphus_check
 
 required_mountpoints=
@@ -227,7 +227,7 @@ calculate_required_mountpoints()
 
 	required_mountpoints="$(printf %s "$required_mountpoints" |tr -s , '\n' |LC_ALL=C sort -u |tr -s '\n' ,)"
 	required_mountpoints="${required_mountpoints%,}"
-	Verbose "$sname: calculated mount points: $required_mountpoints"
+	verbose "$sname: calculated mount points: $required_mountpoints"
 } # calculate_required_mountpoints
 
 run_rebuild()
@@ -249,6 +249,6 @@ __EOF__
 
 	mountpoints="$required_mountpoints" \
 	    chrootuid2 </dev/null &&
-		Verbose "rebuild of \`$sname' complete." ||
-		Fatal "rebuild of \`$sname' failed."
+		verbose "rebuild of \`$sname' complete." ||
+		fatal "rebuild of \`$sname' failed."
 } # run_rebuild

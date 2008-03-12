@@ -28,30 +28,14 @@ PROG="${0##*/}"
 . shell-quote
 . shell-args
 
-Info()
-{
-	printf %s\\n "${0##*/}: $*" >&2
-}
-
-Fatal()
-{
-	Info "$@"
-	exit 1
-}
+quiet=
+verbose=
 
 # Create Var_of_$1 variable and set it to $2 if exist, otherwise to $1
 Helpify() # var_name=var_value [cmdline_key_name]
 {
 	eval "Var_of_${1%%=*}='
                                     (\$${2:-${1%%=*}})'"
-}
-
-quiet=
-verbose=
-Verbose()
-{
-	[ -n "$verbose" ] || return 0
-	printf %s\\n "${0##*/}: $*" >&2
 }
 
 print_version()
@@ -71,7 +55,7 @@ EOF
 
 show_usage()
 {
-	[ -z "$*" ] || Info "$*"
+	[ -z "$*" ] || message "$*"
 	echo "Try \`$PROG --help' for more information." >&2
 	exit 1
 }
@@ -267,7 +251,7 @@ opt_check_read()
 	[ -r "$2" ] &&
 		value="$(readlink -ev -- "$2")" &&
 		[ -r "$value" ] ||
-		Fatal "$1: $2: file not available."
+		fatal "$1: $2: file not available."
 	printf %s "$value"
 }
 
@@ -277,7 +261,7 @@ opt_check_dir()
 	[ -d "$2" -a -x "$2" ] &&
 		value="$(readlink -ev -- "$2")" &&
 		[ -d "$value" -a -x "$value" ] ||
-		Fatal "$1: $2: directory not available."
+		fatal "$1: $2: directory not available."
 	printf %s "$value"
 }
 
@@ -285,7 +269,7 @@ opt_check_number()
 {
 	[ -n "${2##0*}" -a -n "${2##*[!0-9]*}" ] &&
 		[ "$2" -gt 0 ] 2>/dev/null ||
-		Fatal "$1: $2: invalid number."
+		fatal "$1: $2: invalid number."
 	printf %s "$2"
 }
 
@@ -300,7 +284,7 @@ parse_common_options()
 			;;
 		-V|--version) print_version "$PROG"
 			;;
-		*) Fatal "Unrecognized option: $1"
+		*) fatal "Unrecognized option: $1"
 			;;
 	esac
 }
@@ -313,13 +297,13 @@ set_workdir()
 	workdir="$(/bin/pwd)" || return 1
 
 	[ -n "$(printf %s "$workdir" |tr -d /.)" ] ||
-		Fatal "$workdir: illegal working directory."
+		fatal "$workdir: illegal working directory."
 	if printf %s "$workdir" |LC_ALL=C grep -qs '[`"$\]'; then
-		Fatal "$workdir: illegal symbols in pathname."
+		fatal "$workdir: illegal symbols in pathname."
 	fi
-	[ -w . ] || Fatal "$workdir: unwritable working directory."
+	[ -w . ] || fatal "$workdir: unwritable working directory."
 
-	Verbose "changed working directory to \`$workdir'"
+	verbose "changed working directory to \`$workdir'"
 	aptbox="$workdir/aptbox"
 	chroot="$workdir/chroot"
 	cache_dir="${cache_dir:-$workdir/cache}"
@@ -334,7 +318,7 @@ install_static_helper()
 	local dst="${2:-$name}"
 	local path="$(type -p "$src")"
 	[ -n "$path" -a -z "${path##/*}" ] ||
-		Fatal "Static helper $src not found."
+		fatal "Static helper $src not found."
 	install -p -m755 $verbose "$path" "$chroot/.host/$dst"
 }
 
@@ -362,13 +346,13 @@ read_apt_config()
 
 	name="$orig_name"
 	get_apt_config "$name" value
-	[ -n "$value" ] || Fatal "apt-config: undefined: $name"
+	[ -n "$value" ] || fatal "apt-config: undefined: $name"
 
 	while [ -n "${value##/*}" ]; do
 		dir_name="${name%::*}"
 		[ "$dir_name" != "$name" ] || break
 		get_apt_config "$dir_name" dir_value
-		[ -n "$dir_value" ] || Fatal "apt-config: undefined: $dir_name"
+		[ -n "$dir_value" ] || fatal "apt-config: undefined: $dir_name"
 		name="$dir_name"
 		value="$dir_value$value"
 	done
@@ -400,31 +384,31 @@ check_helpers()
 	[ -z "$check_helpers_done" ] || return 0
 
 	[ -d "${hasher_priv_dir:-$def_hasher_priv_dir}" ] ||
-		Fatal "${hasher_priv_dir:-$def_hasher_priv_dir}: cannot access hasher-priv helper directory."
+		fatal "${hasher_priv_dir:-$def_hasher_priv_dir}: cannot access hasher-priv helper directory."
 
 	getconf="${hasher_priv_dir:-$def_hasher_priv_dir}/getconf.sh"
 	[ -x "$getconf" ] ||
-		Fatal "$getconf: cannot access getconf helper."
+		fatal "$getconf: cannot access getconf helper."
 
 	getugid1="${hasher_priv_dir:-$def_hasher_priv_dir}/getugid1.sh"
 	[ -x "$getugid1" ] ||
-		Fatal "$getugid1: cannot access getugid1 helper."
+		fatal "$getugid1: cannot access getugid1 helper."
 
 	getugid2="${hasher_priv_dir:-$def_hasher_priv_dir}/getugid2.sh"
 	[ -x "$getugid2" ] ||
-		Fatal "$getugid2: cannot access getugid2 helper."
+		fatal "$getugid2: cannot access getugid2 helper."
 
 	chrootuid1="${hasher_priv_dir:-$def_hasher_priv_dir}/chrootuid1.sh"
 	[ -x "$chrootuid1" ] ||
-		Fatal "$chrootuid1: cannot access chrootuid1 helper."
+		fatal "$chrootuid1: cannot access chrootuid1 helper."
 
 	chrootuid2="${hasher_priv_dir:-$def_hasher_priv_dir}/chrootuid2.sh"
 	[ -x "$chrootuid2" ] ||
-		Fatal "$chrootuid2: cannot access chrootuid2 helper."
+		fatal "$chrootuid2: cannot access chrootuid2 helper."
 
 	makedev="${hasher_priv_dir:-$def_hasher_priv_dir}/makedev.sh"
 	[ -x "$makedev" ] ||
-		Fatal "$makedev: cannot access makedev helper."
+		fatal "$makedev: cannot access makedev helper."
 
 	check_helpers_done=1
 }
@@ -446,7 +430,7 @@ copy_chroot_incoming()
 {
 	purge_chroot_in
 	install -p -m644 $verbose -- "$@" chroot/.in/ ||
-		Fatal 'failed to copy files.'
+		fatal 'failed to copy files.'
 }
 
 # assumed: cwd == workdir
@@ -463,16 +447,16 @@ update_repo()
 {
 	[ -z "$no_stuff" ] || return 0
 	"$aptbox/genbasedir" --topdir=${repo:-$def_repo} --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher &&
-		Verbose 'updated hasher repository indices.' ||
-		Fatal 'failed to update hasher repository indices.'
+		verbose 'updated hasher repository indices.' ||
+		fatal 'failed to update hasher repository indices.'
 }
 
 # assumed: defined variables: hash
 update_RPM_database()
 {
 	rpmi -i $verbose $hash --dbpath "$aptbox/var/lib/rpm" $exclude_docs --ignorearch --ignoresize --noorder --noscripts --notriggers --justdb "$@"
-		Verbose 'RPM database updated.' ||
-		Fatal 'RPM database update failed.'
+		verbose 'RPM database updated.' ||
+		fatal 'RPM database update failed.'
 }
 
 # execute as pseudoroot.
@@ -533,7 +517,7 @@ lock_workdir()
 	enable -f /usr/lib/bash/lockf lockf
 	if builtin lockf -n "$workdir"; then
 		echo $$ >"$workdir/pid"
-		Verbose "Locked working directory \`$workdir'"
+		verbose "Locked working directory \`$workdir'"
 		return 0
 	fi
 
@@ -542,23 +526,23 @@ lock_workdir()
 	   pid="$(head -c32 -- "$workdir/pid")" &&
 	   [ "$pid" -gt 0 ] 2>/dev/null; then
 		if kill -0 -- "$pid" 2>/dev/null; then
-			Info "working directory \`$workdir' is already locked by pid=$pid."
+			message "working directory \`$workdir' is already locked by pid=$pid."
 			ps hp "$pid" >&2
 		else
-			Info "working directory \`$workdir' is already locked by stale pid=$pid."
+			message "working directory \`$workdir' is already locked by stale pid=$pid."
 		fi
 	fi
 
 	if [ -z "$lock_nowait" ]; then
-		Verbose "Waiting for working directory lock..."
+		verbose "Waiting for working directory lock..."
 		if builtin lockf "$workdir"; then
 			echo $$ >"$workdir/pid"
-			Verbose "Locked working directory \`$workdir'"
+			verbose "Locked working directory \`$workdir'"
 			return 0
 		fi
 	fi
 
-	Fatal "Unable to lock working directory \`$workdir'"
+	fatal "Unable to lock working directory \`$workdir'"
 }
 
 # assumed: variables initialized by check_helpers()
@@ -569,18 +553,18 @@ lock_hasher_config()
 
 	local file
 	file="$("$getconf" ${number:+-$number})" ||
-		Fatal 'hasher-priv getconf failed.'
+		fatal 'hasher-priv getconf failed.'
 
 	enable -f /usr/lib/bash/lockf lockf
 	local lock_param=
 	[ -z "$lock_nowait" ] || lock_param=-n
-	Verbose "Acquiring lock for config file \`$file'..."
+	verbose "Acquiring lock for config file \`$file'..."
 	if builtin lockf $lock_param "$file"; then
 		config_is_locked=1
-		Verbose "Locked config file \`$file'"
+		verbose "Locked config file \`$file'"
 		return 0
 	else
-		Verbose "Config file \`$file' is busy"
+		verbose "Config file \`$file' is busy"
 		return 1
 	fi
 }
@@ -644,15 +628,15 @@ deduce_number_from_directory()
 	local gid
 
 	[ -d "$dir" ] ||
-		Fatal "$dir: Directory not available."
+		fatal "$dir: Directory not available."
 
 	# take gid from directory ownership
 	gid="$(find "$dir" -maxdepth 0 -type d -printf '%G')"
 	[ "$gid" -ge 0 ] 2>/dev/null ||
-		Fatal "$dir: Failed to get directory ownership."
+		fatal "$dir: Failed to get directory ownership."
 
 	iterate_config_files_set_number '' is_config_matches_gid "$gid" ||
-		Fatal 'Failed to deduce hasher config number from directory ownership.'
+		fatal 'Failed to deduce hasher config number from directory ownership.'
 }
 
 deduce_lock_hasher_priv()
@@ -661,7 +645,7 @@ deduce_lock_hasher_priv()
 	check_helpers
 	deduce_number_from_directory "$dir"
 	lock_hasher_config ||
-		Fatal 'Failed to lock hasher-priv'
+		fatal 'Failed to lock hasher-priv'
 }
 
 allocate_lock_hasher_priv()
@@ -672,7 +656,7 @@ allocate_lock_hasher_priv()
 	# if subconfig is already defined, just use it
 	if [ -n "$number" ]; then
 		lock_hasher_config ||
-			Fatal 'Failed to lock hasher-priv'
+			fatal 'Failed to lock hasher-priv'
 		return 0
 	fi
 
@@ -689,7 +673,7 @@ allocate_lock_hasher_priv()
 
 		# if all configs are busy and lock_nowait was set, bail out
 		[ -z "$saved_lock_nowait" ] ||
-			Fatal 'Failed to lock hasher-priv'
+			fatal 'Failed to lock hasher-priv'
 
 		# wait for next iteration
 		n="$(($n+1))"
@@ -705,7 +689,7 @@ print_uris()
 	local out
 	if ! out="$("$aptbox/apt-get" -q -y --print-uris install -- "$@" 2>&1)"; then
 		printf %s\\n "$out" >&2
-		Fatal 'failed to calculate package file list.'
+		fatal 'failed to calculate package file list.'
 	fi
 
 	local all_pattern="'\\([a-z]\\+\\):\\([^']\\+\\)' .*"
@@ -714,26 +698,26 @@ print_uris()
 	local all_uris
 	if ! all_uris="$(printf %s "$out" |sed -ne "s/^$all_pattern/\\2/pg")"; then
 		printf %s\\n "$out" >&2
-		Fatal 'failed to filter package file list.'
+		fatal 'failed to filter package file list.'
 	fi
 
 	local local_uris cached_uris=
 	if ! local_uris="$(printf %s "$out" |sed -ne "s/^$local_pattern/\\2/pg")"; then
 		printf %s\\n "$out" >&2
-		Fatal 'failed to filter package file list.'
+		fatal 'failed to filter package file list.'
 	fi
 
 	if [ "$all_uris" != "$local_uris" ]; then
 		if [ -z "$APT_Get_PrintLocalFile" ]; then
 			if ! out="$("$aptbox/apt-get" -o APT::Get::PrintLocalFile=yes -q -y --print-uris install -- "$@" 2>&1)"; then
 				printf %s\\n "$out" >&2
-				Fatal 'calculated package file list is not local and apt-get does not support APT::Get::PrintLocalFile option.'
+				fatal 'calculated package file list is not local and apt-get does not support APT::Get::PrintLocalFile option.'
 			fi
 
 			if ! cached_uris="$(printf %s "$out" |sed -ne "s/^$all_pattern/\\2/pg")" ||
 			   [ -n "$cached_uris" ]; then
 				printf %s\\n "$out" >&2
-				Fatal 'calculated package file list is not local and apt-get does not support APT::Get::PrintLocalFile option.'
+				fatal 'calculated package file list is not local and apt-get does not support APT::Get::PrintLocalFile option.'
 			fi
 
 			APT_Get_PrintLocalFile=1
@@ -741,22 +725,22 @@ print_uris()
 
 		if [ -n "$verbose" ]; then
 			"$aptbox/apt-get" -y -d install -- "$@" >&2 ||
-				Fatal 'failed to download packages from calculated package file list.'
+				fatal 'failed to download packages from calculated package file list.'
 		else
 			if ! out="$("$aptbox/apt-get" -y -d install -- "$@" 2>&1)"; then
 				printf %s\\n "$out" >&2
-				Fatal 'failed to download packages from calculated package file list.'
+				fatal 'failed to download packages from calculated package file list.'
 			fi
 		fi
 
 		if ! out="$("$aptbox/apt-get" -o APT::Get::PrintLocalFile=yes -q -y --print-uris install -- "$@" 2>&1)"; then
 			printf %s\\n "$out" >&2
-			Fatal 'failed to calculate local package file list.'
+			fatal 'failed to calculate local package file list.'
 		fi
 
 		if ! cached_uris="$(printf %s "$out" |LC_ALL=C grep ^/)" || [ -z "$cached_uris" ]; then
 			printf %s\\n "$out" >&2
-			Fatal 'failed to calculate local package file list.'
+			fatal 'failed to calculate local package file list.'
 		fi
 	fi
 
@@ -766,7 +750,7 @@ $cached_uris" || local_uris="$cached_uris"
 	fi
 
 	printf %s "$local_uris" &&
-		Verbose 'calculated package file list.'
+		verbose 'calculated package file list.'
 }
 
 parse_xauth_entry()
@@ -777,7 +761,7 @@ parse_xauth_entry()
 
 	if [ -z "$XAUTH_DISPLAY" -o -n "${XAUTH_DISPLAY##*:*}" \
 	  -o -z "$XAUTH_PROTO" -o -z "$XAUTH_KEY" ]; then
-		Info "Invalid auth entry for DISPLAY \`$DISPLAY', disabling X11 forwarding."
+		message "Invalid auth entry for DISPLAY \`$DISPLAY', disabling X11 forwarding."
 		return 1
 	fi
 
@@ -790,12 +774,12 @@ prepare_x11_forwarding()
 	[ -n "$x11_forwarding" ] || return 0
 
 	if [ -z "$DISPLAY" ]; then
-		Info 'DISPLAY not set, disabling X11 forwarding.'
+		message 'DISPLAY not set, disabling X11 forwarding.'
 		return 1
 	fi
 
 	if [ -n "${DISPLAY##*:*}" ]; then
-		Info 'Invalid DISPLAY set, disabling X11 forwarding.'
+		message 'Invalid DISPLAY set, disabling X11 forwarding.'
 		return 1
 	fi
 
@@ -816,7 +800,7 @@ prepare_x11_forwarding()
 			{ rm -f "$xfile"; return 1; }
 		rm -f "$xfile"
 	else
-		Fatal 'Invalid $x11_forwarding value.'
+		fatal 'Invalid $x11_forwarding value.'
 	fi
 
 	parse_xauth_entry $xentry || return 1

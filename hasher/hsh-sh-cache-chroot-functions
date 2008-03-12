@@ -33,8 +33,8 @@ archive_chroot_cache()
 
 	# rpmdb
 	tar -cf "$rpmdb_archive" -C aptbox/var/lib/rpm/ . &&
-		Verbose 'RPM database archivation complete.' ||
-		Fatal 'RPM database archivation failed.'
+		verbose 'RPM database archivation complete.' ||
+		fatal 'RPM database archivation failed.'
 
 	# chroot
 	create_entry_fakeroot_header
@@ -47,8 +47,8 @@ __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 	    chrootuid1 </dev/null >"$chroot_archive" &&
-		Verbose 'Chroot archivation complete.' ||
-		Fatal 'Chroot archivation failed.'
+		verbose 'Chroot archivation complete.' ||
+		fatal 'Chroot archivation failed.'
 
 	trap - EXIT HUP INT QUIT TERM
 
@@ -77,33 +77,33 @@ check_chroot_cache()
 				#break
 			fi
 		done
-	[ ! -f "$bad" ] || Fatal 'Failed to check chroot cache.'
+	[ ! -f "$bad" ] || fatal 'Failed to check chroot cache.'
 
 	printf %s "$save_fakeroot" >"$cache_dir/chroot/fakeroot-options.new"
 
 	while :; do
 		for f in "$cache_dir"/chroot/{rpmdb.tar,chroot.cpio}; do
 			if [ ! -s "$f" ]; then
-				Verbose "Missing $f archive, invalidating chroot cache."
+				verbose "Missing $f archive, invalidating chroot cache."
 				rebuild_chroot_cache=1
 				break 2
 			fi
 		done
 
 		if ! cmp -s "$cache_dir"/chroot/fakeroot-options{.new,}; then
-			Verbose 'Fakeroot options changed, invalidating chroot cache.'
+			verbose 'Fakeroot options changed, invalidating chroot cache.'
 			rebuild_chroot_cache=1
 			break
 		fi
 
 		if ! cmp -s "$cache_dir"/chroot/list{.new,}/init; then
-			Verbose 'Init list changed, invalidating chroot cache.'
+			verbose 'Init list changed, invalidating chroot cache.'
 			rebuild_chroot_cache=1
 			break
 		fi
 
 		if ! cmp -s "$cache_dir"/chroot/list{.new,}/build; then
-			Verbose 'Build list changed, invalidating chroot cache.'
+			verbose 'Build list changed, invalidating chroot cache.'
 			rebuild_chroot_cache=1
 			break
 		fi
@@ -114,7 +114,7 @@ check_chroot_cache()
 				n="${f##*/}"
 				if [ "$cache_dir/chroot/package.new/$n" -nt "$cache_dir/chroot/package/$n" -o \
 				     "$cache_dir/chroot/package.new/$n" -ot "$cache_dir/chroot/package/$n" ]; then
-					Verbose "package $n changed, invalidating chroot cache"
+					verbose "package $n changed, invalidating chroot cache"
 					printf %s\\n "$n" >"$bad"
 					break
 				fi
@@ -135,20 +135,20 @@ unpack_chroot_cache()
 	f="$cache_dir/chroot/rpmdb.tar"
 	find aptbox/var/lib/rpm/ -mindepth 1 -depth -delete
 	tar -xf "$f" -C aptbox/var/lib/rpm/ &&
-		Verbose "Unpacked $f." ||
-		Fatal "Unpack of $f failed."
+		verbose "Unpacked $f." ||
+		fatal "Unpack of $f failed."
 
 	# chroot
 	f="$cache_dir/chroot/chroot.cpio"
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 	    chrootuid1 /.host/cpio --extract --make-directories --sparse --quiet <"$f" &&
-		Verbose "Unpacked $f." ||
-		Fatal "Unpack of $f failed."
+		verbose "Unpacked $f." ||
+		fatal "Unpack of $f failed."
 	if [ -n "$save_fakeroot" ]; then
 		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
 		    chrootuid1 /bin/touch /.fakedata </dev/null &&
-			Verbose "Created fakedata." ||
-			Fatal "Failed to create fakedata."
+			verbose "Created fakedata." ||
+			fatal "Failed to create fakedata."
 		create_entry_fakeroot_header
 		cat >>"$entry" <<__EOF__
 cd /
@@ -156,8 +156,8 @@ cpio --extract --make-directories --sparse --quiet --unconditional --preserve-mo
 __EOF__
 		wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 		    chrootuid1 <"$f" &&
-			Verbose "Unpacked $f for fakedata." ||
-			Fatal "Unpack of $f for fakedata failed."
+			verbose "Unpacked $f for fakedata." ||
+			fatal "Unpack of $f for fakedata failed."
 	fi
 	create_entry_fakeroot_header
 	cat >>"$entry" <<__EOF__
@@ -176,8 +176,8 @@ __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 	    chrootuid1 </dev/null &&
-		Verbose 'First time initialization complete.' ||
-		Fatal 'First time initialization failed.'
+		verbose 'First time initialization complete.' ||
+		fatal 'First time initialization failed.'
 } # unpack_chroot_cache
 
 create_chroot()
@@ -188,15 +188,15 @@ create_chroot()
 	for f in $initlist; do
 		rpm2cpio "$f" |wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 		    chrootuid1 /.host/cpio --extract --make-directories --sparse --quiet &&
-			Verbose "Unpacked ${f##*/}." ||
-			Fatal "Unpack of ${f##*/} failed."
+			verbose "Unpacked ${f##*/}." ||
+			fatal "Unpack of ${f##*/} failed."
 	done
-	Verbose 'Unpacked initial package list.'
+	verbose 'Unpacked initial package list.'
 	if [ -n "$save_fakeroot" ]; then
 		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
 		    chrootuid1 /bin/touch /.fakedata </dev/null &&
-			Verbose "Created fakedata." ||
-			Fatal "Failed to create fakedata."
+			verbose "Created fakedata." ||
+			fatal "Failed to create fakedata."
 		create_entry_fakeroot_header
 		cat >>"$entry" <<__EOF__
 cd /
@@ -205,8 +205,8 @@ __EOF__
 		for f in $initlist; do
 			rpm2cpio "$f" |wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 			    chrootuid1 &&
-				Verbose "Unpacked ${f##*/} for fakedata." ||
-				Fatal "Unpack of ${f##*/} for fakedata failed."
+				verbose "Unpacked ${f##*/} for fakedata." ||
+				fatal "Unpack of ${f##*/} for fakedata failed."
 		done
 	fi
 
@@ -224,12 +224,12 @@ echo '%_install_langs ${install_langs:-$def_install_langs}' >>/etc/rpm/macros
 # /WORKAROUND
 rpmdb --initdb
 __EOF__
-	Verbose "Created entry point: $entry"
+	verbose "Created entry point: $entry"
 
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 	    chrootuid1 </dev/null &&
-		Verbose 'Created RPM database.' ||
-		Fatal 'Failed to create RPM database.'
+		verbose 'Created RPM database.' ||
+		fatal 'Failed to create RPM database.'
 
 	create_entry_fakeroot_header
 	cat >>"$entry" <<__EOF__
@@ -240,8 +240,8 @@ __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_short \
 	    chrootuid1 </dev/null &&
-		Verbose 'Installed initial package list.' ||
-		Fatal 'Failed to install initial package list.'
+		verbose 'Installed initial package list.' ||
+		fatal 'Failed to install initial package list.'
 
 	purge_chroot_in
 	update_RPM_database --nodeps $initlist
@@ -254,8 +254,8 @@ cat >$f
 __EOF__
 			wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 			    chrootuid1 <"$f" &&
-				Verbose "Installed $f file." ||
-				Fatal "Failed to install $f file."
+				verbose "Installed $f file." ||
+				fatal "Failed to install $f file."
 		fi
 	done
 
@@ -295,8 +295,8 @@ __EOF__
 
 		wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_short \
 		    chrootuid1 </dev/null &&
-			Verbose 'Installed build package list.' ||
-			Fatal 'Failed to install build package list.'
+			verbose 'Installed build package list.' ||
+			fatal 'Failed to install build package list.'
 
 		purge_chroot_in
 		update_RPM_database $buildlist
@@ -320,8 +320,8 @@ __EOF__
 
 		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 		    chrootuid1 </dev/null &&
-			Verbose 'First time initialization complete.' ||
-			Fatal 'First time initialization failed.'
+			verbose 'First time initialization complete.' ||
+			fatal 'First time initialization failed.'
 	fi # $buildlist
 
 	archive_chroot_cache

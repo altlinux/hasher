@@ -123,11 +123,11 @@ while :; do
 			;;
 		--source-only) source_only=1
 			;;
-		--save-fakeroot) Info "Warning: obsolete option $1 ignored."
+		--save-fakeroot) message "Warning: obsolete option $1 ignored."
 			;;
 		--target) shift; target="$1"
 			[ -z "${target##[A-Za-z]*}" ] ||
-				Fatal "--target: $target: invalid architecture."
+				fatal "--target: $target: invalid architecture."
 			;;
 		--wait-lock) lock_nowait=
 			;;
@@ -173,7 +173,7 @@ sname="${source##*/}"
 shift
 
 lock_workdir
-[ -d "$chroot" ] || Fatal "$chroot: cannot find chroot."
+[ -d "$chroot" ] || fatal "$chroot: cannot find chroot."
 deduce_lock_hasher_priv
 
 # Create rebuild script.
@@ -187,7 +187,7 @@ export -n target ||:
 exec time rpmbuild --rebuild --target="\$target" $nodeps $rpmargs "\$@"
 __EOF__
 	chmod 755 "chroot/.host/rebuild"
-	Verbose 'Created rebuild script.'
+	verbose 'Created rebuild script.'
 fi
 
 . hsh-sh-rebuild-functions
@@ -243,8 +243,8 @@ __EOF__
 
 	deps="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 		    chrootuid2 </dev/null)" &&
-		Verbose "$sname: fetched installed file dependencies." ||
-		Fatal "$sname: failed to fetch installed file dependencies."
+		verbose "$sname: fetched installed file dependencies." ||
+		fatal "$sname: failed to fetch installed file dependencies."
 	calculate_required_mountpoints "$deps"
 fi
 
@@ -261,7 +261,7 @@ run_sisyphus_check '/.out' "$no_sisyphus_check_out" gpg
 case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |LC_ALL=C grep -c '\.src\.rpm$'` in
 	0) subdir=.in ;;
 	1) subdir=.out ;;
-	*) Fatal 'Too many src.rpm files written.' ;;
+	*) fatal 'Too many src.rpm files written.' ;;
 esac
 
 make_repo

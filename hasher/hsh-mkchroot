@@ -63,7 +63,7 @@ while :; do
 		--number)
 			if [ -z "${2##/*}" ]; then
 				[ -d "$2" ] ||
-					Fatal "$1: $2: Directory not available."
+					fatal "$1: $2: Directory not available."
 				number="$2"
 			else
 				number="$(opt_check_number "$1" "$2")"
@@ -106,7 +106,7 @@ lock_workdir
 
 # exists already?
 [ ! -e chroot -a ! -L chroot ] ||
-	Fatal "Remove $chroot first."
+	fatal "Remove $chroot first."
 
 if [ -n "$number" -a -z "${number##/*}" ]; then
 	deduce_lock_hasher_priv "$number"
@@ -115,28 +115,28 @@ else
 fi
 
 ugid1="$("$getugid1" ${number:+-$number})" ||
-	Fatal "getugid1 failed."
+	fatal "getugid1 failed."
 gid1="$(printf %s "$ugid1" |cut -d: -f2)"
 ugid2="$("$getugid2" ${number:+-$number})" ||
-	Fatal "getugid2 failed."
+	fatal "getugid2 failed."
 gid2="$(printf %s "$ugid2" |cut -d: -f2)"
 
 mkdir -m1775 $verbose -- chroot
 cd chroot
-Verbose "Changed working directory to \`$chroot'."
+verbose "Changed working directory to \`$chroot'."
 
 mkdir -m711 $verbose .host
 mkdir -m755 $verbose .in dev dev/pts
 chgrp "$gid1" $verbose . dev dev/pts
 mkdir -m1770 $verbose .out
 chgrp "$gid2" $verbose .out
-Verbose 'Created directory tree.'
+verbose 'Created directory tree.'
 
 ln -s $verbose ../proc/self/fd dev/fd
 ln -s $verbose ../proc/self/fd/0 dev/stdin
 ln -s $verbose ../proc/self/fd/1 dev/stdout
 ln -s $verbose ../proc/self/fd/2 dev/stderr
-Verbose 'Created /dev symlinks.'
+verbose 'Created /dev symlinks.'
 
 install_static_helper ash sh
 install_static_helper find
@@ -147,8 +147,8 @@ postin="$HOME/.hasher/install/post"
 if [ -r "$postin" -a -x "$postin" ]; then
 	install -p -m755 $verbose "$postin" .host/postin
 fi
-Verbose 'Installed .host programs.'
+verbose 'Installed .host programs.'
 
 "$makedev" ${number:+-$number} "$chroot" &&
-	Verbose "Created devices in \`$chroot/dev/'." ||
-	Fatal 'failed to make devices.'
+	verbose "Created devices in \`$chroot/dev/'." ||
+	fatal 'failed to make devices.'
