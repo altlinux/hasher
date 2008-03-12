@@ -1,6 +1,6 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2007  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2007,2008  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The hsh-fakedev utility for the hasher project
 #
