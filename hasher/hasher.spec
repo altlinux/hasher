@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.2
+Version: 1.3.3
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -51,6 +51,14 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Wed Mar 12 2008 Dmitry V. Levin <ldv@altlinux.org> 1.3.3-alt1
+- hsh-sh-cache-chroot-functions (archive_chroot_cache): Do not use ls.
+- hsh-initroot: Do not create /dev/log socket, this is not our business.
+- Use shell-error, shell-quote and shell-args from libshell >= 0:0.0.2-alt4,
+  to replace several functions originally developed within hasher project.
+- Avoid potential argument list overflow in hsh-install
+  and similar places (#14107).
+
 * Fri Dec 21 2007 Dmitry V. Levin <ldv@altlinux.org> 1.3.2-alt1
 - Alex V. Myltsev:
   hsh: Clearer diagnostic if the workdir does not exist (#13476).
