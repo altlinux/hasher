@@ -24,6 +24,10 @@
 unset CDPATH ||:
 PROG="${0##*/}"
 
+. shell-error
+. shell-quote
+. shell-args
+
 Info()
 {
 	printf %s\\n "${0##*/}: $*" >&2
