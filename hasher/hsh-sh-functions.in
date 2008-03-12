@@ -53,13 +53,6 @@ EOF
 	exit
 }
 
-show_usage()
-{
-	[ -z "$*" ] || message "$*"
-	echo "Try \`$PROG --help' for more information." >&2
-	exit 1
-}
-
 # safe umask.
 umask 022
 
@@ -244,34 +237,6 @@ wlimit_time_elapsed=
 wlimit_time_idle=
 wlimit_bytes_written=
 use_pty=
-
-opt_check_read()
-{
-	local value
-	[ -r "$2" ] &&
-		value="$(readlink -ev -- "$2")" &&
-		[ -r "$value" ] ||
-		fatal "$1: $2: file not available."
-	printf %s "$value"
-}
-
-opt_check_dir()
-{
-	local value
-	[ -d "$2" -a -x "$2" ] &&
-		value="$(readlink -ev -- "$2")" &&
-		[ -d "$value" -a -x "$value" ] ||
-		fatal "$1: $2: directory not available."
-	printf %s "$value"
-}
-
-opt_check_number()
-{
-	[ -n "${2##0*}" -a -n "${2##*[!0-9]*}" ] &&
-		[ "$2" -gt 0 ] 2>/dev/null ||
-		fatal "$1: $2: invalid number."
-	printf %s "$2"
-}
 
 parse_common_options()
 {
