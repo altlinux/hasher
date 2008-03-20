@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.3
+Version: 1.3.4
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -51,6 +51,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Thu Mar 20 2008 Dmitry V. Levin <ldv@altlinux.org> 1.3.4-alt1
+- hsh-sh-functions.in (copy_chroot_incoming):
+  Show the whole list of missing files (Alexey Tourbin)
+- hsh-sh-rebuild-functions (make_srpm_from_pkgtar, install_source_package):
+  Redirect verbose output to stderr.
+
 * Wed Mar 12 2008 Dmitry V. Levin <ldv@altlinux.org> 1.3.3-alt1
 - hsh-sh-cache-chroot-functions (archive_chroot_cache): Do not use ls.
 - hsh-initroot: Do not create /dev/log socket, this is not our business.
