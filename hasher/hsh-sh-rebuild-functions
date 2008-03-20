@@ -111,7 +111,7 @@ __EOF__
 	# At this stage, build environment should be ready for creating source rpm.
 	create_entry_header
 	cat >>"$entry" <<__EOF__
-mkdir $verbose -m700 -- "\$HOME/in/srpm"
+mkdir $verbose -m700 -- "\$HOME/in/srpm" >&2
 rpmbuild -bs --nodeps \\
 	--target="$(quote_shell "${target:-$def_target}")" \\
 	--define '_allow_undefined_macros 1' \\
@@ -134,9 +134,9 @@ install_source_package()
 	copy_chroot_incoming "$source"
 	create_entry_header
 	cat >>"$entry" <<__EOF__
-mkdir -p $verbose -m700 -- "\$TMPDIR"
+mkdir -p $verbose -m700 -- "\$TMPDIR" >&2
 rm -rf "\$HOME/in"
-mkdir $verbose -m700 -- "\$HOME/in"
+mkdir $verbose -m700 -- "\$HOME/in" >&2
 # Check source file.
 header="\$(od -A n -N 8 -t x1 -- "$(quote_shell "$sname")")"
 case "\$header" in
