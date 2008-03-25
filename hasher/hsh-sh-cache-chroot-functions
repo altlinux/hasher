@@ -289,8 +289,8 @@ noinst_list="$(for f in $buildlist; do
 	done
 done)"
 [ -z "\$noinst_list" ] || rpm_nodeps="--nodeps"
-[ -z "\$inst_list" ] || ${rpmi:-$def_rpmi} -i $rpm_verbose $hash $exclude_docs \$rpm_nodeps \$inst_list
-[ -z "\$noinst_list" ] || ${rpmi:-$def_rpmi} -i $verbose $exclude_docs --nodeps --justdb \$noinst_list
+[ -z "\$inst_list" ] || ${rpmi:-$def_rpmi} -i $exclude_docs \$rpm_nodeps \$inst_list
+[ -z "\$noinst_list" ] || ${rpmi:-$def_rpmi} -i $exclude_docs --nodeps --justdb \$noinst_list
 __EOF__
 
 		wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_short \

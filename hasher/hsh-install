@@ -140,10 +140,10 @@ create_entry_fakeroot_header
 cat >>"$entry" <<__EOF__
 ${exclude_docs:+export RPM_EXCLUDEDOCS=1}
 if [ -s .rpmi-justdb.list ]; then
-	${rpmi:-$def_rpmi} -i $verbose $exclude_docs --nodeps --justdb .rpmi-justdb.list
+	${rpmi:-$def_rpmi} -i $exclude_docs --nodeps --justdb .rpmi-justdb.list
 fi
 if [ -s .rpmi-install.list ]; then
-	${rpmi:-$def_rpmi} -i $rpm_verbose $hash $exclude_docs .rpmi-install.list
+	${rpmi:-$def_rpmi} -i $exclude_docs .rpmi-install.list
 fi
 ldconfig
 if type adjust_kernel_headers >/dev/null 2>&1; then
