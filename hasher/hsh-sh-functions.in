@@ -158,7 +158,7 @@ query_repackage=
 Helpify query_repackage
 
 # noinstall package pattern list
-noinstall_pattern_list='dev[-_][0-9]*'
+noinstall_pattern_list='dev[-_][0-9]* dev[-_]minimal[-_][0-9]*'
 Helpify pkg_noinstall_pattern_list noinstall_pattern_list
 
 # repo directory.
