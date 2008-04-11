@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.4
+Version: 1.3.5
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -51,6 +51,11 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Fri Apr 11 2008 Dmitry V. Levin <ldv@altlinux.org> 1.3.5-alt1
+- Do not pass -h/-v options to chrooted rpmi,
+  information from syslog should be enough.
+- hsh-sh-functions.in (noinstall_pattern_list): Added dev-minimal.
+
 * Thu Mar 20 2008 Dmitry V. Levin <ldv@altlinux.org> 1.3.4-alt1
 - hsh-sh-functions.in (copy_chroot_incoming):
   Show the whole list of missing files (Alexey Tourbin)
