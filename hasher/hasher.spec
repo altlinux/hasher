@@ -21,8 +21,8 @@ Requires: apt-utils >= 0:0.5.5cnc4.1-alt7
 Requires: bash-builtin-lockf >= 0:0.2
 # due to "readlink -e"
 Requires: coreutils >= 0:5.2.1-alt3
-# due to "hasher-priv getconf"
-Requires: hasher-priv >= 0:1.2.11
+# due to hasher-priv syslog support
+Requires: hasher-priv >= 0:1.3.0
 # due to prepare_x11_forwarding()
 Requires: mktemp >= 1:1.3.1
 # first libshell version with fixed shell-quote
