@@ -115,8 +115,9 @@ fi
 
 cat >.host/entry <<__EOF__
 #!/.host/sh${verbose:+ -x}
-chmod -Rf u+rwX -- /* /.out 2>/dev/null
-/.host/find / -depth -delete >/dev/null 2>&1
+/.host/sh -c ':>/dev/null' && exec >/dev/null 2>&1
+chmod -Rf u+rwX -- /* /.out
+/.host/find / -depth -delete
 exit 0
 __EOF__
 chmod 755 .host/entry
