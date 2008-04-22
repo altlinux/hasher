@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.5
+Version: 1.3.6
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -51,6 +51,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Tue Apr 22 2008 Dmitry V. Levin <ldv@altlinux.org> 1.3.6-alt1
+- hsh-rmchroot: Workaround nodev /dev/null when deleting
+  files inside chroot.
+- hsh-sh-cache-chroot-functions (unpack_chroot_cache,
+  create_chroot): Always preserve modification time.
+
 * Fri Apr 11 2008 Dmitry V. Levin <ldv@altlinux.org> 1.3.5-alt1
 - Do not pass -h/-v options to chrooted rpmi,
   information from syslog should be enough.
