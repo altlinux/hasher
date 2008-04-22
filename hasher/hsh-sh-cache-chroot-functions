@@ -141,7 +141,7 @@ unpack_chroot_cache()
 	# chroot
 	f="$cache_dir/chroot/chroot.cpio"
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
-	    chrootuid1 /.host/cpio --extract --make-directories --sparse --quiet <"$f" &&
+	    chrootuid1 /.host/cpio --extract --make-directories --sparse --quiet --preserve-modification-time <"$f" &&
 		verbose "Unpacked $f." ||
 		fatal "Unpack of $f failed."
 	if [ -n "$save_fakeroot" ]; then
@@ -187,7 +187,7 @@ create_chroot()
 	local f
 	for f in $initlist; do
 		rpm2cpio "$f" |wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
-		    chrootuid1 /.host/cpio --extract --make-directories --sparse --quiet &&
+		    chrootuid1 /.host/cpio --extract --make-directories --sparse --quiet --preserve-modification-time &&
 			verbose "Unpacked ${f##*/}." ||
 			fatal "Unpack of ${f##*/} failed."
 	done
