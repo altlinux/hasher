@@ -276,6 +276,10 @@ RPM::RootDir "$aptbox";
 APT::Install::Virtual "true";
 APT::Install::VirtualVersion "true";
 __EOF__
+[ "$current_arch" != "${target:-$def_target}" ] &&
+    cat >>"$apt_config_file" <<__EOF__
+APT::Architecture "${target:-$def_target}";
+__EOF__
 verbose "Created APT configuration file \`$apt_config_file'."
 
 # create a new sources.list file.
