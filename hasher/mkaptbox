@@ -206,7 +206,10 @@ rpm_showrc="$(rpm --showrc)"
 current_arch="$(printf %s "$rpm_showrc" |sed -ne 's/^install arch[[:space:]]*:[[:space:]]*\([^[:space:]]\+\).*/\1/p')"
 [ -n "$current_arch" ] ||
 	current_arch="$(uname -m)"
-if [ "$current_arch" != "${target:-$def_target}" ] &&
+[ "$current_arch" != "${target:-$def_target}" ] &&
+	alternate_arch=1 ||
+	alternate_arch=
+if [ -n "$alternate_arch" ] &&
    ! printf %s "$rpm_showrc" |
      LC_ALL=C grep -qs "^compatible archs[[:space:]]*:.*\<${target:-$def_target}\>"; then
 	aptbox_home="$aptbox/home/user"
@@ -275,10 +278,7 @@ Dir::Etc::SourceList "$aptbox/etc/apt/sources.list";
 RPM::RootDir "$aptbox";
 APT::Install::Virtual "true";
 APT::Install::VirtualVersion "true";
-__EOF__
-[ "$current_arch" != "${target:-$def_target}" ] &&
-    cat >>"$apt_config_file" <<__EOF__
-APT::Architecture "${target:-$def_target}";
+${alternate_arch:+APT::Architecture "${target:-$def_target}";}
 __EOF__
 verbose "Created APT configuration file \`$apt_config_file'."
 
