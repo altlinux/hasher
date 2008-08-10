@@ -27,7 +27,7 @@ archive_chroot_cache()
 	[ -n "$rebuild_chroot_cache" ] || return 0
 
 	local rpmdb_archive="$cache_dir/chroot/rpmdb.tar"
-	local chroot_archive="$cache_dir/chroot/chroot.cpio"
+	local chroot_archive="$cache_dir/chroot/chroot.cpio.lzo"
 
 	trap 'rm -f -- "$rpmdb_archive" "$chroot_archive"' EXIT HUP INT QUIT TERM
 
@@ -45,10 +45,15 @@ cpio --version >/dev/null 2>&1 && cpio=cpio || cpio=/.host/cpio
 \$find * ! -path dev ! -path dev/\\* |\$cpio --create --quiet --format=newc
 __EOF__
 
-	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
-	    chrootuid1 </dev/null >"$chroot_archive" &&
-		verbose 'Chroot archivation complete.' ||
+	rm -f "$cache_dir/chroot/err"
+	{ wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
+	    chrootuid1 </dev/null || echo 1 >"$cache_dir/chroot/err"; } |
+		{ lzop >"$chroot_archive" || echo 1 >"$cache_dir/chroot/err"; }
+	if [ -f "$cache_dir/chroot/err" ]; then
+		rm -f "$cache_dir/chroot/err"
 		fatal 'Chroot archivation failed.'
+	fi
+	verbose 'Chroot archivation complete.'
 
 	trap - EXIT HUP INT QUIT TERM
 
@@ -82,7 +87,7 @@ check_chroot_cache()
 	printf %s "$save_fakeroot" >"$cache_dir/chroot/fakeroot-options.new"
 
 	while :; do
-		for f in "$cache_dir"/chroot/{rpmdb.tar,chroot.cpio}; do
+		for f in "$cache_dir"/chroot/{rpmdb.tar,chroot.cpio.lzo}; do
 			if [ ! -s "$f" ]; then
 				verbose "Missing $f archive, invalidating chroot cache."
 				rebuild_chroot_cache=1
@@ -139,9 +144,10 @@ unpack_chroot_cache()
 		fatal "Unpack of $f failed."
 
 	# chroot
-	f="$cache_dir/chroot/chroot.cpio"
+	f="$cache_dir/chroot/chroot.cpio.lzo"
+	lzop -dc <"$f" |
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
-	    chrootuid1 /.host/cpio --extract --make-directories --sparse --quiet --preserve-modification-time <"$f" &&
+	    chrootuid1 /.host/cpio --extract --make-directories --sparse --quiet --preserve-modification-time &&
 		verbose "Unpacked $f." ||
 		fatal "Unpack of $f failed."
 	if [ -n "$save_fakeroot" ]; then
@@ -154,8 +160,9 @@ unpack_chroot_cache()
 cd /
 cpio --extract --make-directories --sparse --quiet --unconditional --preserve-modification-time
 __EOF__
+		lzop -dc <"$f" |
 		wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
-		    chrootuid1 <"$f" &&
+		    chrootuid1 &&
 			verbose "Unpacked $f for fakedata." ||
 			fatal "Unpack of $f for fakedata failed."
 	fi
