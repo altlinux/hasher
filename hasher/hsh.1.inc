@@ -24,8 +24,8 @@ hsh \- build package using hasher utilities
 .BR \-\-with\-stuff " / " \-\-without\-stuff
 Controls whether to use results of previous builds stored in
 .IR <path\-to\-workdir> /repo
-during setup of new build environment.
-Default is to use this stuff.
+during setup of new build environment.  Default is to use this stuff.
+See below for the config option controlling this behavior.
 .TP
 \fB\-\-number\fR=\fINUMBER\fR
 Choose subconfig identifier (positive integer).  By default, simultaneous
@@ -33,16 +33,18 @@ builds are not allowed, so user can do at most single build in every
 point of time.  To overcome this restriction, additional pseudouser
 pairs should be created by
 .BR hasher\-useradd (8).
-The subconfig identifier defines the pair to use.
-Additionally, when \fINUMBER\fR starts with slash character, it specifies
-a directory to deduce subconfig identifier from.
+The subconfig identifier defines the pair to use.  Additionally, when
+\fINUMBER\fR starts with slash character, it specifies a directory
+to deduce subconfig identifier from.  See below for the config option
+controlling this behavior.
 .TP
 \fB\-\-mountpoints\fR=\fILIST\fR
 Defines list of known mount points.  Every build dependence which belongs
 to this list will be mounted.  If some mount point is not explicitly
 allowed in
 .BR hasher\-useradd.conf (5),
-build will fail.
+build will fail.  See below for the config option controlling this
+behavior.
 
 [FILES]
 .B ~/.hasher/config
