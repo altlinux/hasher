@@ -482,7 +482,7 @@ lock_workdir()
 	   [ "$pid" -gt 0 ] 2>/dev/null; then
 		if kill -0 -- "$pid" 2>/dev/null; then
 			message "working directory \`$workdir' is already locked by pid=$pid."
-			ps hp "$pid" >&2
+			a= ps hp "$pid" >&2 ||:
 		else
 			message "working directory \`$workdir' is already locked by stale pid=$pid."
 		fi
