@@ -268,7 +268,7 @@ install_static_helper()
 	local path="$(type -p "$src")"
 	[ -n "$path" -a -z "${path##/*}" ] ||
 		fatal "Static helper $src not found."
-	install -p -m755 $verbose "$path" "$chroot/.host/$dst"
+	install -p -m755 $verbose "$path" "$chroot/.host/$dst" >&2
 }
 
 # assumes: defined aptbox
@@ -372,7 +372,7 @@ copy_chroot_incoming()
 	purge_chroot_in
 	local f err=
 	for f; do
-		install -p -m644 $verbose -- "$f" chroot/.in/ || err=1
+		install -p -m644 $verbose -- "$f" chroot/.in/ >&2 || err=1
 	done
 	[ -z "$err" ] || fatal 'failed to copy files.'
 }
@@ -381,9 +381,9 @@ copy_chroot_incoming()
 make_repo()
 {
 	if [ -n "$repo_src" -o -n "$repo_bin" ]; then
-		mkdir -p $verbose -- ${repo_src:+"$repo_src"} ${repo_bin:+"$repo_bin"}
+		mkdir -p $verbose -- ${repo_src:+"$repo_src"} ${repo_bin:+"$repo_bin"} >&2
 	fi
-	mkdir -p $verbose -- ${repo:-$def_repo}/{{SRPMS,${target:-$def_target}/RPMS}.hasher,${target:-$def_target}/base}
+	mkdir -p $verbose -- ${repo:-$def_repo}/{{SRPMS,${target:-$def_target}/RPMS}.hasher,${target:-$def_target}/base} >&2
 }
 
 # assumed: cwd == workdir, defined aptbox

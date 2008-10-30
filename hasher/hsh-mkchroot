@@ -121,21 +121,21 @@ ugid2="$("$getugid2" ${number:+-$number})" ||
 	fatal "getugid2 failed."
 gid2="$(printf %s "$ugid2" |cut -d: -f2)"
 
-mkdir -m1775 $verbose -- chroot
+mkdir -m1775 $verbose -- chroot >&2
 cd chroot
 verbose "Changed working directory to \`$chroot'."
 
-mkdir -m711 $verbose .host
-mkdir -m755 $verbose .in dev dev/pts
-chgrp "$gid1" $verbose . dev dev/pts
-mkdir -m1770 $verbose .out
-chgrp "$gid2" $verbose .out
+mkdir -m711 $verbose .host >&2
+mkdir -m755 $verbose .in dev dev/pts >&2
+chgrp "$gid1" $verbose . dev dev/pts >&2
+mkdir -m1770 $verbose .out >&2
+chgrp "$gid2" $verbose .out >&2
 verbose 'Created directory tree.'
 
-ln -s $verbose ../proc/self/fd dev/fd
-ln -s $verbose ../proc/self/fd/0 dev/stdin
-ln -s $verbose ../proc/self/fd/1 dev/stdout
-ln -s $verbose ../proc/self/fd/2 dev/stderr
+ln -s $verbose ../proc/self/fd dev/fd >&2
+ln -s $verbose ../proc/self/fd/0 dev/stdin >&2
+ln -s $verbose ../proc/self/fd/1 dev/stdout >&2
+ln -s $verbose ../proc/self/fd/2 dev/stderr >&2
 verbose 'Created /dev symlinks.'
 
 install_static_helper ash sh
@@ -145,7 +145,7 @@ install_static_helper cpio
 	install_static_helper "qemu-$qemu_arch"
 postin="$HOME/.hasher/install/post"
 if [ -r "$postin" -a -x "$postin" ]; then
-	install -p -m755 $verbose "$postin" .host/postin
+	install -p -m755 $verbose "$postin" .host/postin >&2
 fi
 verbose 'Installed .host programs.'
 

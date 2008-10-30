@@ -184,7 +184,7 @@ deduce_lock_hasher_priv
 prepare_x11_forwarding || x11_forwarding=
 
 [ -z "$run_script" ] ||
-	install -pm755 $verbose "$run_script" "$chroot/.host/hsh-run"
+	install -pm755 $verbose "$run_script" "$chroot/.host/hsh-run" >&2
 
 if [ -n "$run_as_rooter" ]; then
 	create_entry_fakeroot_header

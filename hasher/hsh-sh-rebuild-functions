@@ -90,7 +90,7 @@ __EOF__
 			[ -r "$buildreq_helper" ] ||
 			fatal 'hsh-buildreq-filter: Not available'
 
-		install -p -m755 $verbose "$buildreq_helper" chroot/.host/hsh-buildreq-filter
+		install -p -m755 $verbose "$buildreq_helper" chroot/.host/hsh-buildreq-filter >&2
 
 		# Calculate, check and install other build dependencies.
 		create_entry_header
@@ -242,9 +242,9 @@ EOF
 
 target="$(quote_shell "${target:-$def_target}")" /.host/rebuild *
 find "\$HOME/RPM/SRPMS/" -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
-	xargs -r0 mv -f $verbose --target-directory=/.out/ --
+	xargs -r0 mv -f $verbose --target-directory=/.out/ -- >&2
 find "\$HOME/RPM/RPMS/" -mindepth 2 -maxdepth 2 -type f -name \*.rpm -print0 |
-	xargs -r0 mv -f $verbose --target-directory=/.out/ --
+	xargs -r0 mv -f $verbose --target-directory=/.out/ -- >&2
 __EOF__
 
 	mountpoints="$required_mountpoints" \

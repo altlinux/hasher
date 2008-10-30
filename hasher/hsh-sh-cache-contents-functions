@@ -57,11 +57,11 @@ init_contents_index_list()
 create_contents_state()
 {
 	rm -rf "$cache_dir/contents/list.new"
-	mkdir $verbose "$cache_dir/contents/list.new"
+	mkdir $verbose "$cache_dir/contents/list.new" >&2
 	printf %s\\n "$contents_index_list" >"$cache_dir/contents/list.new/index"
 
 	rm -rf "$cache_dir/contents/index.new"
-	mkdir $verbose "$cache_dir/contents/index.new"
+	mkdir $verbose "$cache_dir/contents/index.new" >&2
 
 	local f f_mangled
 	while read f; do
@@ -165,7 +165,7 @@ cp_l_file_from_to()
 	dev_from="$(stat -c '%d' -- "$from")"
 	dev_to="$(stat -c '%d' -- "${to%/*}/")"
 	[ "$dev_from" = "$dev_to" ] && cp_args=-l || cp_args=
-	cp -f $cp_args $verbose -- "$from" "$to"
+	cp -f $cp_args $verbose -- "$from" "$to" >&2
 }
 
 # Save data files from chroot/.host/ host to "$cache_dir"/contents/;
@@ -175,8 +175,8 @@ archive_contents()
 	rm -rf "$cache_dir"/contents/{index,list}
 	cp_l_file_from_to chroot/.host/contents_index_bin "$cache_dir/contents/contents_index_bin"
 	cp_l_file_from_to chroot/.host/contents_index_all "$cache_dir/contents/contents_index_all"
-	mv $verbose "$cache_dir"/contents/index{.new,}
-	mv $verbose "$cache_dir"/contents/list{.new,}
+	mv $verbose "$cache_dir"/contents/index{.new,} >&2
+	mv $verbose "$cache_dir"/contents/list{.new,} >&2
 	verbose "Archived contents index."
 }
 

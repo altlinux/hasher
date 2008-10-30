@@ -96,7 +96,7 @@ cd chroot
 verbose "Changed working directory to \`$chroot'."
 deduce_lock_hasher_priv
 
-mkdir -p -m711 $verbose .host
+mkdir -p -m711 $verbose .host >&2
 install_static_helper ash sh
 install_static_helper find
 verbose 'Installed .host programs.'
@@ -106,8 +106,8 @@ if [ ! -c "dev/null" ]; then
 		fatal 'getugid1 failed.'
 	gid1="$(printf %s "$ugid1" |cut -d: -f2)"
 
-	mkdir -p -m755 $verbose dev
-	chgrp "$gid1" $verbose . dev
+	mkdir -p -m755 $verbose dev >&2
+	chgrp "$gid1" $verbose . dev >&2
 	"$makedev" ${number:+-$number} "$chroot" ||
 		fatal 'Failed to make devices.'
 	verbose "Created devices in \`$chroot/dev/'."
@@ -132,5 +132,5 @@ wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 	verbose 'Removed files owned by user1.' ||
 	fatal 'Failed to remove files owned by user1.'
 
-rm -rf $verbose -- "$chroot" ||
+rm -rf $verbose -- "$chroot" >&2 ||
 	fatal 'Failed to remove some files.'

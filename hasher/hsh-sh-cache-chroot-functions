@@ -58,11 +58,11 @@ __EOF__
 	trap - EXIT HUP INT QUIT TERM
 
 	# Regenerate data for later cache validation.
-	mv -f $verbose "$cache_dir"/chroot/list{.new,}/init
-	mv -f $verbose "$cache_dir"/chroot/list{.new,}/build
+	mv -f $verbose "$cache_dir"/chroot/list{.new,}/init >&2
+	mv -f $verbose "$cache_dir"/chroot/list{.new,}/build >&2
 	rm -rf "$cache_dir"/chroot/package
-	mv -f $verbose "$cache_dir"/chroot/package{.new,}
-	mv -f $verbose "$cache_dir"/chroot/fakeroot-options{.new,}
+	mv -f $verbose "$cache_dir"/chroot/package{.new,} >&2
+	mv -f $verbose "$cache_dir"/chroot/fakeroot-options{.new,} >&2
 } # archive_chroot_cache
 
 check_chroot_cache()
@@ -177,7 +177,7 @@ if grep -qs ^builder: /etc/passwd 2>/dev/null; then
 	userdel builder
 	groupadd -g $gid2 builder
 	useradd -M -u $uid2 -g $gid2 -d /usr/src builder
-	chmod $verbose 1777 /usr/src
+	chmod $verbose 1777 /usr/src >&2
 fi
 __EOF__
 
@@ -322,7 +322,7 @@ groupadd -g $gid1 rooter
 useradd -M -u $uid1 -g $gid1 -d /root rooter
 groupadd -g $gid2 builder
 useradd -M -u $uid2 -g $gid2 -d /usr/src builder
-chmod $verbose 1777 /usr/src
+chmod $verbose 1777 /usr/src >&2
 __EOF__
 
 		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \

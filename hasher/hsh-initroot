@@ -149,12 +149,12 @@ deduce_lock_hasher_priv
 
 [ -z "$save_fakeroot" ] || init_list="$init_list cpio"
 
-mkdir -p -m700 $verbose -- "$cache_dir"
+mkdir -p -m700 $verbose -- "$cache_dir" >&2
 cache_dir="$(readlink -ev -- "$cache_dir")"
 
-rm -rf $verbose "$cache_dir"/chroot/{list,package}.new
-mkdir -p -m700 $verbose "$cache_dir"/chroot/{list,package}{,.new}
-mkdir -p -m700 $verbose "$cache_dir"/contents
+rm -rf $verbose "$cache_dir"/chroot/{list,package}.new >&2
+mkdir -p -m700 $verbose "$cache_dir"/chroot/{list,package}{,.new} >&2
+mkdir -p -m700 $verbose "$cache_dir"/contents >&2
 
 uid0="$(id -u)"
 gid0="$(id -g)"
@@ -229,25 +229,25 @@ fi
 if [ -n "$save_fakeroot" ]; then
 	create_entry_fakeroot_header
 	cat >>"$entry" <<__EOF__
-rmdir $verbose /proc /sys
+rmdir $verbose /proc /sys >&2
 __EOF__
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
 	    chrootuid1 </dev/null &&
 		verbose "Removed old mount points." ||
 		fatal "Failed to remove old mount points."
 else
-	rmdir $verbose chroot/proc chroot/sys &&
+	rmdir $verbose chroot/proc chroot/sys >&2 &&
 		verbose "Removed old mount points." ||
 		fatal "Failed to remove old mount points."
 fi
-mkdir -m755 $verbose chroot/proc chroot/sys &&
-chgrp "$gid1" $verbose chroot/proc chroot/sys &&
+mkdir -m755 $verbose chroot/proc chroot/sys >&2 &&
+chgrp "$gid1" $verbose chroot/proc chroot/sys >&2 &&
 	verbose 'Prepared mount points.' ||
 	fatal 'Failed to prepare mount points.'
 if [ -n "$save_fakeroot" ]; then
 	create_entry_fakeroot_header
 	cat >>"$entry" <<__EOF__
-chgrp $verbose proc /proc
+chgrp $verbose proc /proc >&2
 __EOF__
 	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
 	    chrootuid1 </dev/null &&
@@ -269,9 +269,9 @@ if [ -n "$build_list" ]; then
 	# Create RPM build directory tree.
 	create_entry_header
 	cat >>"$entry" <<__EOF__
-[ ! -d /etc/skel ] || cp -a $verbose /etc/skel/* /etc/skel/.[^.]* "\$HOME"/ ||:
-mkdir -p $verbose -m700 -- "\$TMPDIR"
-mkdir -p $verbose "\$HOME/RPM"/{BUILD,SOURCES,SPECS,SRPMS,RPMS/noarch}
+[ ! -d /etc/skel ] || cp -a $verbose /etc/skel/* /etc/skel/.[^.]* "\$HOME"/ >&2 ||:
+mkdir -p $verbose -m700 -- "\$TMPDIR" >&2
+mkdir -p $verbose "\$HOME/RPM"/{BUILD,SOURCES,SPECS,SRPMS,RPMS/noarch} >&2
 cat >"\$HOME/.rpmmacros" <<EOF
 %_tmppath \$TMPDIR
 %_topdir \$HOME/RPM

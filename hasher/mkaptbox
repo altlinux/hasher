@@ -139,7 +139,7 @@ if [ -e aptbox -o -L aptbox ]; then
 
 	# empty dir?
 	if rmdir -- aptbox 2>/dev/null; then
-		mkdir -m700 $verbose -- aptbox
+		mkdir -m700 $verbose -- aptbox >&2
 		cd aptbox
 	else
 		cd aptbox
@@ -147,7 +147,7 @@ if [ -e aptbox -o -L aptbox ]; then
 			fatal "$aptbox: doesn't look valid."
 	fi
 else
-	mkdir -m700 $verbose -- aptbox
+	mkdir -m700 $verbose -- aptbox >&2
 	cd aptbox
 fi
 
@@ -159,7 +159,7 @@ mkdir -p $verbose -- \
 	./home/user \
 	./var/cache/apt/archives/partial \
 	./var/lib/apt/lists/partial \
-	./var/lib/rpm
+	./var/lib/rpm >&2
 
 # define apt variables.
 prog_apt_get="apt-get"
@@ -215,7 +215,7 @@ if [ -n "$alternate_arch" ] &&
 	aptbox_home="$aptbox/home/user"
 	for f in "$HOME/.rpmrc" "$HOME/.rpmmacros"; do
 		[ ! -f "$f" ] ||
-			install -pm600 $verbose -- "$f" "$aptbox_home/"
+			install -pm600 $verbose -- "$f" "$aptbox_home/" >&2
 	done
 	echo "arch_compat: $current_arch: ${target:-$def_target}" >> "$aptbox_home/.rpmrc"
 fi
@@ -235,7 +235,7 @@ ${aptbox_home:+HOME="$aptbox_home"} \
 exec $setarch $(eval printf %s "$(printf '$prog_%s' "$n" |tr - _)") "\$@"
 __EOF__
 	verbose "created $n wrapper"
-	chmod $verbose a+x "$n"
+	chmod $verbose a+x "$n" >&2
 done
 
 cat >regenbasedir <<__EOF__
@@ -244,7 +244,7 @@ cat >regenbasedir <<__EOF__
 "$aptbox/apt-get" ${quiet:+-qq} update
 __EOF__
 verbose "created regenbasedir"
-chmod $verbose a+x regenbasedir
+chmod $verbose a+x regenbasedir >&2
 
 # create initial apt.conf file.
 cat >"$apt_config_file" <<__EOF__
@@ -259,12 +259,12 @@ read_apt_config Dir::Etc::SourceList sl_value
 # if cdroms.list is not empty, copy it and apt indices into aptbox
 read_apt_config Dir::State::cdroms cd_value
 if [ -r "$cd_value" -a -s "$cd_value" ]; then
-	install -p -m644 $verbose "$cd_value" "$aptbox/var/lib/apt/"
+	install -p -m644 $verbose "$cd_value" "$aptbox/var/lib/apt/" >&2
 
 	read_apt_config Dir::State::lists lists_value
 	if [ -r "$lists_value" -a -d "$lists_value" ]; then
 		find "$lists_value/" -mindepth 1 -maxdepth 1 -perm -444 -type f -exec \
-			install -p -m644 $verbose '{}' "$aptbox/var/lib/apt/lists/" ';'
+			install -p -m644 $verbose '{}' "$aptbox/var/lib/apt/lists/" ';' >&2
 	fi
 fi
 
