@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.6
+Version: 1.3.7
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -51,6 +51,14 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Fri Oct 31 2008 Dmitry V. Levin <ldv@altlinux.org> 1.3.7-alt1
+- mkaptbox: Define APT::Architecture in aptbox's apt.conf (Alexey Froloff).
+- hsh-sh-cache-chroot-functions: Use lzop(1) to compress
+  chroot.cpio (Alexey Tourbin).
+- hsh(1): Make clear that some options can be controlled from
+  config file (Mikhail Gusarov; closes: #16709).
+- Redirected stdout to stderr for all verbose coreutils invocations.
+
 * Tue Apr 22 2008 Dmitry V. Levin <ldv@altlinux.org> 1.3.6-alt1
 - hsh-rmchroot: Workaround nodev /dev/null when deleting
   files inside chroot.
