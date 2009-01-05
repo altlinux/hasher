@@ -238,6 +238,18 @@ wlimit_time_idle=
 wlimit_bytes_written=
 use_pty=
 
+# Checks that given option value is a non-negative decimal number.
+# Arguments: $1 is option name, $2 is option value.
+# If $2 is a non-negative decimal number, outputs it, otherwise fails.
+opt_check_number_ge_0()
+{
+	if [ "${2-}" = 0 ]; then
+		printf 0
+	else
+		opt_check_number "$@"
+	fi
+}
+
 set_workdir()
 {
 	[ -n "$workdir" -a -z "${1:-}" ] ||
