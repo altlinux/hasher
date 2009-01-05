@@ -117,7 +117,7 @@ while :; do
 		--no-lock) no_lock=1
 			;;
 		--number)
-			number="$(opt_check_number "$1" "$2")"
+			number="$(opt_check_number_ge_0 "$1" "$2")"
 			shift
 			;;
 		--pty) use_pty=yes; export use_pty

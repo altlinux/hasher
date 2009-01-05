@@ -76,7 +76,7 @@ while :; do
 			shift
 			;;
 		--number)
-			number="$(opt_check_number "$1" "$2")"
+			number="$(opt_check_number_ge_0 "$1" "$2")"
 			shift
 			;;
 		-m|--mode)

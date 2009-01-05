@@ -87,11 +87,11 @@ while :; do
 		--no-repackage-source) repackage_source=
 			;;
 		--nprocs)
-			nprocs="$(opt_check_number "$1" "$2")"
+			nprocs="$(opt_check_number_ge_0 "$1" "$2")"
 			shift
 			;;
 		--number)
-			number="$(opt_check_number "$1" "$2")"
+			number="$(opt_check_number_ge_0 "$1" "$2")"
 			shift
 			;;
 		--packager) shift; packager="$1"
