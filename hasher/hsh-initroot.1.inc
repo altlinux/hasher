@@ -1,4 +1,4 @@
-.\" Copyright (C) 2007  Dmitry V. Levin <ldv@altlinux.org>
+.\" Copyright (C) 2007, 2009  Dmitry V. Levin <ldv@altlinux.org>
 .\" 
 .\" Additional documentation for the hsh-initroot command.
 .\"
@@ -21,4 +21,5 @@ hsh\-initroot \- fill hasher chroot created by hsh\-mkchroot with initial set of
 
 [SEE ALSO]
 .BR hsh (1),
-.BR hsh\-mkchroot (1).
+.BR hsh\-mkchroot (1),
+.BR fakeroot (1).
