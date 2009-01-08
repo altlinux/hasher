@@ -273,6 +273,17 @@ done
 
 cleanup_workdir()
 {
+	if [ -d chroot ]; then
+		deduce_lock_hasher_priv
+		hsh-rmchroot --no-lock "$workdir" \
+			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
+			${quiet:+$quiet} \
+			${verbose:+$verbose} \
+			${number:+--number=$number} \
+			&&
+			verbose 'Removed chroot.' ||
+			fatal 'Failed to remove chroot.'
+	fi
 	if [ -d aptbox ]; then
 		rm -rf aptbox &&
 			verbose 'Removed aptbox.' ||
@@ -287,17 +298,6 @@ cleanup_workdir()
 		rm -rf repo &&
 			verbose 'Removed repo.' ||
 			fatal 'Failed to remove repo.'
-	fi
-	if [ -d chroot ]; then
-		deduce_lock_hasher_priv
-		hsh-rmchroot --no-lock "$workdir" \
-			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
-			${quiet:+$quiet} \
-			${verbose:+$verbose} \
-			${number:+--number=$number} \
-			&& 
-			verbose 'Removed chroot.' ||
-			fatal 'Failed to remove chroot.'
 	fi
 }
 
@@ -380,13 +380,13 @@ handle_package()
 		${rpmargs:+--args="$rpmargs"} \
 		-- "$f"
 	if [ -z "$lazy_cleanup" -a -z "$initroot_only" ]; then
-		rm -rf aptbox
 		[ ! -d chroot ] || hsh-rmchroot --no-lock "$workdir" \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
 		${number:+--number=$number} \
 		#
+		rm -rf aptbox
 	fi
 }
 
