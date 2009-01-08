@@ -418,7 +418,7 @@ update_RPM_database()
 	for f; do
 		printf '%s\n' "$f"
 	done |sed 's/[][?*\]/\\&/g' >"$aptbox/rpmi.list"
-	rpmi -i $verbose $hash $exclude_docs $extra_args --dbpath "$aptbox/var/lib/rpm" \
+	"$aptbox/setarch" rpmi -i $verbose $hash $exclude_docs $extra_args --dbpath "$aptbox/var/lib/rpm" \
 	     --ignorearch --ignoresize --noorder --noscripts --notriggers --justdb \
 	     "$aptbox/rpmi.list" &&
 		verbose 'RPM database updated.' ||
@@ -431,7 +431,7 @@ chrootuid1()
 {
 	[ $# -gt 0 ] || set -- /.host/entry
 	local rc=0
-	"$chrootuid1" ${number:+-$number} "$chroot" "$@" || rc=$?
+	"$aptbox/setarch" "$chrootuid1" ${number:+-$number} "$chroot" "$@" || rc=$?
 	wlimit_time_elapsed= wlimit_time_idle= wlimit_bytes_written=
 	return $rc
 }
@@ -441,7 +441,7 @@ chrootuid2()
 {
 	[ $# -gt 0 ] || set -- /.host/entry
 	local rc=0
-	"$chrootuid2" ${number:+-$number} "$chroot" "$@" || rc=$?
+	"$aptbox/setarch" "$chrootuid2" ${number:+-$number} "$chroot" "$@" || rc=$?
 	wlimit_time_elapsed= wlimit_time_idle= wlimit_bytes_written=
 	return $rc
 }
