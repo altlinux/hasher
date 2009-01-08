@@ -220,11 +220,16 @@ if [ -n "$alternate_arch" ] &&
 	echo "arch_compat: $current_arch: ${target:-$def_target}" >> "$aptbox_home/.rpmrc"
 fi
 
-# create apt wrappers.
+# create wrappers.
 setarch=
 if setarch "${target:-$def_target}" true 2>/dev/null; then
 	setarch="setarch \"$(quote_shell "${target:-$def_target}")\""
 fi
+	cat >setarch <<__EOF__
+#!/bin/sh -e
+exec $setarch "\$@"
+__EOF__
+chmod $verbose a+x setarch >&2
 apt_config_file="$aptbox/etc/apt/apt.conf"
 for n in apt-cache apt-config apt-get genbasedir; do
 	cat >"$n" <<__EOF__
@@ -232,7 +237,8 @@ for n in apt-cache apt-config apt-get genbasedir; do
 ${apt_libdir:+export LD_LIBRARY_PATH="$apt_libdir"}
 APT_CONFIG="$apt_config_file" \
 ${aptbox_home:+HOME="$aptbox_home"} \
-exec $setarch $(eval printf %s "$(printf '$prog_%s' "$n" |tr - _)") "\$@"
+exec $aptbox/setarch \
+$(eval printf %s "$(printf '$prog_%s' "$n" |tr - _)") "\$@"
 __EOF__
 	verbose "created $n wrapper"
 	chmod $verbose a+x "$n" >&2
