@@ -1,9 +1,9 @@
 Name: hasher
-Version: 1.3.7
+Version: 1.3.8
 Release: alt1
 
 Summary: Modern safe package building technology
-License: GPL
+License: GPLv2+
 Group: Development/Other
 Url: ftp://ftp.altlinux.org/pub/people/ldv/hasher
 Packager: Dmitry V. Levin <ldv@altlinux.org>
@@ -21,8 +21,8 @@ Requires: apt-utils >= 0:0.5.5cnc4.1-alt7
 Requires: bash-builtin-lockf >= 0:0.2
 # due to "readlink -e"
 Requires: coreutils >= 0:5.2.1-alt3
-# due to hasher-priv syslog support
-Requires: hasher-priv >= 0:1.3.0
+# due to hasher-priv zero subconfig identifier support
+Requires: hasher-priv >= 0:1.3.3
 # due to prepare_x11_forwarding()
 Requires: mktemp >= 1:1.3.1
 # first libshell version with fixed shell-quote
@@ -51,6 +51,13 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Wed Jan 28 2009 Dmitry V. Levin <ldv@altlinux.org> 1.3.8-alt1
+- Extended --number option semantics to allow zero subconfig identifier.
+- mkaptbox: Added setarch wrapper.
+- hsh-sh-functions.in: Changed to use setarch wrapper.
+- hsh (cleanup_workdir, handle_package): Changed to remove chroot
+  before removing aptbox.
+
 * Fri Oct 31 2008 Dmitry V. Levin <ldv@altlinux.org> 1.3.7-alt1
 - mkaptbox: Define APT::Architecture in aptbox's apt.conf (Alexey Froloff).
 - hsh-sh-cache-chroot-functions: Use lzop(1) to compress
