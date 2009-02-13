@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.8
+Version: 1.3.9
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -51,6 +51,10 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Fri Feb 13 2009 Dmitry V. Levin <ldv@altlinux.org> 1.3.9-alt1
+- hsh-sh-functions.in (chrootuid1, chrootuid2): Changed to
+  tolerate setarch wrapper absence (closes: #18823).
+
 * Wed Jan 28 2009 Dmitry V. Levin <ldv@altlinux.org> 1.3.8-alt1
 - Extended --number option semantics to allow zero subconfig identifier.
 - mkaptbox: Added setarch wrapper.
