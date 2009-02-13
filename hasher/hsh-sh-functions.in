@@ -431,7 +431,11 @@ chrootuid1()
 {
 	[ $# -gt 0 ] || set -- /.host/entry
 	local rc=0
-	"$aptbox/setarch" "$chrootuid1" ${number:+-$number} "$chroot" "$@" || rc=$?
+	if [ -x "$aptbox/setarch" ]; then
+		"$aptbox/setarch" "$chrootuid1" ${number:+-$number} "$chroot" "$@"
+	else
+		"$chrootuid1" ${number:+-$number} "$chroot" "$@"
+	fi || rc=$?
 	wlimit_time_elapsed= wlimit_time_idle= wlimit_bytes_written=
 	return $rc
 }
@@ -441,7 +445,11 @@ chrootuid2()
 {
 	[ $# -gt 0 ] || set -- /.host/entry
 	local rc=0
-	"$aptbox/setarch" "$chrootuid2" ${number:+-$number} "$chroot" "$@" || rc=$?
+	if [ -x "$aptbox/setarch" ]; then
+		"$aptbox/setarch" "$chrootuid2" ${number:+-$number} "$chroot" "$@"
+	else
+		"$chrootuid2" ${number:+-$number} "$chroot" "$@"
+	fi || rc=$?
 	wlimit_time_elapsed= wlimit_time_idle= wlimit_bytes_written=
 	return $rc
 }
