@@ -246,7 +246,7 @@ done
 
 cat >regenbasedir <<__EOF__
 #!/bin/sh -ef
-"$aptbox/genbasedir" --topdir="$repo" --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher "\$@"
+"$aptbox/genbasedir" --topdir="$repo" --no-oldhashfile --bz2only --mapi --bloat ${target:-$def_target} hasher "\$@"
 "$aptbox/apt-get" ${quiet:+-qq} update
 __EOF__
 verbose "created regenbasedir"
