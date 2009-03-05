@@ -147,7 +147,7 @@ CONTENTS
 4.1.1 Is there any way to build packages in different locations
    simultaneously?
 
-   Yes, it is.
+   Yes, there is.
 
    First, additional pseudouser pairs should be created by hasher-useradd
    for each additional parallel build.
@@ -162,7 +162,7 @@ CONTENTS
 4.2.1 Is there any way to use proc filesystem inside chroot while building
    the package?
 
-   Yes, it is.
+   Yes, there is.
 
    First, you have to configure hasher-priv for the user, to allow
    mounting /proc inside chroot.
@@ -180,7 +180,7 @@ CONTENTS
 4.2.2 Is there any way to create pseudoterminals and use them inside
    chroot while building the package?
 
-   Yes, it is.
+   Yes, there is.
 
    First, you have to configure hasher-priv for the user, to allow
    terminal device files creation and mounting /dev/pts inside chroot.
@@ -200,7 +200,7 @@ CONTENTS
 
 4.3.1 Is there any way to run shell with normal terminal inside chroot?
 
-   Yes, it is.
+   Yes, there is.
 
    You should understand that building packages and running shell are
    incompatible tasks.  Hasher is devoted for the first one, however
