@@ -117,15 +117,15 @@ CONTENTS
 	hasher-priv: /path/to/workdir/chroot: prefix mismatch, working directory should start with $HOME
 	hsh-mkchroot: failed to make devices.
 
-   By default, hasher is configured to create working directories
-   inside $HOME only.  This is a security sensitive parameter.  System
-   administrator can change this default, either systemwide or personally
-   for you.
-   In first case, change "prefix" parameter in
-   /etc/hasher-priv/system to /path/to/workdir.
+   By default, hasher is configured to create working directories inside
+   $HOME or /tmp/.private only.  This is a security sensitive parameter.
+   System administrator can change this default, either systemwide or
+   personally for you.
+   In first case, change parameter "prefix" in systemwide config
+   file /etc/hasher-priv/system to /path/to/workdir.
    In second case, add the line
 	prefix=/path/to/workdir
-   to the per-user config, /etc/hasher-priv/user.d/$USER.
+   to per-user config file /etc/hasher-priv/user.d/$USER.
 
 3.3. Local and remote repositories.
 
@@ -164,10 +164,11 @@ CONTENTS
 
    Yes, there is.
 
-   First, you have to configure hasher-priv for the user, to allow
-   mounting /proc inside chroot.
-   Add the line:
+   First, hasher-priv should be configured to allow mounting /proc inside
+   chroot, either systemwide or personally for the user.  Add the line
 	allowed_mountpoints=/proc
+   either to systemwide config file /etc/hasher-priv/system or
+   to per-user config file /etc/hasher-priv/user.d/$USER.
 
    Second, the package you are going to build should include /proc
    in its build dependencies, e.g.
@@ -182,11 +183,13 @@ CONTENTS
 
    Yes, there is.
 
-   First, you have to configure hasher-priv for the user, to allow
-   terminal device files creation and mounting /dev/pts inside chroot.
-   Add two lines:
+   First, hasher-priv should be configured to allow terminal device files
+   creation and mounting /dev/pts inside chroot, either systemwide or
+   personally for the user.  Add two lines:
 	allow_ttydev=yes
 	allowed_mountpoints=/dev/pts
+   either to systemwide config file /etc/hasher-priv/system or
+   to per-user config file /etc/hasher-priv/user.d/$USER.
 
    Second, the package you are going to build should include /dev/pts
    in its build dependencies, e.g.
