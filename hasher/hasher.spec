@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.9
+Version: 1.3.10
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -51,6 +51,13 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Fri Mar 27 2009 Dmitry V. Levin <ldv@altlinux.org> 1.3.10-alt1
+- mkaptbox: Pass --bloat option to genbasedir, to avoid
+  semi-unmet dependencies (patch by Alexey Tourbin).
+- FAQ:
+  + Fixed syntax errors (patch by Mikhail Gusarov).
+  + Described where to add hasher-priv config lines (reported by Taras Ablamsky).
+
 * Fri Feb 13 2009 Dmitry V. Levin <ldv@altlinux.org> 1.3.9-alt1
 - hsh-sh-functions.in (chrootuid1, chrootuid2): Changed to
   tolerate setarch wrapper absence (closes: #18823).
