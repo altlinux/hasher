@@ -402,7 +402,7 @@ make_repo()
 update_repo()
 {
 	[ -z "$no_stuff" ] || return 0
-	"$aptbox/genbasedir" --topdir=${repo:-$def_repo} --no-oldhashfile --bz2only --mapi ${target:-$def_target} hasher &&
+	"$aptbox/genbasedir" --topdir=${repo:-$def_repo} --no-oldhashfile --bz2only --mapi --bloat ${target:-$def_target} hasher &&
 		verbose 'updated hasher repository indices.' ||
 		fatal 'failed to update hasher repository indices.'
 }
