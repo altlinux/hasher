@@ -33,6 +33,7 @@ Usage: $PROG [options] [<path-to-workdir>] <package>...
 Options:
   --excludedocs             do not install documentation files;
   --hasher-priv-dir=DIR     hasher-priv directory;
+  --mountpoints=LIST        comma-separated list of known mount points;
   --number=NUMBER           subconfig identifier;
   --wait-lock               wait for workdir and hasher-priv locks;
   --no-wait-lock            do not wait for workdir and hasher-priv locks;
@@ -47,7 +48,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l excludedocs,hasher-priv-dir:,no-lock,number:,save-fakeroot,wait-lock,no-wait-lock,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l excludedocs,hasher-priv-dir:,no-lock,mountpoints:,number:,save-fakeroot,wait-lock,no-wait-lock,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -58,6 +59,8 @@ while :; do
 		--hasher-priv-dir)
 			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
 			shift
+			;;
+		--mountpoints) shift; known_mountpoints="$1"
 			;;
 		--no-lock) no_lock=1
 			;;
