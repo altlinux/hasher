@@ -43,6 +43,7 @@ calc_check_install_build_deps()
 			${number:+--number=$number} \
 			${exclude_docs:+--excludedocs} \
 			${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
+			${known_mountpoints:+--mountpoints="$known_mountpoints"} \
 			-- \
 			"$workdir" $build_deps
 	fi
