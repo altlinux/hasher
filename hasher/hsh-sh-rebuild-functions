@@ -205,32 +205,6 @@ __EOF__
 		fatal "$sname: sisyphus_check failed."
 } # run_sisyphus_check
 
-required_mountpoints=
-calculate_required_mountpoints()
-{
-	[ -n "$known_mountpoints" ] ||
-		return 0
-
-	local deps file_deps mpoint
-
-	deps="$(printf %s "$1" |LC_ALL=C grep ^/ |LC_ALL=C tr -d '[[:blank:]]' |LC_ALL=C sort -u)"
-
-	for file_deps in ${deps}; do
-		for mpoint in $(printf %s "$known_mountpoints" |tr -s , ' '); do
-			if [ "$mpoint" = "$file_deps" ]; then
-				[ -z "$required_mountpoints" ] &&
-					required_mountpoints="$mpoint" ||
-					required_mountpoints="$required_mountpoints,$mpoint"
-				break
-			fi
-		done
-	done
-
-	required_mountpoints="$(printf %s "$required_mountpoints" |tr -s , '\n' |LC_ALL=C sort -u |tr -s '\n' ,)"
-	required_mountpoints="${required_mountpoints%,}"
-	verbose "$sname: calculated mount points: $required_mountpoints"
-} # calculate_required_mountpoints
-
 run_rebuild()
 {
 	create_entry_header
