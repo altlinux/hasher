@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.10
+Version: 1.3.11
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -51,6 +51,10 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Thu May 07 2009 Dmitry V. Levin <ldv@altlinux.org> 1.3.11-alt1
+- hsh-sh-functions.in: Pass --bloat option to genbasedir (Alexey Tourbin).
+- hsh-install: Calculate and apply mountpoints (closes: #16645).
+
 * Fri Mar 27 2009 Dmitry V. Levin <ldv@altlinux.org> 1.3.10-alt1
 - mkaptbox: Pass --bloat option to genbasedir, to avoid
   semi-unmet dependencies (patch by Alexey Tourbin).
