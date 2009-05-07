@@ -808,3 +808,22 @@ calculate_required_mountpoints()
 	required_mountpoints="${required_mountpoints%,}"
 	verbose "calculated mount points: $required_mountpoints"
 } # calculate_required_mountpoints
+
+# Calculate required mountpoints from installed file dependencies.
+calculate_required_mountpoints_from_installed()
+{
+	[ -n "$known_mountpoints" ] ||
+		return 0
+
+	create_entry_header
+	cat >>"$entry" <<__EOF__
+rpmquery -aR |LC_ALL=C grep ^/ |LC_ALL=C tr -d '[[:blank:]]' |sort -u
+__EOF__
+
+	local deps
+	deps="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
+		    chrootuid2 </dev/null)" &&
+		verbose 'fetched installed file dependencies.' ||
+		fatal 'failed to fetch installed file dependencies.'
+	calculate_required_mountpoints "$deps"
+}

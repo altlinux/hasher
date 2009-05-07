@@ -232,20 +232,7 @@ __EOF__
 
 	calc_check_install_build_deps
 	calculate_required_mountpoints "$build_deps"
-fi
-
-# Calculate required mountpoints from installed file dependencies.
-if [ -z "$nodeps" -a -n "$known_mountpoints" ]; then
-	create_entry_header
-	cat >>"$entry" <<__EOF__
-rpmquery -aR |LC_ALL=C grep ^/ |LC_ALL=C tr -d '[[:blank:]]' |sort -u
-__EOF__
-
-	deps="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-		    chrootuid2 </dev/null)" &&
-		verbose "$sname: fetched installed file dependencies." ||
-		fatal "$sname: failed to fetch installed file dependencies."
-	calculate_required_mountpoints "$deps"
+	calculate_required_mountpoints_from_installed
 fi
 
 [ -z "$install_only" ] || exit 0
