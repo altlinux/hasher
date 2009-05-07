@@ -139,6 +139,22 @@ for f in $filelist; do
 	printf '%s\n' "$f"
 done |sed 's/[][?*\]/\\&/g' >"$chroot"/.in/.rpmi-install.list
 
+if [ -n "$known_mountpoints" ]; then
+	# Calculate mountpoints from packages being installed.
+	create_entry_header
+	cat >>"$entry" <<__EOF__
+cat .rpmi-justdb.list .rpmi-install.list 2>/dev/null |
+	xargs -r rpmquery -pR -- |
+	LC_ALL=C grep ^/ |LC_ALL=C tr -d '[[:blank:]]' |sort -u
+__EOF__
+	file_deps="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
+		    chrootuid2 </dev/null)" &&
+		verbose 'fetched file dependencies from packages being installed.' ||
+		fatal 'failed to fetch file dependencies from packages being installed.'
+	calculate_required_mountpoints "$file_deps"
+	calculate_required_mountpoints_from_installed
+fi
+
 create_entry_fakeroot_header
 cat >>"$entry" <<__EOF__
 ${exclude_docs:+export RPM_EXCLUDEDOCS=1}
@@ -157,7 +173,9 @@ if [ -x /.host/postin ]; then
 fi
 __EOF__
 
-wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
+wlimit_time_elapsed=$wlimit_time_long \
+wlimit_time_idle=$wlimit_time_long \
+mountpoints="$required_mountpoints" \
     chrootuid1 </dev/null &&
 	verbose 'Packages installation complete.' ||
 	fatal 'Packages installation failed.'
