@@ -50,6 +50,66 @@ init_contents_state()
 	verbose 'Initialized contents index state.'
 }
 
+# Directories and their order.
+contents_index_bin_dirs=/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/usr/games
+
+# Create contents_index_bin part for $pkglist.
+create_contents_part()
+{
+	local pkglist="$1"; shift
+	local tab; tab=$(printf '\t')
+
+	# Packaged files are usually mapped to package names.
+	local Q1='[%{FILENAMES}\t%{NAME}\t%{SHA1HEADER}\n]'
+	# Alternatives-like virtual paths should map to themselves.
+	local Q2='[%{PROVIDENAME}\t%{PROVIDENAME}\t%{SHA1HEADER}\n]'
+
+	# Prepare egrep regular expression.
+	# We use egrep because it seems to be the fastest tool.
+	# And our special hack for leading slash will make it even faster.
+	local dirs_or; dirs_or=$(printf %s "$contents_index_bin_dirs" |sed 's@^/@@;s@:/@|@g')
+	local RE="^/($dirs_or)/[^/]+$tab"
+
+	local pkglist_dir=./aptbox/var/lib/apt/lists
+	rm -f "$tmpdir"/FAIL
+	{ pkglist-query "$Q1$Q2" "$pkglist_dir/$pkglist" || echo 1 >>"$tmpdir"/FAIL; } |
+		LC_ALL=C egrep "$RE" >"$tmpdir"/part || [ $? -eq 1 ]
+
+	if [ -s "$tmpdir"/FAIL ]; then
+		fatal "Failed to create contents_index_bin part for $pkglist."
+	fi
+
+	# Files kill provides, except for virutal paths.
+	LC_ALL=C sort -t"$tab" -u -k1,1 -k3,3 -o "$tmpdir"/part{,}
+
+	# Fold dups.
+	# This will also exclude filenames with spaces.
+	awk <"$tmpdir"/part >"$tmpdir"/part+ '
+		NF==3 {
+			if ($1==f)
+				p = f
+			else {
+				if (f)
+					print f "\t" p
+				f=$1; p=$2
+			}
+		}
+		END {
+			if (f)
+				print f "\t" p
+		}'
+	mv -f "$tmpdir"/part+ "$tmpdir"/part
+
+	# Bless and install the part.
+	local parts_dir="$cache_dir/contents/parts"
+	mkdir -p $verbose "$parts_dir" >&2
+
+	touch -r "$pkglist_dir/$pkglist" "$tmpdir"/part
+	mv -f "$tmpdir"/part "$parts_dir/$pkglist"
+
+	verbose "Created contents_index_bin part for $pkglist."
+}
+
 # Compare {list,index}.new/ state with previous {list,index}/ state.
 # Also check that contents_index files are present.
 rebuild_contents_cache=
@@ -92,7 +152,6 @@ validate_contents_cache()
 
 # Create contents_index_bin and contents_index_all files;
 # also set up contents_index_bin contents_index_all variables.
-contents_index_bin_dirs=/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/usr/games
 create_contents_data()
 {
 	rm -rf "$cache_dir/contents/tmp"
