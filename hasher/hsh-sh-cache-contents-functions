@@ -173,15 +173,25 @@ unpack_contents()
 # Entry point: do whatever is needed, always rebuilding contents from scratch.
 create_contents()
 {
+	local tmpdir="$cache_dir/contents/tmp"
+	rm -rf "$tmpdir"
+	mkdir "$tmpdir"
+
 	init_contents_state
 	create_contents_state
 	create_contents_data
 	archive_contents
+
+	rm -rf "$tmpdir"
 }
 
 # Entry point: do whatever is needed, possibly reusing the cache.
 update_contents()
 {
+	local tmpdir="$cache_dir/contents/tmp"
+	rm -rf "$tmpdir"
+	mkdir "$tmpdir"
+
 	init_contents_state
 	validate_contents_cache
 	if [ -n "$rebuild_contents_cache" ]; then
@@ -190,4 +200,6 @@ update_contents()
 	else
 		unpack_contents
 	fi
+
+	rm -rf "$tmpdir"
 }
