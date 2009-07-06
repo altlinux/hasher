@@ -32,43 +32,22 @@
 [ -d "$cache_dir/contents" ] ||
 	fatal "Internal error: cache/contents directory not set up."
 
-# Find contents_index files corresponding to sources.list repositories.
-contents_index_list=
-init_contents_index_list()
+# Create list.new/index of pkglist files.
+init_contents_state()
 {
-	contents_index_list="$(awk '
-		(NF==4 && $1=="rpm"){printf("%s/%s/base/contents_index\n",$2,$3)}
-		(NF==5 && $1=="rpm"){printf("%s/%s/base/contents_index\n",$3,$4)}
-		' <aptbox/etc/apt/sources.list |
-			while IFS=: read uri_scheme f; do
-				[ -r "$f" ] || continue
-				printf %s\\n "$f"
-			done)"
-	if [ -n "$contents_index_list" ]; then
-		verbose 'Initialized contents index list.'
-	else
-		verbose "No contents indices available, nothing to do."
-		contents_index_bin=
-		contents_index_all=
+	local dir="$cache_dir/contents/list.new"
+	rm -rf "$dir"
+	mkdir $verbose "$dir" >&2
+
+	local options='-q --no-generate -o APT::Cache::DumpPackages=false'
+	rm -f "$tmpdir"/FAIL
+	{ ./aptbox/apt-cache $options dump || echo 1 >>"$tmpdir"/FAIL; } |
+		sed -n '/^File: \//{s/.*\///;/_pkglist/p}' |
+		LC_ALL=C sort -u >"$dir"/index
+	if [ -s "$tmpdir"/FAIL ] || [ ! -s "$dir"/index ]; then
+		fatal 'Failed to initialize contents index state.'
 	fi
-}
-
-# Create list.new/ and index.new/ state.
-create_contents_state()
-{
-	rm -rf "$cache_dir/contents/list.new"
-	mkdir $verbose "$cache_dir/contents/list.new" >&2
-	printf %s\\n "$contents_index_list" >"$cache_dir/contents/list.new/index"
-
-	rm -rf "$cache_dir/contents/index.new"
-	mkdir $verbose "$cache_dir/contents/index.new" >&2
-
-	local f f_mangled
-	while read f; do
-		f_mangled="$(printf %s "$f" |sed -e s,/,_,g)"
-		touch -r "$f" "$cache_dir/contents/index.new/$f_mangled" ||
-			fatal "Failed to access contents index $f."
-	done <"$cache_dir/contents/list.new/index"
+	verbose 'Initialized contents index state.'
 }
 
 # Compare {list,index}.new/ state with previous {list,index}/ state.
@@ -194,8 +173,7 @@ unpack_contents()
 # Entry point: do whatever is needed, always rebuilding contents from scratch.
 create_contents()
 {
-	init_contents_index_list
-	[ -n "$contents_index_list" ] || return 0
+	init_contents_state
 	create_contents_state
 	create_contents_data
 	archive_contents
@@ -204,9 +182,7 @@ create_contents()
 # Entry point: do whatever is needed, possibly reusing the cache.
 update_contents()
 {
-	init_contents_index_list
-	[ -n "$contents_index_list" ] || return 0
-	create_contents_state
+	init_contents_state
 	validate_contents_cache
 	if [ -n "$rebuild_contents_cache" ]; then
 		create_contents_data
