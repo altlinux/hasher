@@ -59,10 +59,13 @@ create_contents_part()
 	local pkglist="$1"; shift
 	local tab; tab=$(printf '\t')
 
+	# Since pkglist files do not provide SHA1HEADER,
+	# we use NVRA to identify a package.
+	local NVRA='%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}'
 	# Packaged files are usually mapped to package names.
-	local Q1='[%{FILENAMES}\t%{NAME}\t%{SHA1HEADER}\n]'
+	local Q1="[%{FILENAMES}\t%{NAME}\t$NVRA\n]"
 	# Alternatives-like virtual paths should map to themselves.
-	local Q2='[%{PROVIDENAME}\t%{PROVIDENAME}\t%{SHA1HEADER}\n]'
+	local Q2="[%{PROVIDENAME}\t%{PROVIDENAME}\t$NVRA\n]"
 
 	# Prepare egrep regular expression.
 	# We use egrep because it seems to be the fastest tool.
