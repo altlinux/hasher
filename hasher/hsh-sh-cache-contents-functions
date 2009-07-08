@@ -28,19 +28,15 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-# Create list.new/index of pkglist files.
+# Create tmpdir/parts_list of pkglist files.
 init_contents_state()
 {
-	local dir="$cache_dir/contents/list.new"
-	rm -rf "$dir"
-	mkdir $verbose "$dir" >&2
-
 	local options='-q --no-generate -o APT::Cache::DumpPackages=false'
 	rm -f "$tmpdir"/FAIL
 	{ ./aptbox/apt-cache $options dump || echo 1 >>"$tmpdir"/FAIL; } |
 		sed -n '/^File: \//{s/.*\///;/_pkglist/p}' |
-		LC_ALL=C sort -u >"$dir"/index
-	if [ -s "$tmpdir"/FAIL ] || [ ! -s "$dir"/index ]; then
+		LC_ALL=C sort -u >"$tmpdir"/parts_list
+	if [ -s "$tmpdir"/FAIL ] || [ ! -s "$tmpdir"/parts_list ]; then
 		fatal 'Failed to initialize contents index state.'
 	fi
 	verbose 'Initialized contents index state.'
@@ -218,7 +214,7 @@ create_contents()
 	init_contents_state
 	while read -r pkglist; do
 		create_contents_part "$pkglist" </dev/null
-	done <"$cache_dir"/contents/list.new/index
+	done <"$tmpdir"/parts_list
 
 	rm -rf "$tmpdir"
 }
@@ -241,7 +237,7 @@ update_contents()
 	while read -r pkglist; do
 		valid_contents_part "$pkglist" ||
 		create_contents_part "$pkglist" </dev/null
-	done <"$cache_dir"/contents/list.new/index
+	done <"$tmpdir"/parts_list
 
 	rm -rf "$tmpdir"
 }
