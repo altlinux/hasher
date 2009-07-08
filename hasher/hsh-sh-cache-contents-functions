@@ -28,6 +28,13 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
+# Contents index is created in two steps:
+# 1) for each pkglist, its contents part is created;
+# 2) contents parts are merged.
+# A number of optimizations are performed to avoid extra work.
+# The following flag indicates if the merge is required.
+regen_contents=
+
 # Create tmpdir/parts_list of pkglist files.
 init_contents_state()
 {
@@ -39,6 +46,10 @@ init_contents_state()
 	if [ -s "$tmpdir"/FAIL ] || [ ! -s "$tmpdir"/parts_list ]; then
 		fatal 'Failed to initialize contents index state.'
 	fi
+
+	# If parts_list has changed, contents index should be remerged.
+	[ -n "$regen_contents" ] || cmp -s {"$contents_dir","$tmpdir"}/parts_list || regen_contents=1
+
 	verbose 'Initialized contents index state.'
 }
 
@@ -93,6 +104,10 @@ create_contents_part()
 				print f "\t" p
 		}'
 	mv -f "$tmpdir"/part+ "$tmpdir"/part
+
+	# The part has been created from scratch, but it is still rather
+	# possible that there is no actual change, which can save us a merge.
+	[ -n "$regen_contents" ] || cmp -s "$parts_dir/$pkglist" "$tmpdir"/part || regen_contents=1
 
 	# Bless and install the part.
 	touch -r "$pkglists_dir/$pkglist" "$tmpdir"/part
@@ -210,6 +225,9 @@ create_contents()
 	local parts_dir="$contents_dir"/parts
 	mkdir -p $verbose "$parts_dir" >&2
 
+	# Will merge anway, disable optimizations.
+	regen_contents=1
+
 	local pkglist
 	init_contents_state
 	while read -r pkglist; do
@@ -231,6 +249,11 @@ update_contents()
 	local pkglists_dir=./aptbox/var/lib/apt/lists
 	local parts_dir="$contents_dir"/parts
 	mkdir -p $verbose "$parts_dir" >&2
+
+	# Check if the cache can be reused as is.
+	[ -s "$contents_dir"/contents_index_bin ] &&
+		contents_match_timestamp "$contents_dir"/{contents_index_bin,parts_list} ||
+		regen_contents=1
 
 	local pkglist
 	init_contents_state
