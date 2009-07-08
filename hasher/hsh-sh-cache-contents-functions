@@ -113,6 +113,26 @@ create_contents_part()
 	verbose "Created contents_index_bin part for $pkglist."
 }
 
+contents_match_timestamp()
+{
+	[ -f "$1" ] && [ -f "$2" ] || return 1
+	[ "$1" -nt "$2" ] || [ "$1" -ot "$2" ] || return 0
+	return 1
+}
+
+valid_contents_part()
+{
+	local pkglist="$1"; shift
+	local pkglist_dir=./aptbox/var/lib/apt/lists
+	local parts_dir="$cache_dir/contents/parts"
+	set -- "$pkglist_dir/$pkglist" "$parts_dir/$pkglist"
+	if contents_match_timestamp "$1" "$2"; then
+		verbose "Contents index part for $pkglist is up to date."
+	else
+		return 1
+	fi
+}
+
 # Compare {list,index}.new/ state with previous {list,index}/ state.
 # Also check that contents_index files are present.
 rebuild_contents_cache=
@@ -239,7 +259,12 @@ create_contents()
 	rm -rf "$tmpdir"
 	mkdir "$tmpdir"
 
+	local pkglist
 	init_contents_state
+	while read -r pkglist; do
+		create_contents_part "$pkglist" </dev/null
+	done <"$cache_dir"/contents/list.new/index
+
 	create_contents_state
 	create_contents_data
 	archive_contents
@@ -254,7 +279,13 @@ update_contents()
 	rm -rf "$tmpdir"
 	mkdir "$tmpdir"
 
+	local pkglist
 	init_contents_state
+	while read -r pkglist; do
+		valid_contents_part "$pkglist" ||
+		create_contents_part "$pkglist" </dev/null
+	done <"$cache_dir"/contents/list.new/index
+
 	validate_contents_cache
 	if [ -n "$rebuild_contents_cache" ]; then
 		create_contents_data
