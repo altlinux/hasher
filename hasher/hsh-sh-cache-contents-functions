@@ -28,10 +28,6 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-# Quick protection against unintended filesystem changes.
-[ -d "$cache_dir/contents" ] ||
-	fatal "Internal error: cache/contents directory not set up."
-
 # Create list.new/index of pkglist files.
 init_contents_state()
 {
@@ -73,9 +69,8 @@ create_contents_part()
 	local dirs_or; dirs_or=$(printf %s "$contents_index_bin_dirs" |sed 's@^/@@;s@:/@|@g')
 	local RE="^/($dirs_or)/[^/]+$tab"
 
-	local pkglist_dir=./aptbox/var/lib/apt/lists
 	rm -f "$tmpdir"/FAIL
-	{ pkglist-query "$Q1$Q2" "$pkglist_dir/$pkglist" || echo 1 >>"$tmpdir"/FAIL; } |
+	{ pkglist-query "$Q1$Q2" "$pkglists_dir/$pkglist" || echo 1 >>"$tmpdir"/FAIL; } |
 		LC_ALL=C egrep "$RE" >"$tmpdir"/part || [ $? -eq 1 ]
 
 	if [ -s "$tmpdir"/FAIL ]; then
@@ -104,10 +99,7 @@ create_contents_part()
 	mv -f "$tmpdir"/part+ "$tmpdir"/part
 
 	# Bless and install the part.
-	local parts_dir="$cache_dir/contents/parts"
-	mkdir -p $verbose "$parts_dir" >&2
-
-	touch -r "$pkglist_dir/$pkglist" "$tmpdir"/part
+	touch -r "$pkglists_dir/$pkglist" "$tmpdir"/part
 	mv -f "$tmpdir"/part "$parts_dir/$pkglist"
 
 	verbose "Created contents_index_bin part for $pkglist."
@@ -122,10 +114,7 @@ contents_match_timestamp()
 
 valid_contents_part()
 {
-	local pkglist="$1"; shift
-	local pkglist_dir=./aptbox/var/lib/apt/lists
-	local parts_dir="$cache_dir/contents/parts"
-	set -- "$pkglist_dir/$pkglist" "$parts_dir/$pkglist"
+	set -- "$pkglists_dir/$1" "$parts_dir/$1"
 	if contents_match_timestamp "$1" "$2"; then
 		verbose "Contents index part for $pkglist is up to date."
 	else
@@ -215,9 +204,15 @@ unpack_contents()
 # Entry point: do whatever is needed, always rebuilding contents from scratch.
 create_contents()
 {
-	local tmpdir="$cache_dir/contents/tmp"
+	local contents_dir="${cache_dir:?}"/contents
+	local tmpdir="$contents_dir"/tmp
 	rm -rf "$tmpdir"
+	# This will also check if $contents_dir exists.
 	mkdir "$tmpdir"
+
+	local pkglists_dir=./aptbox/var/lib/apt/lists
+	local parts_dir="$contents_dir"/parts
+	mkdir -p $verbose "$parts_dir" >&2
 
 	local pkglist
 	init_contents_state
@@ -231,9 +226,15 @@ create_contents()
 # Entry point: do whatever is needed, possibly reusing the cache.
 update_contents()
 {
-	local tmpdir="$cache_dir/contents/tmp"
+	local contents_dir="${cache_dir:?}"/contents
+	local tmpdir="$contents_dir"/tmp
 	rm -rf "$tmpdir"
+	# This will also check if $contents_dir exists.
 	mkdir "$tmpdir"
+
+	local pkglists_dir=./aptbox/var/lib/apt/lists
+	local parts_dir="$contents_dir"/parts
+	mkdir -p $verbose "$parts_dir" >&2
 
 	local pkglist
 	init_contents_state
