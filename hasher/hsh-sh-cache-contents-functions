@@ -133,46 +133,6 @@ valid_contents_part()
 	fi
 }
 
-# Compare {list,index}.new/ state with previous {list,index}/ state.
-# Also check that contents_index files are present.
-rebuild_contents_cache=
-validate_contents_cache()
-{
-	if [ ! -s "$cache_dir/contents/contents_index_bin" ]; then
-		verbose 'Missing contents_index_bin archive, invalidating contents cache.'
-		rebuild_contents_cache=1
-		return
-	fi
-
-	if [ ! -s "$cache_dir/contents/contents_index_all" ]; then
-		verbose 'Missing contents_index_all archive, invalidating contents cache.'
-		rebuild_contents_cache=1
-		return
-	fi
-
-	if ! cmp -s "$cache_dir"/contents/list{.new,}/index; then
-		verbose 'Index list changed, invalidating contents cache.'
-		rebuild_contents_cache=1
-		return
-	fi
-
-	local f f_mangled
-	while read f; do
-		f_mangled="$(printf %s "$f" |sed -e s,/,_,g)"
-		if [ "$cache_dir/contents/index.new/$f_mangled" -nt \
-		     "$cache_dir/contents/index/$f_mangled" -o \
-		     "$cache_dir/contents/index.new/$f_mangled" -ot \
-		     "$cache_dir/contents/index/$f_mangled" ]; then
-			verbose "Index $f changed, invalidating contents cache."
-			rebuild_contents_cache=1
-			return
-		fi
-	done <"$cache_dir/contents/list.new/index"
-
-	verbose "Contents cache is up to date."
-	rebuild_contents_cache=
-}
-
 # Create contents_index_bin and contents_index_all files;
 # also set up contents_index_bin contents_index_all variables.
 create_contents_data()
@@ -265,10 +225,6 @@ create_contents()
 		create_contents_part "$pkglist" </dev/null
 	done <"$cache_dir"/contents/list.new/index
 
-	create_contents_state
-	create_contents_data
-	archive_contents
-
 	rm -rf "$tmpdir"
 }
 
@@ -285,14 +241,6 @@ update_contents()
 		valid_contents_part "$pkglist" ||
 		create_contents_part "$pkglist" </dev/null
 	done <"$cache_dir"/contents/list.new/index
-
-	validate_contents_cache
-	if [ -n "$rebuild_contents_cache" ]; then
-		create_contents_data
-		archive_contents
-	else
-		unpack_contents
-	fi
 
 	rm -rf "$tmpdir"
 }
