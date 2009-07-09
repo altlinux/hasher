@@ -177,49 +177,6 @@ merge_contents_parts()
 	verbose 'Created contents index.'
 }
 
-# Create contents_index_bin and contents_index_all files;
-# also set up contents_index_bin contents_index_all variables.
-create_contents_data()
-{
-	rm -rf "$cache_dir/contents/tmp"
-	mkdir "$cache_dir/contents/tmp"
-	local contents="$cache_dir/contents/tmp/contents"
-
-	local f
-	while read f; do
-		LC_ALL=C grep '^/' "$f" ||
-			fatal "Failed to process contents index $f."
-	done <"$cache_dir/contents/list.new/index" >"$contents"
-
-	# sort (path,pkg)
-	LC_COLLATE=C sort -k1,1 -k2,2 -u -o "$contents" "$contents"
-
-	# (path,pkg) -> (pkg,path)
-	awk '{print$2,$1}' "$contents" |
-		# (pkg,path) -> (n_path,pkg0,path)
-		uniq -c -f1 |
-		# if (n_path > 1) -> (path,path) else -> (path,pkg0)
-		awk '($1>1){$2=$3}{print$3"\t"$2}' >"$contents".sorted
-	mv -f "$contents".sorted "$contents"
-	[ -s "$contents" ] ||
-		fatal "Failed to process contents indices."
-
-	local dir
-	for dir in $(IFS=:; echo $contents_index_bin_dirs); do
-		LC_ALL=C grep ^"${dir%/}"/ "$contents" || [ $? -eq 1 ]
-	done >"$contents.bin"
-	[ -s "$contents.bin" ] ||
-		fatal "Failed to generate non-empty contents_index_bin."
-
-	contents_index_bin=chroot/.host/contents_index_bin
-	contents_index_all=chroot/.host/contents_index_all
-	mv "$contents.bin" "$contents_index_bin"
-	mv "$contents" "$contents_index_all"
-	chmod 644 "$contents_index_bin" "$contents_index_all"
-	verbose 'Prepared contents index.'
-	rm -rf "$cache_dir/contents/tmp"
-}
-
 # Copy file, use cp -l if possible
 cp_l_file_from_to()
 {
@@ -231,29 +188,6 @@ cp_l_file_from_to()
 	dev_to="$(stat -c '%d' -- "${to%/*}/")"
 	[ "$dev_from" = "$dev_to" ] && cp_args=-l || cp_args=
 	cp -f $cp_args $verbose -- "$from" "$to" >&2
-}
-
-# Save data files from chroot/.host/ host to "$cache_dir"/contents/;
-# also rotate {list,index}.new/ state.
-archive_contents()
-{
-	rm -rf "$cache_dir"/contents/{index,list}
-	cp_l_file_from_to chroot/.host/contents_index_bin "$cache_dir/contents/contents_index_bin"
-	cp_l_file_from_to chroot/.host/contents_index_all "$cache_dir/contents/contents_index_all"
-	mv $verbose "$cache_dir"/contents/index{.new,} >&2
-	mv $verbose "$cache_dir"/contents/list{.new,} >&2
-	verbose "Archived contents index."
-}
-
-# Copy data files from "$cache_dir"/contents/ to chroot/.host/.
-# also set up contents_index_bin contents_index_all variables.
-unpack_contents()
-{
-	contents_index_bin=chroot/.host/contents_index_bin
-	contents_index_all=chroot/.host/contents_index_all
-	cp_l_file_from_to "$cache_dir/contents/contents_index_bin" "$contents_index_bin"
-	cp_l_file_from_to "$cache_dir/contents/contents_index_all" "$contents_index_all"
-	verbose 'Unpacked contents index.'
 }
 
 # Entry point: do whatever is needed, always rebuilding contents from scratch.
