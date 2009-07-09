@@ -36,19 +36,19 @@ init_contents_state()
 		sed -n '/^File: \//{s/.*\///;/_pkglist/p}' |
 		LC_ALL=C sort -u >"$tmpdir"/parts_list
 	if [ -s "$tmpdir"/FAIL ] || [ ! -s "$tmpdir"/parts_list ]; then
-		fatal 'Failed to initialize contents index state.'
+		fatal 'Failed to initialize contents state.'
 	fi
 
 	# If parts_list has changed, contents index should be remerged.
 	[ -n "$regen_contents" ] || cmp -s {"$contents_dir","$tmpdir"}/parts_list || regen_contents=1
 
-	verbose 'Initialized contents index state.'
+	verbose 'Initialized contents state.'
 }
 
 # Directories and their order.
 contents_index_bin_dirs=/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/usr/games
 
-# Create contents_index_bin part for $pkglist.
+# Create contents part for $pkglist.
 create_contents_part()
 {
 	local pkglist="$1"; shift
@@ -73,7 +73,7 @@ create_contents_part()
 		LC_ALL=C egrep "$RE" >"$tmpdir"/part || [ $? -eq 1 ]
 
 	if [ -s "$tmpdir"/FAIL ]; then
-		fatal "Failed to create contents_index_bin part for $pkglist."
+		fatal "Failed to create contents part for $pkglist."
 	fi
 
 	# Files kill provides, except for virutal paths.
@@ -105,7 +105,7 @@ create_contents_part()
 	touch -r "$pkglists_dir/$pkglist" "$tmpdir"/part
 	mv -f "$tmpdir"/part "$parts_dir/$pkglist"
 
-	verbose "Created contents_index_bin part for $pkglist."
+	verbose "Created contents part for $pkglist."
 }
 
 contents_match_timestamp()
@@ -119,13 +119,13 @@ valid_contents_part()
 {
 	set -- "$pkglists_dir/$1" "$parts_dir/$1"
 	if contents_match_timestamp "$1" "$2"; then
-		verbose "Contents index part for $pkglist is up to date."
+		verbose "Contents part for $pkglist is up to date."
 	else
 		return 1
 	fi
 }
 
-# Merge parts into tmpdir/contents_index_bin.
+# Merge contents parts into tmpdir/contents_index_bin.
 merge_contents_parts()
 {
 	# Prepare argv for 'sort -m'.
@@ -182,7 +182,8 @@ cp_l_file_from_to()
 	cp -f $cp_args $verbose -- "$from" "$to" >&2
 }
 
-# Entry point: do whatever is needed, always rebuilding contents from scratch.
+# Entry point: create and install contents_index_bin.
+# Cache data is not reused, new cache is rebuilt from scratch.
 create_contents()
 {
 	local contents_dir="${cache_dir:?}"/contents
@@ -195,7 +196,7 @@ create_contents()
 	local parts_dir="$contents_dir"/parts
 	mkdir -p $verbose "$parts_dir" >&2
 
-	# Will merge anway, disable optimizations.
+	# Will merge anyway, disable optimizations.
 	regen_contents=1
 
 	local pkglist
@@ -215,7 +216,8 @@ create_contents()
 	contents_index_all=
 }
 
-# Entry point: do whatever is needed, possibly reusing the cache.
+# Entry point: update and install contents_index_bin.
+# Cache data is reused to validate and possibly rebuild the cache.
 update_contents()
 {
 	local contents_dir="${cache_dir:?}"/contents
