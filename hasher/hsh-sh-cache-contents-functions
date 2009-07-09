@@ -133,6 +133,50 @@ valid_contents_part()
 	fi
 }
 
+# Merge parts into tmpdir/contents_index_bin.
+merge_contents_parts()
+{
+	# Prepare argv for 'sort -m'.
+	local pkglist
+	set --
+	while read -r pkglist; do
+		set -- "$@" "$parts_dir/$pkglist"
+	done <"$tmpdir"/parts_list
+
+	# Note that parts are sorted in ascii order, so that 'sort -m' is possible.
+	# However, for contents index, directories should be reordered.
+	local dir
+	for dir in $(IFS=:; echo $contents_index_bin_dirs); do
+		LC_ALL=C sort -m -u "$@" |
+			LC_ALL=C grep "^$dir/" >"$tmpdir"/dir || [ $? -eq 1 ]
+		if [ ! -s "$tmpdir"/dir ]; then
+			verbose "No contents index entries for $dir."
+			continue
+		fi
+		awk <"$tmpdir"/dir >>"$tmpdir"/contents_index_bin '
+			NF==2 {
+				if ($1==f)
+					p = f
+				else {
+					if (f)
+						print f "\t" p
+					f=$1; p=$2
+				}
+			}
+			END {
+				if (f)
+					print f "\t" p
+			}'
+		verbose "Added contents index entries for $dir."
+	done
+
+	[ -s "$tmpdir"/contents_index_bin ] ||
+		fatal 'Created empty contents index.'
+
+	touch -r "$tmpdir"/parts_list "$tmpdir"/contents_index_bin
+	verbose 'Created contents index.'
+}
+
 # Create contents_index_bin and contents_index_all files;
 # also set up contents_index_bin contents_index_all variables.
 create_contents_data()
@@ -234,7 +278,15 @@ create_contents()
 		create_contents_part "$pkglist" </dev/null
 	done <"$tmpdir"/parts_list
 
+	merge_contents_parts
+	mv -f {"$tmpdir","$contents_dir"}/parts_list
+	mv -f {"$tmpdir","$contents_dir"}/contents_index_bin
+
 	rm -rf "$tmpdir"
+
+	cp_l_file_from_to {"$contents_dir",chroot/.host}/contents_index_bin
+	contents_index_bin=chroot/.host/contents_index_bin
+	contents_index_all=
 }
 
 # Entry point: do whatever is needed, possibly reusing the cache.
@@ -262,5 +314,17 @@ update_contents()
 		create_contents_part "$pkglist" </dev/null
 	done <"$tmpdir"/parts_list
 
+	if [ -z "$regen_contents" ]; then
+		verbose 'Contents index is up to date.'
+	else
+		merge_contents_parts
+		mv -f {"$tmpdir","$contents_dir"}/parts_list
+		mv -f {"$tmpdir","$contents_dir"}/contents_index_bin
+	fi
+
 	rm -rf "$tmpdir"
+
+	cp_l_file_from_to {"$contents_dir",chroot/.host}/contents_index_bin
+	contents_index_bin=chroot/.host/contents_index_bin
+	contents_index_all=
 }
