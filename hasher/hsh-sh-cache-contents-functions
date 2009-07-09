@@ -1,17 +1,9 @@
 #!/bin/sh -ef
 #
 # Copyright (C) 2003-2008  Dmitry V. Levin <ldv@altlinux.org>
-# Copyright (C) 2007  Alexey Tourbin <at@altlinux.org>
+# Copyright (C) 2007,2009  Alexey Tourbin <at@altlinux.org>
 # 
-# The contents cache functions for the hsh-initroot
-#
-# This file provides two top-level entry points: create_contents()
-# and update_contents().  The former always rebuilds the contents
-# form scratch, while the latter possibly reuses the cache.  After
-# either of these functions is called, the contents_index_bin and
-# contents_index_all global variables set to valid pathnames (however,
-# if there is no single sources.list repo that provides contents_index
-# file, the variables are set to null).
+# Contents index routines for hsh-initroot
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
