@@ -39,7 +39,7 @@ regen_contents=
 init_contents_state()
 {
 	local options='-q --no-generate -o APT::Cache::DumpPackages=false'
-	rm -f "$tmpdir"/FAIL
+	>"$tmpdir"/FAIL
 	{ ./aptbox/apt-cache $options dump || echo 1 >>"$tmpdir"/FAIL; } |
 		sed -n '/^File: \//{s/.*\///;/_pkglist/p}' |
 		LC_ALL=C sort -u >"$tmpdir"/parts_list
@@ -76,7 +76,7 @@ create_contents_part()
 	local dirs_or; dirs_or=$(printf %s "$contents_index_bin_dirs" |sed 's@^/@@;s@:/@|@g')
 	local RE="^/($dirs_or)/[^/]+$tab"
 
-	rm -f "$tmpdir"/FAIL
+	>"$tmpdir"/FAIL
 	{ pkglist-query "$Q1$Q2" "$pkglists_dir/$pkglist" || echo 1 >>"$tmpdir"/FAIL; } |
 		LC_ALL=C egrep "$RE" >"$tmpdir"/part || [ $? -eq 1 ]
 
