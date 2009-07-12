@@ -210,7 +210,6 @@ create_contents()
 
 	cp_l_file_from_to {"$contents_dir",chroot/.host}/contents_index_bin
 	contents_index_bin=chroot/.host/contents_index_bin
-	contents_index_all=
 }
 
 # Entry point: update and install contents_index_bin.
@@ -251,5 +250,4 @@ update_contents()
 
 	cp_l_file_from_to {"$contents_dir",chroot/.host}/contents_index_bin
 	contents_index_bin=chroot/.host/contents_index_bin
-	contents_index_all=
 }

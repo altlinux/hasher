@@ -258,7 +258,6 @@ fi
 . hsh-sh-cache-contents-functions
 if [ -n "$no_contents_indices" ]; then
 	contents_index_bin=
-	contents_index_all=
 elif [ -n "$no_cache" ]; then
 	create_contents
 else
@@ -281,8 +280,7 @@ cat >>"\$HOME/.rpmmacros" <<\EOF
 %buildhost ${USER:-`id -nu`}.hasher.altlinux.org
 %__BTE hasher
 %__nprocs $nprocs
-${contents_index_bin:+%_pkg_contents_index_bin /.host/${contents_index_bin##*/}}
-${contents_index_all:+%_pkg_contents_index_all /.host/${contents_index_all##*/}}
+${contents_index_bin:+%_pkg_contents_index_bin /.host/contents_index_bin}
 %_rpmbuild_clean 0
 ${repackage_source:+%_rpmbuild_packagesource 1}
 EOF
