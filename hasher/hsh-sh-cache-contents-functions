@@ -123,6 +123,7 @@ merge_contents_parts()
 	while read -r pkglist; do
 		set -- "$@" "$parts_dir/$pkglist"
 	done <"$tmpdir"/parts_list
+	[ $# -gt 0 ]
 
 	# Note that parts are sorted in ascii order, so that 'sort -m' is possible.
 	# However, for contents index, directories should be reordered.
