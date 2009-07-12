@@ -134,14 +134,21 @@ merge_contents_parts()
 			verbose "No contents index entries for $dir."
 			continue
 		fi
-		awk <"$tmpdir"/dir >>"$tmpdir"/contents_index_bin '
+		# Fold dups: change adjacent lines
+		#	/usr/bin/r	pkgA
+		#	/usr/bin/r	pkgB
+		# into
+		#	/usr/bin/r	/usr/bin/r
+		# This will also exclude filenames with spaces.
+		LC_ALL=C awk <"$tmpdir"/dir >>"$tmpdir"/contents_index_bin '
 			NF==2 {
 				if ($1==f)
 					p = f
 				else {
 					if (f)
 						print f "\t" p
-					f=$1; p=$2
+					f = $1
+					p = $2
 				}
 			}
 			END {
