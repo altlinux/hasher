@@ -79,23 +79,12 @@ create_contents_part()
 	# Files kill provides, except for virutal paths.
 	LC_ALL=C sort -t"$tab" -u -k1,1 -k3,3 -o "$tmpdir"/part{,}
 
-	# Fold dups.
-	# This will also exclude filenames with spaces.
-	awk <"$tmpdir"/part >"$tmpdir"/part+ '
-		NF==3 {
-			if ($1==f)
-				p = f
-			else {
-				if (f)
-					print f "\t" p
-				f=$1; p=$2
-			}
-		}
-		END {
-			if (f)
-				print f "\t" p
-		}'
+	# Discard NVRA.
+	cut -f1,2 <"$tmpdir"/part >"$tmpdir"/part+
 	mv -f "$tmpdir"/part+ "$tmpdir"/part
+
+	# Fold identical records and prepare for later 'sort -m'.
+	LC_ALL=C sort -u -o "$tmpdir"/part{,}
 
 	# The part has been created from scratch, but it is still rather
 	# possible that there is no actual change, which can save us a merge.
