@@ -16,7 +16,9 @@ Source: %url/%name-%version.tar
 
 Requires: %helperdir
 Requires: getopt, ash-static, cpio-static, find-static
-Requires: apt-utils >= 0:0.5.5cnc4.1-alt7
+Requires: apt
+# due to pkglist-query
+Requires: apt-repo-tools
 # due to "enable -f /usr/lib/bash/lockf lockf"
 Requires: bash-builtin-lockf >= 0:0.2
 # due to "readlink -e"
