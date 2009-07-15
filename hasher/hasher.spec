@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.11
+Version: 1.3.12
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -53,6 +53,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Wed Jul 15 2009 Alexey Tourbin <at@altlinux.ru> 1.3.12-alt1
+- hsh-sh-cache-contents-functions: Reimplemented contents index routines.
+- Contents index is now generated from apt pkglist files.
+- Added /usr/lib/kde4bin to contents_index_bin directories.
+- Disabled contents_index_all.
+
 * Thu May 07 2009 Dmitry V. Levin <ldv@altlinux.org> 1.3.11-alt1
 - hsh-sh-functions.in: Pass --bloat option to genbasedir (Alexey Tourbin).
 - hsh-install: Calculate and apply mountpoints (closes: #16645).
