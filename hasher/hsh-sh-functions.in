@@ -633,74 +633,17 @@ allocate_lock_hasher_priv()
 }
 
 # assumed: defined aptbox
-APT_Get_PrintLocalFile=
 print_uris()
 {
 	local out
-	if ! out="$("$aptbox/apt-get" -q -y --print-uris install -- "$@" 2>&1)"; then
+	local options='-q -y -o RPM::PM=external -o Dir::Bin::rpm=hsh-rpmi-print-files'
+	if ! out="$("$aptbox/apt-get" $options install -- "$@" 2>&1)"; then
 		printf %s\\n "$out" >&2
 		fatal 'failed to calculate package file list.'
 	fi
 
-	local all_pattern="'\\([a-z]\\+\\):\\([^']\\+\\)' .*"
-	local local_pattern="'\\(file\\|copy\\):\\([^']\\+\\)' .*"
-
-	local all_uris
-	if ! all_uris="$(printf %s "$out" |sed -ne "s/^$all_pattern/\\2/pg")"; then
-		printf %s\\n "$out" >&2
-		fatal 'failed to filter package file list.'
-	fi
-
-	local local_uris cached_uris=
-	if ! local_uris="$(printf %s "$out" |sed -ne "s/^$local_pattern/\\2/pg")"; then
-		printf %s\\n "$out" >&2
-		fatal 'failed to filter package file list.'
-	fi
-
-	if [ "$all_uris" != "$local_uris" ]; then
-		if [ -z "$APT_Get_PrintLocalFile" ]; then
-			if ! out="$("$aptbox/apt-get" -o APT::Get::PrintLocalFile=yes -q -y --print-uris install -- "$@" 2>&1)"; then
-				printf %s\\n "$out" >&2
-				fatal 'calculated package file list is not local and apt-get does not support APT::Get::PrintLocalFile option.'
-			fi
-
-			if ! cached_uris="$(printf %s "$out" |sed -ne "s/^$all_pattern/\\2/pg")" ||
-			   [ -n "$cached_uris" ]; then
-				printf %s\\n "$out" >&2
-				fatal 'calculated package file list is not local and apt-get does not support APT::Get::PrintLocalFile option.'
-			fi
-
-			APT_Get_PrintLocalFile=1
-		fi
-
-		if [ -n "$verbose" ]; then
-			"$aptbox/apt-get" -y -d install -- "$@" >&2 ||
-				fatal 'failed to download packages from calculated package file list.'
-		else
-			if ! out="$("$aptbox/apt-get" -y -d install -- "$@" 2>&1)"; then
-				printf %s\\n "$out" >&2
-				fatal 'failed to download packages from calculated package file list.'
-			fi
-		fi
-
-		if ! out="$("$aptbox/apt-get" -o APT::Get::PrintLocalFile=yes -q -y --print-uris install -- "$@" 2>&1)"; then
-			printf %s\\n "$out" >&2
-			fatal 'failed to calculate local package file list.'
-		fi
-
-		if ! cached_uris="$(printf %s "$out" |LC_ALL=C grep ^/)" || [ -z "$cached_uris" ]; then
-			printf %s\\n "$out" >&2
-			fatal 'failed to calculate local package file list.'
-		fi
-	fi
-
-	if [ -n "$cached_uris" ]; then
-		[ -n "$local_uris" ] && local_uris="$local_uris
-$cached_uris" || local_uris="$cached_uris"
-	fi
-
-	printf %s "$local_uris" &&
-		verbose 'calculated package file list.'
+	printf %s "$out" |LC_ALL=C grep '^/.*\.rpm$' || [ $? -eq 1 ]
+	verbose 'calculated package file list.'
 }
 
 parse_xauth_entry()
