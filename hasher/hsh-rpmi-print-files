@@ -1,0 +1,77 @@
+#!/bin/sh -efu
+#
+# Copyright (C) 2009  Alexey Tourbin <at@altlinux.org>
+#
+# Pretend to be rpmi and print rpm filenames passed for installation
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+
+. shell-error
+
+TEMP=$(getopt -n "$PROG" -o iUevhr: -l fancypercent,root: \
+	-l allfiles,badreloc,excludeconfigs,excludedocs,force,ignoresize,justdb \
+	-l noconfigs,nocontexts,nodeps,nodocs,nofdigests,nomd5,noorder,noscripts,notriggers \
+	-l oldpackage,percent,repackage,replacefiles,replacepkgs,test \
+	-- "$@" ) || exit 1
+
+eval set -- "$TEMP"
+
+i= U= e=
+
+while :; do
+	case "$1" in
+		-i) i=1 ;;
+		-U) U=1 ;;
+		-e) e=1 ;;
+		-r|--root) shift ;;
+		--) shift; break ;;
+		*) ;;
+	esac
+	shift
+done
+
+if [ $# -lt 1 ]; then
+	fatal "not enough arguments"
+elif [ -n "$e" ]; then
+	fatal "cannot erase packages: $*"
+elif [ -z "$i$U" ]; then
+	fatal "install command not recognized"
+fi
+
+print_filelist()
+{
+	local arg found=
+	while read -r arg; do
+		case "$arg" in
+			/*) ;;
+			*) fatal "invalid argument from filelist: $arg" ;;
+		esac
+		case "${arg##*/}" in
+			*.rpm) printf '%s\n' "$arg"; found=1 ;;
+			*) fatal "invalid argument from filelist: $arg" ;;
+		esac
+	done <"$1"
+	[ -n "$found" ] || fatal "empty filelist"
+}
+
+print_args()
+{
+	local arg
+	for arg; do
+		case "$arg" in
+			/*) ;;
+			*) fatal "invalid argument: $arg" ;;
+		esac
+		case "${arg##*/}" in
+			*.rpm) printf '%s\n' "$arg" ;;
+			filelist.*) print_filelist "$arg" ;;
+			*) fatal "invalid argument: $arg" ;;
+		esac
+	done
+}
+
+print_args "$@"
