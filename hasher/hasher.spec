@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.12
+Version: 1.3.13
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -53,6 +53,11 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Fri Jul 17 2009 Alexey Tourbin <at@altlinux.ru> 1.3.13-alt1
+- mkaptbox: Eliminated read_apt_config() usage.
+- hsh-sh-functions.in (read_apt_config): Removed.
+- hsh-sh-cache-contents-functions: Set pkglists_dir from Dir::State::lists.
+
 * Wed Jul 15 2009 Alexey Tourbin <at@altlinux.ru> 1.3.12-alt1
 - hsh-sh-cache-contents-functions: Reimplemented contents index routines.
 - Contents index is now generated from apt pkglist files.
