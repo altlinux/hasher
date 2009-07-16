@@ -32,7 +32,7 @@ init_contents_state()
 {
 	local options='-q --no-generate -o APT::Cache::DumpPackages=false'
 	>"$tmpdir"/FAIL
-	{ ./aptbox/apt-cache $options dump || echo 1 >>"$tmpdir"/FAIL; } |
+	{ "$aptbox"/apt-cache $options dump || echo 1 >>"$tmpdir"/FAIL; } |
 		LC_ALL=C sed -n '/^File: \//{s/.*\///;/_pkglist/p}' |
 		LC_ALL=C sort -u >"$tmpdir"/parts_list
 	if [ -s "$tmpdir"/FAIL ] || [ ! -s "$tmpdir"/parts_list ]; then
