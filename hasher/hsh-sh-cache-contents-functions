@@ -189,9 +189,13 @@ create_contents()
 	# This will also check if $contents_dir exists.
 	mkdir "$tmpdir"
 
-	local pkglists_dir=./aptbox/var/lib/apt/lists
 	local parts_dir="$contents_dir"/parts
 	mkdir -p $verbose "$parts_dir" >&2
+
+	local pkglists_dir=
+	get_apt_config Dir::State::lists/d pkglists_dir
+	[ -z "${pkglists_dir##/*}" ] && [ -d "$pkglists_dir" ] ||
+		fatal "apt-config: broken Dir::State::lists: $pkglists_dir."
 
 	# Will merge anyway, disable optimizations.
 	regen_contents=1
@@ -222,9 +226,13 @@ update_contents()
 	# This will also check if $contents_dir exists.
 	mkdir "$tmpdir"
 
-	local pkglists_dir=./aptbox/var/lib/apt/lists
 	local parts_dir="$contents_dir"/parts
 	mkdir -p $verbose "$parts_dir" >&2
+
+	local pkglists_dir=
+	get_apt_config Dir::State::lists/d pkglists_dir
+	[ -z "${pkglists_dir##/*}" ] && [ -d "$pkglists_dir" ] ||
+		fatal "apt-config: broken Dir::State::lists: $pkglists_dir."
 
 	# Check if the cache can be reused as is.
 	[ -s "$contents_dir"/contents_index_bin ] &&
