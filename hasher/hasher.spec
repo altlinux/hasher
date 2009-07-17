@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.13
+Version: 1.3.14
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -53,6 +53,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Fri Jul 17 2009 Alexey Tourbin <at@altlinux.ru> 1.3.14-alt1
+- hsh-rpmi-print-files: New helper program, to replace 'apt-get --print-uris'
+  with 'apt-get -o RPM::PM=external -o Dir::Bin::rpm=hsh-rpmi-print-files'.
+- hsh-sh-functions.in (print_uris): Updated for hsh-rpmi-print-files.
+- FAQ, README: Discarded remote repo limitations.
+
 * Fri Jul 17 2009 Alexey Tourbin <at@altlinux.ru> 1.3.13-alt1
 - mkaptbox: Eliminated read_apt_config() usage.
 - hsh-sh-functions.in (read_apt_config): Removed.
