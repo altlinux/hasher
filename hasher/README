@@ -66,10 +66,6 @@
 
 4. Caveats and limitations.
 
-  Local apt source methods (i.e. file and copy) are better supported.
-  If apt supports APT::Get::PrintLocalFile option, then remote source
-  methods will probably work, too.
-
   Depending on age of package repository, apt installed in your host system
   will or will not work properly.  In case of essential difference between
   apt versions in host system and repository, consider --apt-prefix option.

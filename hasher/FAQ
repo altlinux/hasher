@@ -19,7 +19,6 @@ CONTENTS
 3. WHY ISN'T THIS WORKING?
 3.1. Problems accessing privileged helpers.
 3.2. Workdir prefix mismatch.
-3.3. Local and remote repositories.
 
 4. HOW TO?
 4.1. Parallel build.
@@ -126,17 +125,6 @@ CONTENTS
    In second case, add the line
 	prefix=/path/to/workdir
    to per-user config file /etc/hasher-priv/user.d/$USER.
-
-3.3. Local and remote repositories.
-
-3.3.1 Run of hasher failed with the following error:
-	hsh-initroot: calculated package file list is not local and apt-get does not support APT::Get::PrintLocalFile option.
-	hsh-initroot: failed to generate initial package file list.
-
-   Hasher is designed primarily to work with local repositories.  There is
-   a limited support for remote repositories implemented using apt-get
-   APT::Get::PrintLocalFile option.  This option is available in
-   apt >= 0.5.15cnc6-alt18.
 
 ------------------------------
 
