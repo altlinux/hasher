@@ -46,7 +46,7 @@ init_contents_state()
 }
 
 # Directories and their order.
-contents_index_bin_dirs=/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/usr/games:/usr/lib/kde4bin
+contents_index_bin_dirs=/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/usr/games:/usr/lib/kde4/bin:/usr/lib/kde4bin
 
 # Create contents part for $pkglist.
 create_contents_part()
