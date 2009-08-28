@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.14
+Version: 1.3.15
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -53,6 +53,10 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Sat Aug 29 2009 Alexey Tourbin <at@altlinux.ru> 1.3.15-alt1
+- hsh-sh-cache-contents-functions: Adjusted for
+  /usr/lib/kde4bin -> /usr/lib/kde4/bin migration.
+
 * Fri Jul 17 2009 Alexey Tourbin <at@altlinux.ru> 1.3.14-alt1
 - hsh-rpmi-print-files: New helper program, to replace 'apt-get --print-uris'
   with 'apt-get -o RPM::PM=external -o Dir::Bin::rpm=hsh-rpmi-print-files'.
