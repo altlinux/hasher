@@ -184,7 +184,7 @@ else
 #!/bin/sh -le
 ${verbose:+set -x}
 export -n target ||:
-exec time rpmbuild --rebuild --target="\$target" $nodeps $rpmargs "\$@"
+exec >&2 time rpmbuild --rebuild --target="\$target" $nodeps $rpmargs "\$@"
 __EOF__
 	chmod 755 "chroot/.host/rebuild"
 	verbose 'Created rebuild script.'
