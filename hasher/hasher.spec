@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.15
+Version: 1.3.16
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -53,6 +53,9 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Wed Sep 09 2009 Dmitry V. Levin <ldv@altlinux.org> 1.3.16-alt1
+- hsh-rebuild: Call rpmbuild with stdout redirected to stderr.
+
 * Sat Aug 29 2009 Alexey Tourbin <at@altlinux.ru> 1.3.15-alt1
 - hsh-sh-cache-contents-functions: Adjusted for
   /usr/lib/kde4bin -> /usr/lib/kde4/bin migration.
