@@ -291,7 +291,7 @@ verbose "Created APT configuration file \`$apt_config_file'."
 # create a new sources.list file.
 target_config="./etc/apt/sources.list"
 cat >"$target_config" <<__EOF__
-${no_stuff:+#}rpm file:$repo ${target:-$def_target} hasher
+${no_stuff:+#}rpm-dir file:$repo ${target:-$def_target} hasher
 $(LC_ALL=C grep '^[^#]' "$sl_value")
 __EOF__
 verbose "Created APT source list file \`$target_config'."
