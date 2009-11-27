@@ -20,26 +20,39 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-# Contents index is created in two steps:
-# 1) for each pkglist, its contents part is created;
-# 2) contents parts are merged.
+# Contents index maps filenames into package names.  Currently, we use is it
+# to make dependencies on executable commands (such as found in shell scripts).
+#
+# Contents index is created as follows.
+#
+# 1) The list of sources.list components, called parts_list, is initialized.
+# Currently, two types of sources.list components are supported: traditional
+# pkglist-based repositories and newer rpm-dir local repositories.
+#
+# 2) For each sources.list component, its contents part is created: pkglist
+# files are processed with pkglist-query, and rpm-dir local repositories are
+# scanned with rpmquery.
+#
+# 3) Contents parts are merged into a single file called contents_index_bin.
+# During the merge, duplicate filename entries (which map to different package
+# names) are folded into a single entry, to produce raw file-level dependencies.
+#
 # A number of optimizations are performed to avoid extra work.
-# The following flag indicates if the merge is required.
+# The following flag indicates if the final merge is required.
 regen_contents=
 
-# Create tmpdir/parts_list of pkglist files.
+# Create tmpdir/parts_list.
 init_contents_state()
 {
-	local options='-q --no-generate -o APT::Cache::DumpPackages=false'
-	>"$tmpdir"/FAIL
-	{ "$aptbox"/apt-cache $options dump || echo 1 >>"$tmpdir"/FAIL; } |
-		LC_ALL=C sed -n '/^File: \//{s/.*\///;/_pkglist/p}' |
+	"$aptbox"/apt-cache -q --no-generate -o APT::Cache::DumpPackages=false dump |
+		# File ending with "/" is rpm-dir; it is represented by its full path.
+		# Otherwise, it might be pkglist, for which we use pkglist basename.
+		LC_ALL=C sed -n '/^File: \//{s/^File: //;/\/$/p;s/.*\///;/_pkglist/p}' |
 		LC_ALL=C sort -u >"$tmpdir"/parts_list
-	if [ -s "$tmpdir"/FAIL ] || [ ! -s "$tmpdir"/parts_list ]; then
-		fatal 'Failed to initialize contents state.'
-	fi
 
-	# If parts_list has changed, contents index should be remerged.
+	[ -s "$tmpdir"/parts_list ] || fatal 'Failed to initialize contents state.'
+
+	# If parts_list has changed, contents index should be re-merged.
 	[ -n "$regen_contents" ] || cmp -s {"$contents_dir","$tmpdir"}/parts_list || regen_contents=1
 
 	verbose 'Initialized contents state.'
@@ -48,14 +61,16 @@ init_contents_state()
 # Directories and their order.
 contents_index_bin_dirs=/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/usr/games:/usr/lib/kde4/bin:/usr/lib/kde4bin
 
-# Create contents part for $pkglist.
+# Create and install contents part.
 create_contents_part()
 {
-	local pkglist="$1"; shift
+	local part="$1"; shift
 	local tab; tab=$(printf '\t')
 
-	# Since pkglist files do not provide SHA1HEADER,
-	# we use NVRA to identify a package.
+	# Some files, such as alternatives, are not packaged explicitly,
+	# but instead are provided via Provides.  They are handled specially.
+
+	# Since pkglist files do not provide SHA1HEADER, we use NVRA to identify a package.
 	local NVRA='%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}'
 	# Packaged files are usually mapped to package names.
 	local Q1="[%{FILENAMES}\t%{NAME}\t$NVRA\n]"
@@ -64,51 +79,76 @@ create_contents_part()
 
 	# Prepare egrep regular expression.
 	# We use egrep because it seems to be the fastest tool.
-	# And our special hack for leading slash will make it even faster.
+	# And our special "leading slash" trick makes it even faster.
 	local dirs_or; dirs_or=$(printf %s "$contents_index_bin_dirs" |sed 's@^/@@;s@:/@|@g')
 	local RE="^/($dirs_or)/[^/]+$tab"
 
-	>"$tmpdir"/FAIL
-	{ pkglist-query "$Q1$Q2" "$pkglists_dir/$pkglist" || echo 1 >>"$tmpdir"/FAIL; } |
-		LC_ALL=C egrep "$RE" >"$tmpdir"/part || [ $? -eq 1 ]
-
-	if [ -s "$tmpdir"/FAIL ]; then
-		fatal "Failed to create contents part for $pkglist."
+	local ref dir=
+	if [ -n "${part##*/*}" ]; then
+		ref=$pkglists_dir/$part
+	else
+		dir=$part
+		ref=$part
+		part=$(printf %s "$part" |tr / _)
 	fi
 
-	# Files kill provides, except for virutal paths.
-	LC_ALL=C sort -t"$tab" -u -k1,1 -k3,3 -o "$tmpdir"/part{,}
+	if [ -n "$dir" ]; then
+		# subshell
+		cd "$dir"
+		find . -mindepth 1 -maxdepth 1 -name '*.rpm' -exec \
+			rpmquery --qf "$Q1$Q2" -p -- '{}' '+'
+	else
+		pkglist-query "$Q1$Q2" "$ref"
+	fi |
+		LC_ALL=C egrep "$RE" >"$tmpdir"/part || [ $? -eq 1 ]
 
-	# Discard NVRA.
-	cut -f1,2 <"$tmpdir"/part >"$tmpdir"/part+
-	mv -f "$tmpdir"/part+ "$tmpdir"/part
+	if [ -s "$tmpdir"/part ]; then
 
-	# Fold identical records and prepare for later 'sort -m'.
-	LC_ALL=C sort -u -o "$tmpdir"/part{,}
+		# Files kill provides, except for virutal paths.
+		LC_ALL=C sort -t"$tab" -u -k1,1 -k3,3 -o "$tmpdir"/part{,}
+
+		# Discard NVRA.
+		cut -f1,2 <"$tmpdir"/part >"$tmpdir"/part+
+		mv -f "$tmpdir"/part+ "$tmpdir"/part
+
+		# Fold identical records and prepare for later 'sort -m'.
+		LC_ALL=C sort -u -o "$tmpdir"/part{,}
+	fi
 
 	# The part has been created from scratch, but it is still rather
 	# possible that there is no actual change, which can save us a merge.
-	[ -n "$regen_contents" ] || cmp -s "$parts_dir/$pkglist" "$tmpdir"/part || regen_contents=1
+	[ -n "$regen_contents" ] || cmp -s "$parts_dir/$part" "$tmpdir"/part || regen_contents=1
 
 	# Bless and install the part.
-	touch -r "$pkglists_dir/$pkglist" "$tmpdir"/part
-	mv -f "$tmpdir"/part "$parts_dir/$pkglist"
+	touch -r "$ref" "$tmpdir"/part
+	mv -f "$tmpdir"/part "$parts_dir/$part"
 
-	verbose "Created contents part for $pkglist."
+	[ -s "$parts_dir/$part" ] &&
+		verbose "Created contents part for ${dir:-$part}." ||
+		verbose "Created empty contents part for ${dir:-$part}."
 }
 
 contents_match_timestamp()
 {
-	[ -f "$1" ] && [ -f "$2" ] || return 1
+	# 1=ref 2=contents
+	[ -e "$1" ] && [ -f "$2" ] || return 1
 	[ "$1" -nt "$2" ] || [ "$1" -ot "$2" ] || return 0
 	return 1
 }
 
 valid_contents_part()
 {
-	set -- "$pkglists_dir/$1" "$parts_dir/$1"
+	local part="$1"; shift
+	local dir=
+	if [ -n "${part##*/*}" ]; then
+		set -- "$pkglists_dir/$part" "$parts_dir/$part"
+	else
+		dir=$part
+		part=$(printf %s "$part" |tr / _)
+		set -- "$dir" "$parts_dir/$part"
+	fi
 	if contents_match_timestamp "$1" "$2"; then
-		verbose "Contents part for $pkglist is up to date."
+		verbose "Contents part for ${dir:-$part} is up to date."
 	else
 		return 1
 	fi
@@ -118,10 +158,12 @@ valid_contents_part()
 merge_contents_parts()
 {
 	# Prepare argv for 'sort -m'.
-	local pkglist
+	local part
 	set --
-	while read -r pkglist; do
-		set -- "$@" "$parts_dir/$pkglist"
+	while read -r part; do
+		[ -n "${part##*/*}" ] ||
+			part=$(printf %s "$part" |tr / _)
+		set -- "$@" "$parts_dir/$part"
 	done <"$tmpdir"/parts_list
 	[ $# -gt 0 ]
 
@@ -200,10 +242,10 @@ create_contents()
 	# Will merge anyway, disable optimizations.
 	regen_contents=1
 
-	local pkglist
+	local part
 	init_contents_state
-	while read -r pkglist; do
-		create_contents_part "$pkglist" </dev/null
+	while read -r part; do
+		create_contents_part "$part" </dev/null
 	done <"$tmpdir"/parts_list
 
 	merge_contents_parts
@@ -236,14 +278,14 @@ update_contents()
 
 	# Check if the cache can be reused as is.
 	[ -s "$contents_dir"/contents_index_bin ] &&
-		contents_match_timestamp "$contents_dir"/{contents_index_bin,parts_list} ||
+		contents_match_timestamp "$contents_dir"/{parts_list,contents_index_bin} ||
 		regen_contents=1
 
-	local pkglist
+	local part
 	init_contents_state
-	while read -r pkglist; do
-		valid_contents_part "$pkglist" ||
-		create_contents_part "$pkglist" </dev/null
+	while read -r part; do
+		valid_contents_part "$part" ||
+		create_contents_part "$part" </dev/null
 	done <"$tmpdir"/parts_list
 
 	if [ -z "$regen_contents" ]; then
