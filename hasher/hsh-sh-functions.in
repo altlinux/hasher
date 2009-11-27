@@ -370,16 +370,7 @@ make_repo()
 	if [ -n "$repo_src" -o -n "$repo_bin" ]; then
 		mkdir -p $verbose -- ${repo_src:+"$repo_src"} ${repo_bin:+"$repo_bin"} >&2
 	fi
-	mkdir -p $verbose -- ${repo:-$def_repo}/{{SRPMS,${target:-$def_target}/RPMS}.hasher,${target:-$def_target}/base} >&2
-}
-
-# assumed: cwd == workdir, defined aptbox
-update_repo()
-{
-	[ -z "$no_stuff" ] || return 0
-	"$aptbox/genbasedir" --topdir=${repo:-$def_repo} --no-oldhashfile --bz2only --mapi --bloat ${target:-$def_target} hasher &&
-		verbose 'updated hasher repository indices.' ||
-		fatal 'failed to update hasher repository indices.'
+	mkdir -p $verbose -- ${repo:-$def_repo}/{SRPMS,${target:-$def_target}/RPMS}.hasher >&2
 }
 
 # assumed: defined variables: hash

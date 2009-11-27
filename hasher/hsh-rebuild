@@ -262,5 +262,3 @@ find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.rpm -print0 |
 	xargs -r0 mv -f $verbose --target-directory="$repo_bin" -- >&2
 
 purge_chroot_out
-
-update_repo

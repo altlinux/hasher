@@ -165,7 +165,6 @@ mkdir -p $verbose -- \
 prog_apt_get="apt-get"
 prog_apt_cache="apt-cache"
 prog_apt_config="apt-config"
-prog_genbasedir="genbasedir"
 apt_libdir=
 if [ -z "$apt_prefix" ]; then
 	apt_libdir="$LD_LIBRARY_PATH"
@@ -188,7 +187,7 @@ else
 		apt_libdir="$LD_LIBRARY_PATH:$apt_libdir"
 	fi
 
-	for n in apt-cache apt-config apt-get genbasedir; do
+	for n in apt-cache apt-config apt-get; do
 		prog="$apt_prefix/bin/$n"
 		[ -x "$prog" ] ||
 			fatal "$prog: program not available."
@@ -231,7 +230,7 @@ exec $setarch "\$@"
 __EOF__
 chmod $verbose a+x setarch >&2
 apt_config_file="$aptbox/etc/apt/apt.conf"
-for n in apt-cache apt-config apt-get genbasedir; do
+for n in apt-cache apt-config apt-get; do
 	cat >"$n" <<__EOF__
 #!/bin/sh -e
 ${apt_libdir:+export LD_LIBRARY_PATH="$apt_libdir"}
@@ -246,8 +245,10 @@ done
 
 cat >regenbasedir <<__EOF__
 #!/bin/sh -ef
-"$aptbox/genbasedir" --topdir="$repo" --no-oldhashfile --bz2only --mapi --bloat ${target:-$def_target} hasher "\$@"
-"$aptbox/apt-get" ${quiet:+-qq} update
+# Note that hasher uses rpm-dir method instead of genbasedir.
+# Only use this script e.g. before uploading your repo to ftp.
+mkdir -p "$repo"/${target:-$def_target}/base
+genbasedir --topdir="$repo" --no-oldhashfile --bz2only --mapi --bloat ${target:-$def_target} hasher "\$@"
 __EOF__
 verbose "created regenbasedir"
 chmod $verbose a+x regenbasedir >&2
@@ -300,6 +301,4 @@ verbose "Created APT source list file \`$target_config'."
 rpmdb --initdb --dbpath "$aptbox/var/lib/rpm"
 verbose "Created RPM database in \`./var/lib/rpm/'."
 
-cd "$workdir"
-update_repo
 [ -z "$update" ] || "$aptbox/apt-get" update $([ -n "$verbose" ] || echo -qq)
