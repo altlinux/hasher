@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.16
+Version: 1.3.17
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -55,6 +55,13 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Sat Dec 19 2009 Alexey Tourbin <at@altlinux.ru> 1.3.17-alt1
+- mkaptbox: In sources.list, enabled rpm-dir access to hasher repo.
+- mkaptbox, hsh-sh-functions.in: Removed most of genbasedir stuff.
+- mkaptbox: Preserved limited support for genbasedir - use
+  $workdir/aptbox/regenbasedir e.g. before uploading your repo to ftp.
+- hsh-sh-cache-contents-functions: Implemented support for rpm-dir.
+
 * Wed Sep 09 2009 Dmitry V. Levin <ldv@altlinux.org> 1.3.16-alt1
 - hsh-rebuild: Call rpmbuild with stdout redirected to stderr.
 
