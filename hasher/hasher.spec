@@ -23,6 +23,8 @@ Requires: apt-repo-tools
 Requires: bash-builtin-lockf >= 0:0.2
 # due to "readlink -e"
 Requires: coreutils >= 0:5.2.1-alt3
+# due to "find -exec {} +"
+Requires: findutils >= 0:4.2.28
 # due to hasher-priv zero subconfig identifier support
 Requires: hasher-priv >= 0:1.3.3
 # due to prepare_x11_forwarding()
