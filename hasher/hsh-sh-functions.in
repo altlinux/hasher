@@ -292,7 +292,7 @@ get_apt_config()
 	get_value="$1"
 	shift || return 1
 
-	get_eval="$("$aptbox/apt-config" shell "$get_value" "$get_name")" || return 1
+	get_eval="$("$aptbox/apt-config" shell "$get_value" "$get_name" </dev/null)" || return 1
 	eval "$get_eval"
 }
 
