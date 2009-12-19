@@ -243,12 +243,12 @@ create_contents()
 	regen_contents=1
 
 	local part
-	init_contents_state
+	init_contents_state </dev/null
 	while read -r part; do
 		create_contents_part "$part" </dev/null
 	done <"$tmpdir"/parts_list
 
-	merge_contents_parts
+	merge_contents_parts </dev/null
 	mv -f {"$tmpdir","$contents_dir"}/parts_list
 	mv -f {"$tmpdir","$contents_dir"}/contents_index_bin
 
@@ -282,7 +282,7 @@ update_contents()
 		regen_contents=1
 
 	local part
-	init_contents_state
+	init_contents_state </dev/null
 	while read -r part; do
 		valid_contents_part "$part" ||
 		create_contents_part "$part" </dev/null
@@ -291,7 +291,7 @@ update_contents()
 	if [ -z "$regen_contents" ]; then
 		verbose 'Contents index is up to date.'
 	else
-		merge_contents_parts
+		merge_contents_parts </dev/null
 		mv -f {"$tmpdir","$contents_dir"}/parts_list
 		mv -f {"$tmpdir","$contents_dir"}/contents_index_bin
 	fi
