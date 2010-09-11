@@ -117,6 +117,7 @@ rpmbuild -bs --nodeps \\
 	--target="$(quote_shell "${target:-$def_target}")" \\
 	--define '_allow_undefined_macros 1' \\
 	$rpmargs \\
+	--define "_source_payload w1.gzdio" \\
 	--define "_specdir \$HOME/in/spec" \\
 	--define "_sourcedir \$HOME/in/source" \\
 	--define "_srcrpmdir \$HOME/in/srpm" \\
