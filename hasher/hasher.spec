@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.17
+Version: 1.3.18
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -55,6 +55,11 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Sat Sep 11 2010 Alexey Tourbin <at@altlinux.ru> 1.3.18-alt1
+- rebuild-functions (make_srpm_from_pkgtar): Enabled fast compression
+  mode (w1.gzdio) for temporary src.rpm package.
+- hsh-rebuild (query_req): Likewise.
+
 * Sat Dec 19 2009 Alexey Tourbin <at@altlinux.ru> 1.3.17-alt1
 - mkaptbox: In sources.list, enabled rpm-dir access to hasher repo.
 - mkaptbox, hsh-sh-functions.in: Removed most of genbasedir stuff.
