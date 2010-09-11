@@ -212,7 +212,9 @@ cd \`rpm --eval %_specdir\`
 rpmbuild -bs --nodeps \\
 	--target="$(quote_shell "${target:-$def_target}")" \\
 	--define '_allow_undefined_macros 1' \\
-	$rpmargs -- *.spec >/dev/null
+	$rpmargs \\
+	--define "_source_payload w1.gzdio" \\
+	-- *.spec >/dev/null
 cd \`rpm --eval %_srcrpmdir\`
 rpmquery -pR -- "\$@"
 __EOF__
