@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.18
+Version: 1.3.19
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -41,13 +41,13 @@ This package contains package hasher user utilities.
 See %_docdir/%name-%version/QUICKSTART for details.
 
 %prep
-%setup -q
+%setup
 
 %build
 %make_build
 
 %install
-%make_install install DESTDIR=%buildroot
+%makeinstall_std
 
 %files
 %_bindir/*
@@ -55,6 +55,10 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Tue Sep 14 2010 Dmitry V. Levin <ldv@altlinux.org> 1.3.19-alt1
+- hsh-initroot: Provide an empty /proc/filesystems stub file
+  for chroots where /proc filesystem is not mounted.
+
 * Sat Sep 11 2010 Alexey Tourbin <at@altlinux.ru> 1.3.18-alt1
 - rebuild-functions (make_srpm_from_pkgtar): Enabled fast compression
   mode (w1.gzdio) for temporary src.rpm package.
