@@ -1,12 +1,11 @@
 Name: hasher
-Version: 1.3.19
+Version: 1.3.20
 Release: alt1
 
 Summary: Modern safe package building technology
 License: GPLv2+
 Group: Development/Other
 Url: ftp://ftp.altlinux.org/pub/people/ldv/hasher
-Packager: Dmitry V. Levin <ldv@altlinux.org>
 BuildArch: noarch
 
 Source: %url/%name-%version.tar
@@ -55,6 +54,11 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Wed Feb 16 2011 Dmitry V. Levin <ldv@altlinux.org> 1.3.20-alt1
+- hsh-initroot:
+  + Do not copy /etc/skel/* to /usr/src/.
+  + Create $TMPDIR with default permissions.
+
 * Tue Sep 14 2010 Dmitry V. Levin <ldv@altlinux.org> 1.3.19-alt1
 - hsh-initroot: Provide an empty /proc/filesystems stub file
   for chroots where /proc filesystem is not mounted.
