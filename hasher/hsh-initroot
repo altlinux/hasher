@@ -270,8 +270,8 @@ if [ -n "$build_list" ]; then
 	create_entry_header
 	cat >>"$entry" <<__EOF__
 [ ! -d /etc/skel ] || cp -a $verbose /etc/skel/.[^.]* "\$HOME"/ >&2 ||:
-mkdir -p $verbose -m700 -- "\$TMPDIR" >&2
-mkdir -p $verbose "\$HOME/RPM"/{BUILD,SOURCES,SPECS,SRPMS,RPMS/noarch} >&2
+mkdir -p $verbose -- "\$TMPDIR" \
+	"\$HOME/RPM"/{BUILD,SOURCES,SPECS,SRPMS,RPMS/noarch} >&2
 cat >"\$HOME/.rpmmacros" <<EOF
 %_tmppath \$TMPDIR
 %_topdir \$HOME/RPM
