@@ -628,10 +628,15 @@ print_uris()
 {
 	local out
 	local options='-q -y -o RPM::PM=external -o Dir::Bin::rpm=hsh-rpmi-print-files'
-	verbose 'Obtaining packages (might take a while if downloading remotely)...'
-	if ! out="$("$aptbox/apt-get" $options install -- "$@" 2>&1)"; then
-		printf %s\\n "$out" >&2
-		fatal 'Failed to calculate package file list.'
+	if [ -z "$verbose" ]; then
+		if ! out="$("$aptbox/apt-get" $options install -- "$@" 2>&1)"; then
+			printf %s\\n "$out" >&2
+			fatal 'Failed to calculate package file list.'
+		fi
+	else
+		out="$(set -o pipefail; "$aptbox/apt-get" $options install -- "$@" 2>&1 |
+		       tee /dev/stderr)" ||
+			fatal 'Failed to calculate package file list.'
 	fi
 
 	printf %s "$out" |LC_ALL=C grep '^/.*\.rpm$' || [ $? -eq 1 ]
