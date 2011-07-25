@@ -36,6 +36,7 @@ Helpify() # var_name=var_value [cmdline_key_name]
 {
 	eval "Var_of_${1%%=*}='
                                     (\$${2:-${1%%=*}})'"
+	eval "hsh_cfg_var_${2:-${1%%=*}}="
 }
 
 print_version()

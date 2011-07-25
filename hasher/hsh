@@ -44,6 +44,7 @@ Options:
   --excludedocs                     do not install documentation files;
   --hasher-priv-dir=DIR             alternative hasher-priv directory;
   --initroot-only                   do not build, stop after initroot stage;
+  --printenv                        print configuration environment variables;
   --install-langs=LIST              colon-separated list of languages to install;
   --mountpoints=LIST                comma-separated list of known mount points;
   --cache-dir=DIR                   alternative cache directory;
@@ -91,12 +92,13 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,query-repackage,query-req-prog:,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,save-fakeroot,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,with-qemu:,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,query-repackage,query-req-prog:,printenv,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,save-fakeroot,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,with-qemu:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
 cleanup_only=
 initroot_only=
+printenv_only=
 while :; do
 	case "$1" in
 		--apt-config)
@@ -164,6 +166,8 @@ while :; do
 			;;
 		--pkg-init-list) shift; init_list="$1 "
 			;;
+		--printenv) printenv_only=1
+			;;
 		--query-repackage) query_repackage=1
 			;;
 		--query-req-prog)
@@ -213,15 +217,15 @@ done
 [ "$repackage_source" = '--no-repackage-source' ] ||
 	repackage_source='--repackage-source'
 
-if [ -n "$initroot_only" -a -n "$cleanup_only" ]; then
-	show_usage '--initroot-only and --cleanup-only are mutually exclusive options.'
-fi
+case "${initroot_only:+1}${cleanup_only:+1}${printenv_only:+1}" in
+	11*) show_usage '--initroot-only, --cleanup-only and --printenv are mutually exclusive options.' ;;
+esac
 
 if [ -n "$prog_query_req" -a -n "$query_repackage" ]; then
 	show_usage '--query-req-prog and --query-repackage are mutually exclusive options.'
 fi
 
-if [ -z "$initroot_only" -a -z "$cleanup_only" ]; then
+if [ -z "$initroot_only" -a -z "$cleanup_only" -a -z "$printenv_only" ]; then
 	if [ -z "$workdir" ]; then
 		# At least two arguments.
 		[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
@@ -389,6 +393,16 @@ handle_package()
 		rm -rf aptbox
 	fi
 }
+
+if [ -n "$printenv_only" ]; then
+	set | sed -n 's/^hsh_cfg_var_\([^=]\+\)=$/\1/p' |
+	while read i; do
+		eval quote_shell_variable q "\$$i"
+		[ -z "$q" ] ||
+			printf '%s="%s"\n' "$i" "$q"
+	done
+	exit
+fi
 
 lock_workdir
 
