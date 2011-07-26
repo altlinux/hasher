@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.20
+Version: 1.3.21
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -54,6 +54,12 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Wed Jul 27 2011 Dmitry V. Levin <ldv@altlinux.org> 1.3.21-alt1
+- hsh-run: disable network isolation when X11 forwarding is requested.
+- hsh: added --printenv option (closes: #23955)
+- hsh-sh-functions.in (print_uris): in verbose mode, print a message
+  about obtaining packages (closes: #25686).
+
 * Wed Feb 16 2011 Dmitry V. Levin <ldv@altlinux.org> 1.3.20-alt1
 - hsh-initroot:
   + Do not copy /etc/skel/* to /usr/src/.
