@@ -636,7 +636,7 @@ print_uris()
 		fi
 	else
 		out="$(set -o pipefail; "$aptbox/apt-get" $options install -- "$@" 2>&1 |
-		       tee /dev/stderr)" ||
+		       tee -a /dev/stderr)" ||
 			fatal 'Failed to calculate package file list.'
 	fi
 
