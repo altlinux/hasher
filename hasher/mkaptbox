@@ -130,7 +130,7 @@ lock_workdir
 [ -n "$no_stuff" ] ||
 	make_repo
 [ -n "$repo" ] || repo="$def_repo"
-repo="$(readlink -ef -- "$repo")"
+repo="$(readlink -fv -- "$repo")"
 
 # does aptbox exist yet?
 if [ -e aptbox -o -L aptbox ]; then
