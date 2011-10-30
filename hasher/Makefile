@@ -62,20 +62,25 @@ $(MAN7PAGES):
 	sed \
 		-e 's,@VERSION@,$(VERSION),g' \
 		-e 's,@libexecdir@,$(libexecdir),g' \
-		<$< >$@
+		< $< > $@
 	$(TOUCH_R) $< $@
 	chmod --reference=$< $@
 
 %._: % manify.sed
-	sed -rf manify.sed <$< >$@
+	sed -rf manify.sed < $< > $@
 	chmod --reference=$< $@
 
 %.1: %._ %.1.inc
-	$(HELP2MAN1) -i $(<:._=).1.inc ./$< >$@
+	$(HELP2MAN1) -i $(<:._=).1.inc ./$< > $@
 	sed -i 's/^\.B $</.B $(<:._=)/' $@
+	if [ $@ = hsh.1 ]; then \
+		sed -i '/^\\fB\\-\\-with\(out\)\?\\-stuff\\fR$$/,/^\.TP$$/d' $@; \
+		sed -i '/^\\fB\\-\\-number\\fR=\\fINUMBER\\fR$$/,/^\.TP$$/d' $@; \
+		sed -i '/^\\fB\\-\\-mountpoints\\fR=\\fILIST\\fR$$/,/^\.TP$$/d' $@; \
+	fi
 
 %.html: %
-	$(MAN2HTML) $< >$@
+	$(MAN2HTML) $< > $@
 	sed -i -e '/^Content-type: /d' -e '/^Time: /d' -e '/index\.html/d' \
 		-e 's,HREF="\.\./man./\(hsh\|hasher\.\|mkaptbox\),HREF="\1,g' \
 		-e 's,<A HREF="\.\./man./[^/]\+\.html">\([^<]\+\)</A>,\1,g' \
