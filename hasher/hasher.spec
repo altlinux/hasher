@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.21
+Version: 1.3.22
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -54,6 +54,14 @@ See %_docdir/%name-%version/QUICKSTART for details.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Sun Oct 30 2011 Dmitry V. Levin <ldv@altlinux.org> 1.3.22-alt1
+- Fixed duplications in generated hsh.1 manpage (closes: #20893).
+- hsh-run: reverted the change made in previous release to disable
+  network isolation when X11 forwarding is requested.
+- mkaptbox: fixed a typo in readlink options (by Kirill A. Shutemov).
+- hsh-sh-functions.in (print_uris): fixed stderr truncation
+  in verbose mode (by Michael Shigorin; closes: #26217).
+
 * Wed Jul 27 2011 Dmitry V. Levin <ldv@altlinux.org> 1.3.21-alt1
 - hsh-run: disable network isolation when X11 forwarding is requested.
 - hsh: added --printenv option (closes: #23955)
