@@ -64,8 +64,8 @@ $(MAN7PAGES):
 	sed -i 's/^\.B $</.B $(<:._=)/' $@
 	if [ $@ = hsh.1 ]; then \
 		sed -i '/^\\fB\\-\\-with\(out\)\?\\-stuff\\fR$$/,/^\.TP$$/d' $@; \
-		sed -i '/^\\fB\\-\\-number\\fR=\\fINUMBER\\fR$$/,/^\.TP$$/d' $@; \
-		sed -i '/^\\fB\\-\\-mountpoints\\fR=\\fILIST\\fR$$/,/^\.TP$$/d' $@; \
+		sed -i '/^\\fB\\-\\-number\\fR=\\fI\\,NUMBER\\\/\\fR$$/,/^\.TP$$/d' $@; \
+		sed -i '/^\\fB\\-\\-mountpoints\\fR=\\fI\\,LIST\\\/\\fR$$/,/^\.TP$$/d' $@; \
 	fi
 
 %.html: %
