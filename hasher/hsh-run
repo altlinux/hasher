@@ -182,11 +182,6 @@ lock_workdir
 deduce_lock_hasher_priv
 
 prepare_x11_forwarding || x11_forwarding=
-if [ -n "$x11_forwarding" -a -z "${share_network-}" ]; then
-	message 'X11 forwarding requested, disabling network isolation.'
-	share_network=1
-	export share_network
-fi
 
 [ -z "$run_script" ] ||
 	install -pm755 $verbose "$run_script" "$chroot/.host/hsh-run" >&2
