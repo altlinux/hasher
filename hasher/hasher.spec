@@ -36,8 +36,10 @@ Obsoletes: pkg-build-utils, libbte
 BuildPreReq: help2man, libshell >= 0:0.0.2-alt4
 
 %description
-This package contains package hasher user utilities.
-See %_docdir/%name-%version/QUICKSTART for details.
+Hasher is a set of tools for constructing chroot and safe building of
+packages in the clean environment.  It makes clean environment on every
+new build.  Hasher obtains packages from APT repositories so fast
+network connection or local mirror is highly recommended.
 
 %prep
 %setup
