@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.22
+Version: 1.3.23
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -56,6 +56,10 @@ network connection or local mirror is highly recommended.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Tue Jun 05 2012 Dmitry V. Levin <ldv@altlinux.org> 1.3.23-alt1
+- hsh-mkchroot: create /dev/shm directory with permissions 01777.
+- Updated package description (closes: #18853).
+
 * Sun Oct 30 2011 Dmitry V. Levin <ldv@altlinux.org> 1.3.22-alt1
 - Fixed duplications in generated hsh.1 manpage (closes: #20893).
 - hsh-run: reverted the change made in previous release to disable
