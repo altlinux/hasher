@@ -128,6 +128,7 @@ verbose "Changed working directory to \`$chroot'."
 mkdir -m711 $verbose .host >&2
 mkdir -m755 $verbose .in dev dev/pts >&2
 chgrp "$gid1" $verbose . dev dev/pts >&2
+mkdir -m1777 $verbose dev/shm >&2
 mkdir -m1770 $verbose .out >&2
 chgrp "$gid2" $verbose .out >&2
 verbose 'Created directory tree.'
