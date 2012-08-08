@@ -242,7 +242,7 @@ __EOF__
 	cat >>"$entry" <<__EOF__
 export DURING_INSTALL=1
 ${exclude_docs:+export RPM_EXCLUDEDOCS=1}
-${rpmi:-$def_rpmi} -i $verbose $exclude_docs --justdb --nodeps $(for f in $initlist; do printf %s "\"$(quote_shell "${f##*/}")\" "; done)
+${rpmi:-$def_rpmi} -i $verbose --ignorearch $exclude_docs --justdb --nodeps $(for f in $initlist; do printf %s "\"$(quote_shell "${f##*/}")\" "; done)
 __EOF__
 
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_short \
@@ -296,8 +296,8 @@ noinst_list="$(for f in $buildlist; do
 	done
 done)"
 [ -z "\$noinst_list" ] || rpm_nodeps="--nodeps"
-[ -z "\$inst_list" ] || ${rpmi:-$def_rpmi} -i $exclude_docs \$rpm_nodeps \$inst_list
-[ -z "\$noinst_list" ] || ${rpmi:-$def_rpmi} -i $exclude_docs --nodeps --justdb \$noinst_list
+[ -z "\$inst_list" ] || ${rpmi:-$def_rpmi} -i --ignorearch $exclude_docs \$rpm_nodeps \$inst_list
+[ -z "\$noinst_list" ] || ${rpmi:-$def_rpmi} -i --ignorearch $exclude_docs --nodeps --justdb \$noinst_list
 __EOF__
 
 		wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_short \
