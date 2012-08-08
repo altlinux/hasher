@@ -143,7 +143,7 @@ install_static_helper ash sh
 install_static_helper find
 install_static_helper cpio
 [ -z "$qemu_arch" ] ||
-	install_static_helper "qemu-$qemu_arch"
+	install_static_helper "qemu-$qemu_arch" "qemu-${qemu_arch/armh/arm}"
 postin="$HOME/.hasher/install/post"
 if [ -r "$postin" -a -x "$postin" ]; then
 	install -p -m755 $verbose "$postin" .host/postin >&2
