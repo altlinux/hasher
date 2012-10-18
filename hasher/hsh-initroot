@@ -170,7 +170,7 @@ uid2="$(printf %s "$ugid2" |cut -d: -f1)"
 gid2="$(printf %s "$ugid2" |cut -d: -f2)"
 
 [ -n "$nprocs" ] ||
-	nprocs="$(N=`LC_ALL=C egrep -cs ^cpu[0-9]+ /proc/stat ||:`; [ "$N" -gt 0 ] 2>/dev/null && printf %s "$N" || echo 1)"
+	nprocs="$(N=`LC_ALL=C getconf _NPROCESSORS_ONLN ||:`; [ "$N" -gt 0 ] 2>/dev/null && printf %s "$N" || echo 1)"
 
 check_tty
 
