@@ -171,7 +171,7 @@ gid2="$(printf %s "$ugid2" |cut -d: -f2)"
 
 [ -n "$nprocs" ] ||
 	nprocs="$(N=`LC_ALL=C getconf _NPROCESSORS_ONLN ||:`; [ "$N" -gt 0 ] 2>/dev/null && printf %s "$N" || echo 1)"
-opt_check_number nprocs "$nprocs"
+opt_check_number nprocs "$nprocs" > /dev/null
 
 check_tty
 

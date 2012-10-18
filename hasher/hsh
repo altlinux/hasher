@@ -276,7 +276,7 @@ for f in "$@"; do
 done
 
 [ -z "$nprocs" ] ||
-	opt_check_number nprocs "$nprocs"
+	opt_check_number nprocs "$nprocs" > /dev/null
 
 cleanup_workdir()
 {
