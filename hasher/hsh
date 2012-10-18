@@ -147,7 +147,7 @@ while :; do
 			[ -n "$1" ] && no_sisyphus_check_out="$1" || no_sisyphus_check_out=all
 			;;
 		--nprocs)
-			nprocs="$(opt_check_number_ge_0 "$1" "$2")"
+			nprocs="$(opt_check_number "$1" "$2")"
 			shift
 			;;
 		--number)
@@ -274,6 +274,9 @@ for f in "$@"; do
 	[ -s "$f" ] ||
 		fatal "$f: empty source file."
 done
+
+[ -z "$nprocs" ] ||
+	opt_check_number nprocs "$nprocs"
 
 cleanup_workdir()
 {
