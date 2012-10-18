@@ -241,10 +241,9 @@ else
 		verbose "Removed old mount points." ||
 		fatal "Failed to remove old mount points."
 fi
-mkdir -pm755 $verbose chroot/proc chroot/sys/devices/system/cpu >&2 &&
+mkdir -m755 $verbose chroot/proc chroot/sys >&2 &&
 chgrp "$gid1" $verbose chroot/proc chroot/sys >&2 &&
 touch chroot/proc/filesystems &&
-echo "0-$(($nprocs-1))" > chroot/sys/devices/system/cpu/online &&
 	verbose 'Prepared mount points.' ||
 	fatal 'Failed to prepare mount points.'
 if [ -n "$save_fakeroot" ]; then
