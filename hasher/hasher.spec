@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.3.24
+Version: 1.3.25
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -58,6 +58,10 @@ network connection or local mirror is highly recommended.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Thu Oct 18 2012 Dmitry V. Levin <ldv@altlinux.org> 1.3.25-alt1
+- hsh-initroot: create /sys/devices/system/cpu/online.
+- Robustified nprocs checks.
+
 * Fri Aug 17 2012 Dmitry V. Levin <ldv@altlinux.org> 1.3.24-alt1
 - hsh-mkchroot: use generic qemu-arm static helper name for arm
   flavours (by Sergey Bolshakov).
