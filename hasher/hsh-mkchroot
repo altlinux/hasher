@@ -139,9 +139,15 @@ ln -s $verbose ../proc/self/fd/1 dev/stdout >&2
 ln -s $verbose ../proc/self/fd/2 dev/stderr >&2
 verbose 'Created /dev symlinks.'
 
-install_static_helper ash sh
-install_static_helper find
-install_static_helper cpio
+if [ -x /usr/libexec/hasher/busybox ]; then
+	install -p -m755 $verbose /usr/libexec/hasher/busybox .host/ >&2
+	./.host/busybox --list |
+		xargs -I{} ln -s $verbose busybox .host/{} >&2
+else
+	install_static_helper ash sh
+	install_static_helper find
+	install_static_helper cpio
+fi
 [ -z "$qemu_arch" ] ||
 	install_static_helper "qemu-$qemu_arch" "qemu-${qemu_arch/armh/arm}"
 postin="$HOME/.hasher/install/post"
