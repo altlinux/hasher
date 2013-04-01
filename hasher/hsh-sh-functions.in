@@ -630,14 +630,21 @@ print_uris()
 	local out
 	local options='-q -y -o RPM::PM=external -o Dir::Bin::rpm=hsh-rpmi-print-files'
 	if [ -z "$verbose" ]; then
-		if ! out="$("$aptbox/apt-get" $options install -- "$@" 2>&1)"; then
+		out="$("$aptbox/apt-get" $options install -- "$@" 2>&1)" || {
+			local rc=$?
 			printf %s\\n "$out" >&2
+			[ $rc -le 128 ] ||
+				message "apt-get terminated by signal $(($rc-128))"
 			fatal 'Failed to calculate package file list.'
-		fi
+		}
 	else
 		out="$(set -o pipefail; "$aptbox/apt-get" $options install -- "$@" 2>&1 |
-		       tee -a /dev/stderr)" ||
+		       tee -a /dev/stderr)" || {
+			local rc=$?
+			[ $rc -le 128 ] ||
+				message "apt-get terminated by signal $(($rc-128))"
 			fatal 'Failed to calculate package file list.'
+		}
 	fi
 
 	printf %s "$out" |LC_ALL=C grep '^/.*\.rpm$' || [ $? -eq 1 ]
