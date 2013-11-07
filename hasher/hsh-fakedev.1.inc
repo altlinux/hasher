@@ -17,7 +17,7 @@
 .\" Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
 [NAME]
-hsh\-mknod \- create fake device file of the given type in chroot prepared by hsh\-initroot
+hsh\-fakedev \- create fake device file of the given type in chroot prepared by hsh\-initroot
 
 [SEE ALSO]
 .BR hsh (1),
