@@ -241,8 +241,16 @@ else
 		verbose "Removed old mount points." ||
 		fatal "Failed to remove old mount points."
 fi
-mkdir -m755 $verbose chroot/proc chroot/sys >&2 &&
-chgrp "$gid1" $verbose chroot/proc chroot/sys >&2 &&
+mkdir >&2 -m755 $verbose \
+	chroot/proc \
+	chroot/sys \
+	chroot/sys/fs \
+	chroot/sys/fs/cgroup &&
+chgrp >&2 "$gid1" $verbose \
+	chroot/proc \
+	chroot/sys \
+	chroot/sys/fs \
+	chroot/sys/fs/cgroup &&
 touch chroot/proc/filesystems &&
 	verbose 'Prepared mount points.' ||
 	fatal 'Failed to prepare mount points.'
