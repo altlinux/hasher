@@ -205,9 +205,20 @@ if [ -z "$nodeps" ]; then
 	if [ -n "$prog_query_req" ]; then
 		install -p -m755 $verbose "$prog_query_req" chroot/.host/query_req >&2
 	elif [ -n "$query_repackage" ]; then
+		# Calculate, check and install BuildRequires(pre) dependencies.
+		create_filter_spec_buildreq
+		create_entry_header
+		cat >>"$entry" <<__EOF__
+cd "\$HOME/in/srpm"
+${rpmi:-$def_rpmi} -i -- *
+cd \`rpm --eval %_specdir\`
+sed '/^buildrequires(pre):[[:space:]]*/I!d;s///' *.spec |
+	/.host/filter_spec_buildreq
+__EOF__
+		calc_check_install_build_deps
+
 		cat >chroot/.host/query_req <<__EOF__
 #!/bin/sh -e
-${rpmi:-$def_rpmi} -i -- "\$@"
 cd \`rpm --eval %_specdir\`
 rpmbuild -bs --nodeps \\
 	--target="$(quote_shell "${target:-$def_target}")" \\
