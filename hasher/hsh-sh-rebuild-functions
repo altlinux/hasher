@@ -49,10 +49,9 @@ calc_check_install_build_deps()
 	fi
 } # calc_check_install_build_deps
 
-make_srpm_from_pkgtar()
+create_filter_spec_buildreq()
 {
-	if [ -z "$nodeps" ]; then
-		cat >chroot/.host/filter_spec_buildreq <<\__EOF__
+	cat > "$chroot"/.host/filter_spec_buildreq <<\__EOF__
 #!/bin/sh -ef
 tr -s '[:blank:],' ' ' |
 	while read REPLY; do
@@ -76,9 +75,14 @@ tr -s '[:blank:],' ' ' |
 		done
 	done
 __EOF__
-		chmod 755 chroot/.host/filter_spec_buildreq
+	chmod 755 -- "$chroot"/.host/filter_spec_buildreq
+}
 
+make_srpm_from_pkgtar()
+{
+	if [ -z "$nodeps" ]; then
 		# Calculate, check and install BuildRequires(pre) dependencies.
+		create_filter_spec_buildreq
 		create_entry_header
 		cat >>"$entry" <<__EOF__
 sed '/^buildrequires(pre):[[:space:]]*/I!d;s///' "\$HOME/in/spec"/* |
