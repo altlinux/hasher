@@ -1,6 +1,6 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2008  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2017  Dmitry V. Levin <ldv@altlinux.org>
 # Copyright (C) 2007  Alexey Tourbin <at@altlinux.org>
 # 
 # The hsh-initroot utility for the hasher project
@@ -35,6 +35,7 @@ Options:
   --excludedocs             do not install documentation files;
   --hasher-priv-dir=DIR     alternative hasher-priv directory;
   --install-langs=LI        colon-separated list of languages to install;
+  --cache-compress=FILE     alternative cache compress executable;
   --cache-dir=DIR           alternative cache directory;
   --no-cache                do not use cache;
   --no-contents-indices     do not use content indices;
@@ -59,7 +60,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-lock,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,wait-lock,no-wait-lock,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l cache-compress:,cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-lock,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,wait-lock,no-wait-lock,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -73,6 +74,8 @@ while :; do
 		--hasher-priv-dir)
 			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
 			shift
+			;;
+		--cache-compress) shift; cache_compress="$1"
 			;;
 		--cache-dir) shift; cache_dir="$1"
 			;;

@@ -1,6 +1,6 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2008  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2017  Dmitry V. Levin <ldv@altlinux.org>
 # Copyright (C) 2006  Alexey Gladkov <legion@altlinux.org>
 # Copyright (C) 2007  Kirill A. Shutemov <kas@altlinux.org>
 # 
@@ -47,6 +47,7 @@ Options:
   --printenv                        print configuration environment variables;
   --install-langs=LIST              colon-separated list of languages to install;
   --mountpoints=LIST                comma-separated list of known mount points;
+  --cache-compress=FILE             alternative cache compress executable;
   --cache-dir=DIR                   alternative cache directory;
   --no-cache                        do not use initroot cache;
   --no-contents-indices             do not use content indices;
@@ -92,7 +93,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,query-repackage,query-req-prog:,printenv,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,save-fakeroot,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,with-qemu:,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,cache-compress:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,query-repackage,query-req-prog:,printenv,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,save-fakeroot,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,with-qemu:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -110,6 +111,8 @@ while :; do
 			shift
 			;;
 		--build-args) shift; rpmargs="$1"
+			;;
+		--cache-compress) shift; cache_compress="$1"
 			;;
 		--cache-dir) shift; cache_dir="$1"
 			;;
@@ -351,6 +354,7 @@ handle_package()
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
+		${cache_compress:+--cache-compress="$cache_compress"} \
 		${cache_dir:+--cache-dir="$cache_dir"} \
 		${no_cache:+--no-cache} \
 		${no_contents_indices:+--no-contents-indices} \
