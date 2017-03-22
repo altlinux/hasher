@@ -21,7 +21,7 @@
 #
 
 rebuild_chroot_cache=
-def_cache_compress=lzop
+def_cache_compress=lz4
 
 archive_chroot_cache()
 {
