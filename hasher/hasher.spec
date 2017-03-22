@@ -30,6 +30,8 @@ Requires: hasher-priv >= 0:1.3.3
 Requires: mktemp >= 1:1.3.1
 # first libshell version with fixed shell-quote
 Requires: libshell >= 0:0.0.2-alt4
+# due to def_cache_compress
+Requires: lzop
 
 Obsoletes: pkg-build-utils, libbte
 

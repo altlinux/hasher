@@ -1,6 +1,6 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2008  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2017  Dmitry V. Levin <ldv@altlinux.org>
 # Copyright (C) 2006  Alexey Gladkov <legion@altlinux.org>
 # Copyright (C) 2007  Kirill A. Shutemov <kas@altlinux.org>
 # 
@@ -47,7 +47,7 @@ print_version()
 $prog version @VERSION@
 Written by Dmitry V. Levin <ldv@altlinux.org>
 
-Copyright (C) 2003-2008  Dmitry V. Levin <ldv@altlinux.org>
+Copyright (C) 2003-2017  Dmitry V. Levin <ldv@altlinux.org>
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 EOF
@@ -102,6 +102,10 @@ Helpify no_wait_lock lock_nowait
 # override default cache directory $workdir/cache
 cache_dir=
 Helpify cache_dir
+
+# override default cache compressor
+cache_compress=
+Helpify cache_compress
 
 # whether to use initroot cache
 no_cache=

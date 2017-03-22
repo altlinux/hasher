@@ -1,6 +1,6 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2008  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2017  Dmitry V. Levin <ldv@altlinux.org>
 # Copyright (C) 2007  Alex V. Myltsev <avm@altlinux.org>
 # 
 # The chroot cache functions for the hsh-initroot
@@ -21,15 +21,22 @@
 #
 
 rebuild_chroot_cache=
+def_cache_compress=lzop
 
 archive_chroot_cache()
 {
 	[ -n "$rebuild_chroot_cache" ] || return 0
 
 	local rpmdb_archive="$cache_dir/chroot/rpmdb.tar"
-	local chroot_archive="$cache_dir/chroot/chroot.cpio.lzo"
+	local chroot_archive="$cache_dir/chroot/chroot.cpio"
+	local compressor_used="$cache_dir/chroot/compressor"
+	local compressor_prog="${cache_compress:-$def_cache_compress}"
 
-	trap 'rm -f -- "$rpmdb_archive" "$chroot_archive"' EXIT HUP INT QUIT TERM
+	trap 'rm -f -- "$rpmdb_archive" "$chroot_archive" "$compressor_used"' \
+		EXIT HUP INT QUIT TERM
+
+	printf %s "$compressor_prog" >"$compressor_used"
+	rm -f "$cache_dir/chroot/err"
 
 	# rpmdb
 	tar -cf "$rpmdb_archive" -C aptbox/var/lib/rpm/ . &&
@@ -45,10 +52,11 @@ cpio --version >/dev/null 2>&1 && cpio=cpio || cpio=/.host/cpio
 \$find * ! -path dev ! -path dev/\\* |\$cpio --create --quiet --format=newc
 __EOF__
 
-	rm -f "$cache_dir/chroot/err"
 	{ wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
-	    chrootuid1 </dev/null || echo 1 >"$cache_dir/chroot/err"; } |
-		{ lzop >"$chroot_archive" || echo 1 >"$cache_dir/chroot/err"; }
+		chrootuid1 </dev/null ||
+	  echo 1 >"$cache_dir/chroot/err"; } |
+		{ $compressor_prog >"$chroot_archive" ||
+		  echo 1 >"$cache_dir/chroot/err"; }
 	if [ -f "$cache_dir/chroot/err" ]; then
 		rm -f "$cache_dir/chroot/err"
 		fatal 'Chroot archivation failed.'
@@ -87,9 +95,9 @@ check_chroot_cache()
 	printf %s "$save_fakeroot" >"$cache_dir/chroot/fakeroot-options.new"
 
 	while :; do
-		for f in "$cache_dir"/chroot/{rpmdb.tar,chroot.cpio.lzo}; do
+		for f in "$cache_dir"/chroot/{compressor,rpmdb.tar,chroot.cpio}; do
 			if [ ! -s "$f" ]; then
-				verbose "Missing $f archive, invalidating chroot cache."
+				verbose "Missing $f file, invalidating chroot cache."
 				rebuild_chroot_cache=1
 				break 2
 			fi
@@ -134,6 +142,9 @@ check_chroot_cache()
 
 unpack_chroot_cache()
 {
+	local compressor_used
+	compressor_used=$(cat "$cache_dir/chroot/compressor")
+
 	local f
 
 	# rpmdb
@@ -144,8 +155,8 @@ unpack_chroot_cache()
 		fatal "Unpack of $f failed."
 
 	# chroot
-	f="$cache_dir/chroot/chroot.cpio.lzo"
-	lzop -dc <"$f" |
+	f="$cache_dir/chroot/chroot.cpio"
+	$compressor_used -d <"$f" |
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 	    chrootuid1 /.host/cpio --extract --make-directories --sparse --quiet --preserve-modification-time &&
 		verbose "Unpacked $f." ||
@@ -160,7 +171,7 @@ unpack_chroot_cache()
 cd /
 cpio --extract --make-directories --sparse --quiet --unconditional --preserve-modification-time
 __EOF__
-		lzop -dc <"$f" |
+		$compressor_used -d <"$f" |
 		wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 		    chrootuid1 &&
 			verbose "Unpacked $f for fakedata." ||
