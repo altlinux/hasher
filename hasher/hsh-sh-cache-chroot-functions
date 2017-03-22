@@ -39,9 +39,16 @@ archive_chroot_cache()
 	rm -f "$cache_dir/chroot/err"
 
 	# rpmdb
-	tar -cf "$rpmdb_archive" -C aptbox/var/lib/rpm/ . &&
-		verbose 'RPM database archivation complete.' ||
+	{ tar -c -C aptbox/var/lib/rpm/ . ||
+	  echo 1 >"$cache_dir/chroot/err"; } |
+		{ $compressor_prog >"$rpmdb_archive" ||
+		  echo 1 >"$cache_dir/chroot/err"; }
+	if [ -f "$cache_dir/chroot/err" ]; then
+		rm -f "$cache_dir/chroot/err"
 		fatal 'RPM database archivation failed.'
+	else
+		verbose 'RPM database archivation complete.'
+	fi
 
 	# chroot
 	create_entry_fakeroot_header
@@ -150,7 +157,8 @@ unpack_chroot_cache()
 	# rpmdb
 	f="$cache_dir/chroot/rpmdb.tar"
 	find aptbox/var/lib/rpm/ -mindepth 1 -depth -delete
-	tar -xf "$f" -C aptbox/var/lib/rpm/ &&
+	$compressor_used -d <"$f" |
+	tar -x -C aptbox/var/lib/rpm/ &&
 		verbose "Unpacked $f." ||
 		fatal "Unpack of $f failed."
 
