@@ -126,6 +126,7 @@ rpmbuild -bs --nodeps \\
 	--define "_sourcedir \$HOME/in/source" \\
 	--define "_srcrpmdir \$HOME/in/srpm" \\
 	-- "\$HOME/in/spec"/*
+date +%s -r "\$HOME/in/spec"/* > "\$HOME/in/SOURCE_DATE_EPOCH"
 # Once srpm is created, its sources are no longer needed.
 rm -rf "\$HOME/in/spec" "\$HOME/in/source"
 __EOF__
