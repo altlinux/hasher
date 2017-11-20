@@ -39,8 +39,8 @@ to deduce subconfig identifier from.
 ($number);
 .TP
 .BR \-\-mountpoints = \fILIST
-Defines list of known mount points.  Every build dependence which belongs
-to this list will be mounted.  If some mount point is not explicitly
+Comma-separated list of known mount points.  Every build dependency that
+belongs to this list will be mounted.  If some mount point is not explicitly
 allowed in
 .BR hasher\-priv.conf (5),
 build will fail.
