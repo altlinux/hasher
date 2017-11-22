@@ -335,6 +335,9 @@ ldconfig
 if type adjust_kernel_headers >/dev/null 2>&1; then
 	adjust_kernel_headers
 fi
+if [ -x /.host/postin ]; then
+	/.host/postin
+fi
 groupadd -g $gid0 caller ||:
 useradd -M -u $uid0 -g $gid0 -d / caller ||:
 groupadd -g $gid1 rooter
