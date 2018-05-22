@@ -255,6 +255,7 @@ chgrp >&2 "$gid1" $verbose \
 	chroot/sys/fs \
 	chroot/sys/fs/cgroup &&
 touch chroot/proc/filesystems &&
+sed '/^$/q' /proc/cpuinfo > chroot/proc/cpuinfo &&
 	verbose 'Prepared mount points.' ||
 	fatal 'Failed to prepare mount points.'
 if [ -n "$save_fakeroot" ]; then
