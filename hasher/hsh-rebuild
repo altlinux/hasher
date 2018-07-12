@@ -211,6 +211,8 @@ if [ -z "$nodeps" ]; then
 		install -p -m755 $verbose "$prog_query_req" chroot/.host/query_req >&2
 	elif [ -n "$query_repackage" ]; then
 		# Unpack srpm and treat it as pkg.tar to calculate the build deps.
+		# Since rpm-4.13, we could use rpmspec for a lightweight query instead
+		# of creating an srpm; for now, we exclude the sources and patches.
 		create_entry_header
 		cat >>"$entry" <<__EOF__
 cd "\$HOME/in/srpm"
@@ -218,6 +220,10 @@ ${rpmi:-$def_rpmi} -i \\
 	--define "_specdir \$HOME/in/spec" \\
 	--define "_sourcedir \$HOME/in/source" \\
 -- *
+sed -i -r\\
+	-e 's/^[[:blank:]]*(Source|Patch)([0-9]+)[[:blank:]]*:.*\$/&\nNo\1: \2/I' \\
+	-e 's/^[[:blank:]]*(Source|Patch)[[:blank:]]*:.*\$/&\nNo\1: 0/I' \\
+-- \$HOME/in/spec/*
 __EOF__
 		chrootuid2 </dev/null &&
 			verbose "$sname: unpacked srpm." ||
@@ -228,7 +234,7 @@ __EOF__
 		cat >chroot/.host/query_req <<__EOF__
 #!/bin/sh -e
 cd "\$HOME/in/nosrpm"
-rpmquery -pR -- "\$@"
+rpmquery -pR -- "\${@%.src.rpm}".*src.rpm
 __EOF__
 	else
 		cat >chroot/.host/query_req <<__EOF__
