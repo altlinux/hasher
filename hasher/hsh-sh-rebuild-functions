@@ -80,6 +80,10 @@ __EOF__
 
 make_srpm_from_pkgtar()
 {
+	# srcrpmdir: where to put the resulting srpm (on the "foreign" side).
+	# The value must be quoted appropriately, so that it can be inserted
+	# into shell code text (example: srcrpmdir='"$HOME/in/srpm"'):
+	local srcrpmdir="${1-}" # optional; absent/empty means default
 	if [ -z "$nodeps" ]; then
 		# Calculate, check and install BuildRequires(pre) dependencies.
 		create_filter_spec_buildreq
@@ -116,7 +120,7 @@ __EOF__
 	# At this stage, build environment should be ready for creating source rpm.
 	create_entry_header
 	cat >>"$entry" <<__EOF__
-mkdir $verbose -m700 -- "\$HOME/in/srpm" >&2
+${srcrpmdir:+mkdir $verbose -m700 -- $srcrpmdir >&2}
 rpmbuild -bs --nodeps \\
 	--target="$(quote_shell "${target:-$def_target}")" \\
 	--define '_allow_undefined_macros 1' \\
@@ -124,7 +128,7 @@ rpmbuild -bs --nodeps \\
 	--define "_source_payload w1.gzdio" \\
 	--define "_specdir \$HOME/in/spec" \\
 	--define "_sourcedir \$HOME/in/source" \\
-	--define "_srcrpmdir \$HOME/in/srpm" \\
+	${srcrpmdir:+--define '_srcrpmdir '$srcrpmdir} \\
 	-- "\$HOME/in/spec"/*
 date +%s -r "\$HOME/in/spec"/* > "\$HOME/in/SOURCE_DATE_EPOCH"
 # Once srpm is created, its sources are no longer needed.
@@ -177,7 +181,7 @@ __EOF__
 		src.rpm)
 			;;
 		pkg.tar)
-			make_srpm_from_pkgtar
+			make_srpm_from_pkgtar '"$HOME/in/srpm"'
 			;;
 		*)
 			fatal "$sname does not look like source package."
