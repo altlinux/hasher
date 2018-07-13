@@ -231,6 +231,16 @@ __EOF__
 
 		make_srpm_from_pkgtar '"$HOME/in/nosrpm"'
 
+		# The repackaged in/nosrpm/*.(no)src.rpm is
+		# only used to query the build dependencies;
+		# the original in/srpm/*.src.rpm is used for the final rebuild.
+		# It may seem that if the build dependencies have shrunk
+		# after repackaging, then the final build could fail because
+		# the original srpm would list more build dependencies.
+		# This is not a problem, however, because rpmbuild --rebuild
+		# calculates correctly the new set of build deps;
+		# --nodeps is not needed for it to work properly.
+
 		cat >chroot/.host/query_req <<__EOF__
 #!/bin/sh -e
 cd "\$HOME/in/nosrpm"
