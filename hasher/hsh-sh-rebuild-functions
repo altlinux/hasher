@@ -134,7 +134,7 @@ date +%s -r "\$HOME/in/spec"/* > "\$HOME/in/SOURCE_DATE_EPOCH"
 # Once srpm is created, its sources are no longer needed.
 rm -rf "\$HOME/in/spec" "\$HOME/in/source"
 __EOF__
-	wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
+	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long wlimit_bytes_written=$wlimit_bytes_out \
 	    chrootuid2 </dev/null &&
 		verbose "$sname: created src.rpm file." ||
 		fatal "$sname: failed to create src.rpm file"
