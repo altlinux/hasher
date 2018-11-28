@@ -275,6 +275,13 @@ if [ -r "$cd_value" -a -s "$cd_value" ]; then
 	fi
 fi
 
+# if preferences file is specified and not empty, copy it into aptbox either
+get_apt_config Dir::Etc::preferences/f prefs_value
+if [ -r "$prefs_value" -a -s "$prefs_value" ]; then
+	install -p -m644 $verbose "$prefs_value" "$aptbox/etc/apt/preferences" >&2
+else
+	prefs_value=
+fi
 
 # create final apt.conf file.
 cat >"$apt_config_file" <<__EOF__
@@ -287,6 +294,13 @@ APT::Install::Virtual "true";
 APT::Install::VirtualVersion "true";
 ${alternate_arch:+APT::Architecture "${target:-$def_target}";}
 __EOF__
+
+if [ -n "$prefs_value" ]; then
+	cat >>"$apt_config_file" <<__EOF__
+Dir::Etc::preferences "$aptbox/etc/apt/preferences";
+__EOF__
+fi
+
 verbose "Created APT configuration file \`$apt_config_file'."
 
 # create a new sources.list file.
