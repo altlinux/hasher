@@ -297,22 +297,13 @@ Dir::State "$aptbox/var/lib/apt/";
 Dir::Cache "$aptbox/var/cache/apt/";
 ${apt_config:+$(cat "$apt_config")}
 Dir::Etc::SourceList "$aptbox/etc/apt/sources.list";
+Dir::Etc::preferences "$aptbox/etc/apt/preferences";
+Dir::Etc::preferencesparts "$aptbox/etc/apt/preferences.d";
 RPM::RootDir "$aptbox";
 APT::Install::Virtual "true";
 APT::Install::VirtualVersion "true";
 ${alternate_arch:+APT::Architecture "${target:-$def_target}";}
 __EOF__
-
-if [ -n "$prefs_value" ]; then
-	cat >>"$apt_config_file" <<__EOF__
-Dir::Etc::preferences "$aptbox/etc/apt/preferences";
-__EOF__
-fi
-if [ -n "$prefsdir_value" ]; then
-	cat >>"$apt_config_file" <<__EOF__
-Dir::Etc::preferencesparts "$aptbox/etc/apt/preferences.d";
-__EOF__
-fi
 
 verbose "Created APT configuration file \`$apt_config_file'."
 
