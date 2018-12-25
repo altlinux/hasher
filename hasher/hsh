@@ -317,17 +317,6 @@ handle_package()
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
 
 	rm -rf aptbox
-	mkaptbox --no-lock "$workdir" \
-		${target:+--target="$target"} \
-		${repo:+--repo="$repo"} \
-		${repo_bin:+--repo-bin="$repo_bin"} \
-		${repo_src:+--repo-src="$repo_src"} \
-		${apt_config:+--apt-config="$apt_config"} \
-		${apt_prefix:+--apt-prefix="$apt_prefix"} \
-		${quiet:+$quiet} \
-		${verbose:+$verbose} \
-		${no_stuff:+--no-stuff} \
-		#
 	if [ -d chroot ]; then
 		deduce_lock_hasher_priv
 		hsh-rmchroot --no-lock "$workdir" \
@@ -343,6 +332,18 @@ handle_package()
 			allocate_lock_hasher_priv
 		fi
 	fi
+
+	mkaptbox --no-lock "$workdir" \
+		${target:+--target="$target"} \
+		${repo:+--repo="$repo"} \
+		${repo_bin:+--repo-bin="$repo_bin"} \
+		${repo_src:+--repo-src="$repo_src"} \
+		${apt_config:+--apt-config="$apt_config"} \
+		${apt_prefix:+--apt-prefix="$apt_prefix"} \
+		${quiet:+$quiet} \
+		${verbose:+$verbose} \
+		${no_stuff:+--no-stuff} \
+		#
 	hsh-mkchroot --no-lock "$workdir" \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${quiet:+$quiet} \
