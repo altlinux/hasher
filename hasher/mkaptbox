@@ -282,6 +282,14 @@ if [ -r "$prefs_value" -a -s "$prefs_value" ]; then
 else
 	prefs_value=
 fi
+get_apt_config Dir::Etc::preferencesparts/d prefsdir_value
+if [ -r "$prefsdir_value" -a -d "$prefsdir_value" ]; then
+	mkdir -p "$aptbox/etc/apt/preferences.d"
+	find "$prefsdir_value/" -mindepth 1 -maxdepth 1 -perm -444 -type f -exec \
+		install -p -m644 $verbose '{}' "$aptbox/etc/apt/preferences.d/" ';' >&2
+else
+	prefsdir_value=
+fi
 
 # create final apt.conf file.
 cat >"$apt_config_file" <<__EOF__
@@ -298,6 +306,11 @@ __EOF__
 if [ -n "$prefs_value" ]; then
 	cat >>"$apt_config_file" <<__EOF__
 Dir::Etc::preferences "$aptbox/etc/apt/preferences";
+__EOF__
+fi
+if [ -n "$prefsdir_value" ]; then
+	cat >>"$apt_config_file" <<__EOF__
+Dir::Etc::preferencesparts "$aptbox/etc/apt/preferences.d";
 __EOF__
 fi
 
