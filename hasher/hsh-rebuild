@@ -244,7 +244,7 @@ __EOF__
 		cat >chroot/.host/query_req <<__EOF__
 #!/bin/sh -e
 cd "\$HOME/in/nosrpm"
-rpmquery -pR -- "\${@%.src.rpm}".*src.rpm
+rpmquery -pR -- *.*src.rpm
 __EOF__
 	else
 		cat >chroot/.host/query_req <<__EOF__
