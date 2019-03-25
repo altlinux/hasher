@@ -23,6 +23,34 @@
 rebuild_chroot_cache=
 def_cache_compress=lz4
 
+archive_chroot_cache_compress_file()
+{
+	local dest_archive err_file
+	dest_archive="$1"; shift
+	err_file="$cache_dir/chroot/err"
+
+	rm -f "$err_file"
+
+	trap 'rm -f -- "$dest_archive"' EXIT HUP INT QUIT TERM
+
+	{ "$@" < /dev/null ||
+	  > "$err_file"; } |
+		{ $compressor_prog > "$dest_archive" ||
+		  > "$err_file"; }
+
+	trap - EXIT HUP INT QUIT TERM
+
+	if [ -f "$err_file" ]; then
+		rm -f "$err_file"
+		return 1
+	fi
+	[ -s "$dest_archive" ] || {
+		rm -f -- "$dest_archive"
+		fatal "$dest_archive: Cowardly refusing to create an empty archive"
+	}
+	return 0
+}
+
 archive_chroot_cache()
 {
 	[ -n "$rebuild_chroot_cache" ] || return 0
@@ -32,23 +60,11 @@ archive_chroot_cache()
 	local compressor_used="$cache_dir/chroot/compressor"
 	local compressor_prog="${cache_compress:-$def_cache_compress}"
 
-	trap 'rm -f -- "$rpmdb_archive" "$chroot_archive" "$compressor_used"' \
-		EXIT HUP INT QUIT TERM
-
-	printf %s "$compressor_prog" >"$compressor_used"
-	rm -f "$cache_dir/chroot/err"
-
 	# rpmdb
-	{ tar -c -C aptbox/var/lib/rpm/ . ||
-	  echo 1 >"$cache_dir/chroot/err"; } |
-		{ $compressor_prog >"$rpmdb_archive" ||
-		  echo 1 >"$cache_dir/chroot/err"; }
-	if [ -f "$cache_dir/chroot/err" ]; then
-		rm -f "$cache_dir/chroot/err"
+	archive_chroot_cache_compress_file "$rpmdb_archive" \
+	tar -c -C aptbox/var/lib/rpm/ . &&
+		verbose 'RPM database archivation complete.' ||
 		fatal 'RPM database archivation failed.'
-	else
-		verbose 'RPM database archivation complete.'
-	fi
 
 	# chroot
 	create_entry_fakeroot_header
@@ -59,18 +75,14 @@ cpio --version >/dev/null 2>&1 && cpio=cpio || cpio=/.host/cpio
 \$find * ! -path dev ! -path dev/\\* |\$cpio --create --quiet --format=newc
 __EOF__
 
-	{ wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
-		chrootuid1 </dev/null ||
-	  echo 1 >"$cache_dir/chroot/err"; } |
-		{ $compressor_prog >"$chroot_archive" ||
-		  echo 1 >"$cache_dir/chroot/err"; }
-	if [ -f "$cache_dir/chroot/err" ]; then
-		rm -f "$cache_dir/chroot/err"
+	wlimit_time_elapsed=$wlimit_time_long \
+	wlimit_time_idle=$wlimit_time_long \
+	archive_chroot_cache_compress_file "$chroot_archive" \
+	chrootuid1 &&
+		verbose 'Chroot archivation complete.' ||
 		fatal 'Chroot archivation failed.'
-	fi
-	verbose 'Chroot archivation complete.'
 
-	trap - EXIT HUP INT QUIT TERM
+	printf %s "$compressor_prog" >"$compressor_used"
 
 	# Regenerate data for later cache validation.
 	mv -f $verbose "$cache_dir"/chroot/list{.new,}/init >&2
