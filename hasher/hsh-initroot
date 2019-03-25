@@ -182,32 +182,57 @@ init_list=`printf %s "$init_list" |LC_ALL=C tr -s ',[:space:]' ' ' |sed -e 's/^ 
 [ -n "$init_list" ] ||
 	fatal 'Initial package file list is empty, cannot setup chroot.'
 
-initlist="$(print_uris $init_list)" ||
-	fatal 'Failed to generate initial package file list.'
-[ -n "$initlist" ] &&
-	verbose 'Generated initial package file list.' ||
-	fatal 'Failed to generate non-empty initial package file list; check your sources.list'
+cookie_file="$cache_dir/chroot/cookie"
+aptbox_archive="$cache_dir/chroot/aptbox.tar"
 
-# reorder to get setup and filesystem first.
-initlist="$(printf %s "$initlist" |LC_ALL=C grep '/setup[-_]' ||:)
-$(printf %s "$initlist" |LC_ALL=C grep '/filesystem[-_]' ||:)
-$(printf %s "$initlist" |LC_ALL=C egrep -v '/(setup|filesystem)[-_]' ||:)"
-initlist="$(printf %s "$initlist" |LC_ALL=C grep -v '^$' ||:)"
+if [ -n "$unchecked_initroot_cache" ] &&
+   [ -s "$cookie_file" -a -s "$aptbox_archive" ] &&
+   [ "$unchecked_initroot_cache" = "$(cat -- "$cookie_file")" ]; then
+	verbose 'initroot cache is unchecked, initial package file list setup bypassed.'
+else
+	initlist="$(print_uris $init_list)" ||
+		fatal 'Failed to generate initial package file list.'
+	[ -n "$initlist" ] &&
+		verbose 'Generated initial package file list.' ||
+		fatal 'Failed to generate non-empty initial package file list; check your sources.list'
+
+	# reorder to get setup and filesystem first.
+	initlist="
+$(printf %s "$initlist" |
+  LC_ALL=C grep '/setup[-_]' ||:)
+$(printf %s "$initlist" |
+  LC_ALL=C grep '/filesystem[-_]' ||:)
+$(printf %s "$initlist" |
+  LC_ALL=C egrep -v '/(setup|filesystem)[-_]' ||:)"
+	initlist="$(printf %s "$initlist" |
+		    LC_ALL=C grep -v '^$' ||:)"
+fi
 
 build_list=`printf %s "$build_list" |LC_ALL=C tr -s ',[:space:]' ' ' |sed -e 's/^ \+//;s/ \+$//'`
 if [ -n "$build_list" ]; then
-	buildlist="$(print_uris $build_list)" ||
-		fatal 'Failed to generate build package file list.'
-	buildlist="$(
-		printf %s\\n "$buildlist" |while read bp; do
-			[ -n "$bp" ] || continue
-			printf %s "$initlist" |LC_ALL=C grep -qs "^$bp\$" || printf %s\\n "$bp"
-		done
-	)"
-	buildlist="$(printf %s "$buildlist" |LC_ALL=C grep -v '^$' ||:)"
-	[ -n "$buildlist" ] &&
-		verbose 'Generated build package file list.' ||
-		fatal 'Failed to generate non-empty build package file list; check your sources.list'
+	if [ -n "$unchecked_initroot_cache" ] &&
+	   [ -s "$cookie_file" -a -s "$aptbox_archive" ] &&
+	   [ "$unchecked_initroot_cache" = "$(cat -- "$cookie_file")" ]; then
+		verbose 'initroot cache is unchecked, build package file list setup bypassed.'
+		buildlist=' '
+	else
+		buildlist="$(print_uris $build_list)" ||
+			fatal 'Failed to generate build package file list.'
+		buildlist="$(
+			printf '%s\n' "$buildlist" |
+			while read bp; do
+				[ -n "$bp" ] || continue
+				printf %s "$initlist" |
+					LC_ALL=C grep -qs "^$bp\$" ||
+						printf '%s\n' "$bp"
+			done
+		)"
+		buildlist="$(printf %s "$buildlist" |
+			     LC_ALL=C grep -v '^$' ||:)"
+		[ -n "$buildlist" ] &&
+			verbose 'Generated build package file list.' ||
+			fatal 'Failed to generate non-empty build package file list; check your sources.list'
+	fi
 else
 	verbose 'Package file list for build is empty, bypassing.'
 	buildlist=

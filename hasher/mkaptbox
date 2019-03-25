@@ -153,6 +153,22 @@ fi
 
 verbose "Changed working directory to \`$aptbox'."
 
+if [ -n "$unchecked_initroot_cache" ]; then
+	cookie_file="$cache_dir/chroot/cookie"
+	compressor_used="$cache_dir/chroot/compressor"
+	aptbox_archive="$cache_dir/chroot/aptbox.tar"
+
+	if [ -s "$cookie_file" -a -s "$compressor_used" -a -s "$aptbox_archive" ] &&
+	   [ "$unchecked_initroot_cache" = "$(cat -- "$cookie_file")" ]; then
+		compressor_prog=$(cat "$compressor_used")
+		$compressor_prog -d < "$aptbox_archive" |
+		tar -x &&
+			verbose "Unpacked $aptbox_archive." ||
+			fatal "Unpack of $aptbox_archive failed."
+		exit 0
+	fi
+fi
+
 # create apt/rpm skeleton directories.
 mkdir -p $verbose -- \
 	./etc/apt/{apt.conf,{sources,vendors}.list}.d \

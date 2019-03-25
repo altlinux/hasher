@@ -55,6 +55,8 @@ archive_chroot_cache()
 {
 	[ -n "$rebuild_chroot_cache" ] || return 0
 
+	local cookie_file="$cache_dir/chroot/cookie"
+	local aptbox_archive="$cache_dir/chroot/aptbox.tar"
 	local rpmdb_archive="$cache_dir/chroot/rpmdb.tar"
 	local chroot_archive="$cache_dir/chroot/chroot.cpio"
 	local compressor_used="$cache_dir/chroot/compressor"
@@ -82,6 +84,15 @@ __EOF__
 		verbose 'Chroot archivation complete.' ||
 		fatal 'Chroot archivation failed.'
 
+	# aptbox
+	if [ -n "$unchecked_initroot_cache" ]; then
+		archive_chroot_cache_compress_file "$aptbox_archive" \
+		tar -c -C aptbox --exclude='./var/lib/rpm/*' . &&
+		printf %s "$unchecked_initroot_cache" > "$cookie_file" &&
+			verbose 'aptbox archivation complete.' ||
+			fatal 'aptbox archivation failed.'
+	fi
+
 	printf %s "$compressor_prog" >"$compressor_used"
 
 	# Regenerate data for later cache validation.
@@ -97,6 +108,8 @@ check_chroot_cache()
 	[ -z "$no_cache" ] || return 0
 
 	local f n
+	local aptbox_archive="$cache_dir/chroot/aptbox.tar"
+	local cookie_file="$cache_dir/chroot/cookie"
 	local bad="$cache_dir/chroot/list.new/bad"
 	rm -f "$bad"
 	cat "$cache_dir"/chroot/list.new/{init,build} |
@@ -124,6 +137,13 @@ check_chroot_cache()
 	if ! cmp -s "$cache_dir"/chroot/fakeroot-options{.new,}; then
 		verbose 'Fakeroot options changed, invalidating chroot cache.'
 		rebuild_chroot_cache=1
+		return
+	fi
+
+	if [ -n "$unchecked_initroot_cache" ] &&
+	   [ -s "$cookie_file" -a -s "$aptbox_archive" ] &&
+	   [ "$unchecked_initroot_cache" = "$(cat -- "$cookie_file")" ]; then
+		# Lists are not used if initroot cache is unchecked.
 		return
 	fi
 
@@ -159,6 +179,7 @@ check_chroot_cache()
 unpack_chroot_cache()
 {
 	local compressor_prog
+	local cookie_file="$cache_dir/chroot/cookie"
 	compressor_prog=$(cat "$cache_dir/chroot/compressor")
 
 	local f
@@ -213,6 +234,18 @@ __EOF__
 	    chrootuid1 </dev/null &&
 		verbose 'First time initialization complete.' ||
 		fatal 'First time initialization failed.'
+
+	f="$cache_dir/chroot/aptbox.tar"
+	if [ -n "$unchecked_initroot_cache" ]; then
+		if [ ! -s "$f" ] ||
+		   [ "$unchecked_initroot_cache" != "$(cat -- "$cookie_file")" ]; then
+			archive_chroot_cache_compress_file "$f" \
+			tar -c -C aptbox --exclude='./var/lib/rpm/*' . &&
+			printf %s "$unchecked_initroot_cache" > "$cookie_file" &&
+				verbose 'aptbox archivation complete.' ||
+				fatal 'aptbox archivation failed.'
+		fi
+	fi
 } # unpack_chroot_cache
 
 create_chroot()

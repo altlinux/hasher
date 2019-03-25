@@ -111,6 +111,13 @@ Helpify cache_compress
 no_cache=
 Helpify no_cache
 
+# Whether the initroot cache is unchecked.
+# Unchecked initroot cache allows
+# more efficient initroot caching, but
+# its validity is responsibility of the user.
+unchecked_initroot_cache=
+Helpify unchecked_initroot_cache
+
 # whether to use content indices
 no_contents_indices=
 Helpify no_contents_indices
