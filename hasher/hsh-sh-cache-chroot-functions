@@ -101,50 +101,47 @@ check_chroot_cache()
 
 	printf %s "$save_fakeroot" >"$cache_dir/chroot/fakeroot-options.new"
 
-	while :; do
-		for f in "$cache_dir"/chroot/{compressor,rpmdb.tar,chroot.cpio}; do
-			if [ ! -s "$f" ]; then
-				verbose "Missing $f file, invalidating chroot cache."
-				rebuild_chroot_cache=1
-				break 2
+	for f in "$cache_dir"/chroot/{compressor,rpmdb.tar,chroot.cpio}; do
+		if [ ! -s "$f" ]; then
+			verbose "Missing $f file, invalidating chroot cache."
+			rebuild_chroot_cache=1
+			return
+		fi
+	done
+
+	if ! cmp -s "$cache_dir"/chroot/fakeroot-options{.new,}; then
+		verbose 'Fakeroot options changed, invalidating chroot cache.'
+		rebuild_chroot_cache=1
+		return
+	fi
+
+	if ! cmp -s "$cache_dir"/chroot/list{.new,}/init; then
+		verbose 'Init list changed, invalidating chroot cache.'
+		rebuild_chroot_cache=1
+		return
+	fi
+
+	if ! cmp -s "$cache_dir"/chroot/list{.new,}/build; then
+		verbose 'Build list changed, invalidating chroot cache.'
+		rebuild_chroot_cache=1
+		return
+	fi
+
+	rm -f "$bad"
+	cat "$cache_dir"/chroot/list.new/{init,build} |
+		while read f; do
+			n="${f##*/}"
+			if [ "$cache_dir/chroot/package.new/$n" -nt "$cache_dir/chroot/package/$n" -o \
+			     "$cache_dir/chroot/package.new/$n" -ot "$cache_dir/chroot/package/$n" ]; then
+				verbose "package $n changed, invalidating chroot cache"
+				printf %s\\n "$n" > "$bad"
+				break
 			fi
 		done
-
-		if ! cmp -s "$cache_dir"/chroot/fakeroot-options{.new,}; then
-			verbose 'Fakeroot options changed, invalidating chroot cache.'
-			rebuild_chroot_cache=1
-			break
-		fi
-
-		if ! cmp -s "$cache_dir"/chroot/list{.new,}/init; then
-			verbose 'Init list changed, invalidating chroot cache.'
-			rebuild_chroot_cache=1
-			break
-		fi
-
-		if ! cmp -s "$cache_dir"/chroot/list{.new,}/build; then
-			verbose 'Build list changed, invalidating chroot cache.'
-			rebuild_chroot_cache=1
-			break
-		fi
-
-		rm -f "$bad"
-		cat "$cache_dir"/chroot/list.new/{init,build} |
-			while read f; do
-				n="${f##*/}"
-				if [ "$cache_dir/chroot/package.new/$n" -nt "$cache_dir/chroot/package/$n" -o \
-				     "$cache_dir/chroot/package.new/$n" -ot "$cache_dir/chroot/package/$n" ]; then
-					verbose "package $n changed, invalidating chroot cache"
-					printf %s\\n "$n" >"$bad"
-					break
-				fi
-			done
-		if [ -f "$bad" ]; then
-			rebuild_chroot_cache=1
-			break
-		fi
-		break
-	done
+	if [ -f "$bad" ]; then
+		rebuild_chroot_cache=1
+		return
+	fi
 } # check_chroot_cache
 
 unpack_chroot_cache()
