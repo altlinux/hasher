@@ -146,22 +146,22 @@ check_chroot_cache()
 
 unpack_chroot_cache()
 {
-	local compressor_used
-	compressor_used=$(cat "$cache_dir/chroot/compressor")
+	local compressor_prog
+	compressor_prog=$(cat "$cache_dir/chroot/compressor")
 
 	local f
 
 	# rpmdb
 	f="$cache_dir/chroot/rpmdb.tar"
 	find aptbox/var/lib/rpm/ -mindepth 1 -depth -delete
-	$compressor_used -d <"$f" |
+	$compressor_prog -d <"$f" |
 	tar -x -C aptbox/var/lib/rpm/ &&
 		verbose "Unpacked $f." ||
 		fatal "Unpack of $f failed."
 
 	# chroot
 	f="$cache_dir/chroot/chroot.cpio"
-	$compressor_used -d <"$f" |
+	$compressor_prog -d <"$f" |
 	wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 	    chrootuid1 /.host/cpio --extract --make-directories --sparse --quiet --preserve-modification-time &&
 		verbose "Unpacked $f." ||
@@ -176,7 +176,7 @@ unpack_chroot_cache()
 cd /
 cpio --extract --make-directories --sparse --quiet --unconditional --preserve-modification-time
 __EOF__
-		$compressor_used -d <"$f" |
+		$compressor_prog -d <"$f" |
 		wlimit_time_elapsed=$wlimit_time_long wlimit_time_idle=$wlimit_time_long \
 		    chrootuid1 &&
 			verbose "Unpacked $f for fakedata." ||
