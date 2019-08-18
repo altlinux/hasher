@@ -175,7 +175,7 @@ __EOF__
 
 wlimit_time_elapsed=$wlimit_time_long \
 wlimit_time_idle=$wlimit_time_long \
-mountpoints="$required_mountpoints" \
+requested_mountpoints="$required_mountpoints" \
     chrootuid1 </dev/null &&
 	verbose 'Packages installation complete.' ||
 	fatal 'Packages installation failed.'

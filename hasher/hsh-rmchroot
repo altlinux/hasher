@@ -108,9 +108,6 @@ if [ ! -c "dev/null" ]; then
 
 	mkdir -p -m755 $verbose dev >&2
 	chgrp "$gid1" $verbose . dev >&2
-	"$makedev" ${number:+-$number} "$chroot" ||
-		fatal 'Failed to make devices.'
-	verbose "Created devices in \`$chroot/dev/'."
 fi
 
 cat >.host/entry <<__EOF__

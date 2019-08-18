@@ -49,7 +49,7 @@
 3. Requirements.
 
   File system where workdir is located should not be mounted with
-  "noexec" or "nodev" options.
+  "noexec" option.
 
   Package repository used for creating build system must provide
   following packages:

@@ -112,7 +112,7 @@ while :; do
 			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
 			shift
 			;;
-		--mountpoints) shift; mountpoints="$1"
+		--mountpoints) shift; requested_mountpoints="$1"
 			;;
 		--no-lock) no_lock=1
 			;;
@@ -196,7 +196,7 @@ cat >>"$entry" <<__EOF__
 exec ${run_script:+/.host/hsh-run} $(for n; do printf %s "\"$(quote_shell "$n")\" "; done)
 __EOF__
 
-export mountpoints
+export requested_mountpoints
 
 if [ -n "$run_as_rooter" ]; then
 	chrootuid1
