@@ -1,6 +1,6 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2008  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2003-2019  Dmitry V. Levin <ldv@altlinux.org>
 # 
 # The source package rebuild functions for the hsh-rebuild
 #
