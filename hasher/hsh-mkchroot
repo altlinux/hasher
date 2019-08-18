@@ -126,18 +126,11 @@ cd chroot
 verbose "Changed working directory to \`$chroot'."
 
 mkdir -m711 $verbose .host >&2
-mkdir -m755 $verbose .in dev dev/pts >&2
-mkdir -m1777 $verbose dev/shm >&2
-chgrp "$gid1" $verbose . dev dev/pts dev/shm >&2
+mkdir -m755 $verbose .in dev >&2
+chgrp "$gid1" $verbose . dev >&2
 mkdir -m1770 $verbose .out >&2
 chgrp "$gid2" $verbose .out >&2
 verbose 'Created directory tree.'
-
-ln -s $verbose ../proc/self/fd dev/fd >&2
-ln -s $verbose ../proc/self/fd/0 dev/stdin >&2
-ln -s $verbose ../proc/self/fd/1 dev/stdout >&2
-ln -s $verbose ../proc/self/fd/2 dev/stderr >&2
-verbose 'Created /dev symlinks.'
 
 if [ -x /usr/libexec/hasher/busybox ]; then
 	install -p -m755 $verbose /usr/libexec/hasher/busybox .host/ >&2
@@ -155,7 +148,3 @@ if [ -r "$postin" -a -x "$postin" ]; then
 	install -p -m755 $verbose "$postin" .host/postin >&2
 fi
 verbose 'Installed .host programs.'
-
-"$makedev" ${number:+-$number} "$chroot" &&
-	verbose "Created devices in \`$chroot/dev/'." ||
-	fatal 'failed to make devices.'

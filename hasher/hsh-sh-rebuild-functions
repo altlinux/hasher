@@ -232,7 +232,7 @@ find "\$HOME/RPM/RPMS/" -mindepth 2 -maxdepth 2 -type f -name \*.rpm -print0 |
 	xargs -r0 mv -f $verbose --target-directory=/.out/ -- >&2
 __EOF__
 
-	mountpoints="$required_mountpoints" \
+	requested_mountpoints="$required_mountpoints" \
 	    chrootuid2 </dev/null &&
 		verbose "rebuild of \`$sname' complete." ||
 		fatal "rebuild of \`$sname' failed."

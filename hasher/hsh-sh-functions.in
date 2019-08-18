@@ -244,7 +244,7 @@ chroot=
 entry=
 
 # variables used by hasher-priv
-mountpoints=
+requested_mountpoints=
 wlimit_time_elapsed=
 wlimit_time_idle=
 wlimit_bytes_written=
@@ -345,10 +345,6 @@ check_helpers()
 	chrootuid2="${hasher_priv_dir:-$def_hasher_priv_dir}/chrootuid2.sh"
 	[ -x "$chrootuid2" ] ||
 		fatal "$chrootuid2: cannot access chrootuid2 helper."
-
-	makedev="${hasher_priv_dir:-$def_hasher_priv_dir}/makedev.sh"
-	[ -x "$makedev" ] ||
-		fatal "$makedev: cannot access makedev helper."
 
 	check_helpers_done=1
 }
