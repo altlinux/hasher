@@ -186,6 +186,10 @@ rpmi=
 save_fakeroot=
 Helpify save_fakeroot
 
+# whether to copy /etc/hosts, /etc/host.conf and /etc/resolv.conf from host system
+install_resolver_configuration_files=
+Helpify install_resolver_configuration_files
+
 # target architecture.
 def_target="$(rpm --showrc |sed -ne 's/^install arch[[:space:]]*:[[:space:]]*\([^[:space:]]\+\).*/\1/p')"
 [ -n "$def_target" ] || def_target="$(uname -m)"

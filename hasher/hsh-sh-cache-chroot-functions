@@ -302,18 +302,20 @@ __EOF__
 	purge_chroot_in
 	update_RPM_database --nodeps $initlist
 
-	for f in /etc/host.conf /etc/hosts /etc/resolv.conf; do
-		if [ -r "$f" -a -s "$f" ]; then
-			create_entry_fakeroot_header
-			cat >>"$entry" <<__EOF__
+	if [ -n "$install_resolver_configuration_files" ]; then
+		for f in /etc/host.conf /etc/hosts /etc/resolv.conf; do
+			if [ -r "$f" -a -s "$f" ]; then
+				create_entry_fakeroot_header
+				cat >>"$entry" <<__EOF__
 cat >$f
 __EOF__
-			wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
-			    chrootuid1 <"$f" &&
-				verbose "Installed $f file." ||
-				fatal "Failed to install $f file."
-		fi
-	done
+				wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
+				    chrootuid1 <"$f" &&
+					verbose "Installed $f file." ||
+					fatal "Failed to install $f file."
+			fi
+		done
+	fi
 
 	# At this stage, RPM inside chroot is fully functional.
 
