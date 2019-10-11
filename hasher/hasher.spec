@@ -33,6 +33,9 @@ Requires: libshell >= 0:0.0.2-alt4
 # due to def_cache_compress
 Requires: lz4
 
+# due to hsh-fakedev removal
+Conflicts: mkimage < 0.2.28
+
 Obsoletes: pkg-build-utils, libbte
 
 BuildPreReq: help2man, libshell >= 0:0.0.2-alt4
