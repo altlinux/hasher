@@ -118,7 +118,6 @@ rpmbuild -bs --nodeps \\
 	--define "_sourcedir \$HOME/in/source" \\
 	${srcrpmdir:+--define '_srcrpmdir '$srcrpmdir} \\
 	-- "\$HOME/in/spec"/*
-date +%s -r "\$HOME/in/spec"/* > "\$HOME/in/SOURCE_DATE_EPOCH"
 # Once srpm is created, its sources are no longer needed.
 rm -rf "\$HOME/in/spec" "\$HOME/in/source"
 __EOF__
@@ -142,6 +141,7 @@ case "\$header" in
 	' ed ab ee db '??' '??' 00 01')
 		mkdir $verbose -m700 -- "\$HOME/in/srpm" >&2
 		install -pm644 $verbose "$(quote_shell "$sname")" "\$HOME/in/srpm/" >&2
+		rpmquery --qf '%{buildtime}\\n' -p -- "$(quote_shell "$sname")" > "\$HOME/in/SOURCE_DATE_EPOCH"
 		echo src.rpm
 		exit 0
 		;;
@@ -155,6 +155,7 @@ if [ -n "\$spec" -a "\$spec" = "\${spec#*/}" ]; then
 	mkdir $verbose -m700 -- "\$HOME/in/spec" "\$HOME/in/source" >&2
 	tar $verbose -xf "$(quote_shell "$sname")" -C "\$HOME/in/source/" >&2
 	mv $verbose "\$HOME/in/source/\$spec" "\$HOME/in/spec/" >&2
+	date +%s -r "\$HOME/in/spec"/\$spec > "\$HOME/in/SOURCE_DATE_EPOCH"
 	echo pkg.tar
 	exit 0
 fi
