@@ -127,6 +127,7 @@ __EOF__
 		fatal "$sname: failed to create src.rpm file"
 } # make_srpm_from_pkgtar
 
+source_package_type=
 install_source_package()
 {
 	copy_chroot_incoming "$source"
@@ -160,13 +161,12 @@ if [ -n "\$spec" -a "\$spec" = "\${spec#*/}" ]; then
 	exit 0
 fi
 __EOF__
-	local source_type
-	source_type="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
+	source_package_type="$(wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short wlimit_bytes_written=$wlimit_bytes_out \
 		       chrootuid2 </dev/null)" &&
 		verbose "$sname: installed source file." ||
 		fatal "$sname: failed to install source file."
 	purge_chroot_in
-	case "$source_type" in
+	case "$source_package_type" in
 		src.rpm)
 			;;
 		pkg.tar)

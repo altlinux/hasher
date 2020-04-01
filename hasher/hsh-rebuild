@@ -195,7 +195,7 @@ if [ -z "$nodeps" ]; then
 	# Create query script.
 	if [ -n "$prog_query_req" ]; then
 		install -p -m755 $verbose "$prog_query_req" chroot/.host/query_req >&2
-	elif [ -n "$query_repackage" ]; then
+	elif [ -n "$query_repackage" ] && [ "$source_package_type" = src.rpm ]; then
 		# Unpack srpm and treat it as pkg.tar to calculate the build deps.
 		# Since rpm-4.13, we could use rpmspec for a lightweight query instead
 		# of creating an srpm; for now, we exclude the sources and patches.
