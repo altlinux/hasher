@@ -164,23 +164,6 @@ lock_workdir
 [ -d "$chroot" ] || fatal "$chroot: cannot find chroot."
 deduce_lock_hasher_priv
 
-# Create rebuild script.
-if [ -n "$prog_rebuild" ]; then
-	install -p -m755 $verbose "$prog_rebuild" chroot/.host/rebuild >&2
-else
-	cat >"chroot/.host/rebuild" <<__EOF__
-#!/bin/sh -le
-${verbose:+set -x}
-export -n target ||:
-SOURCE_DATE_EPOCH="\$(cat -- "\$HOME/in/SOURCE_DATE_EPOCH")"
-touch -d "@\$SOURCE_DATE_EPOCH" -- "\$HOME/in/SOURCE_DATE_EPOCH"
-export SOURCE_DATE_EPOCH
-exec >&2 time rpmbuild --rebuild --target="\$target" $nodeps $rpmargs "\$@"
-__EOF__
-	chmod 755 "chroot/.host/rebuild"
-	verbose 'Created rebuild script.'
-fi
-
 . hsh-sh-rebuild-functions
 
 install_source_package
@@ -252,6 +235,23 @@ __EOF__
 fi
 
 [ -z "$install_only" ] || exit 0
+
+# Create rebuild script.
+if [ -n "$prog_rebuild" ]; then
+	install -p -m755 $verbose "$prog_rebuild" chroot/.host/rebuild >&2
+else
+	cat >"chroot/.host/rebuild" <<__EOF__
+#!/bin/sh -le
+${verbose:+set -x}
+export -n target ||:
+SOURCE_DATE_EPOCH="\$(cat -- "\$HOME/in/SOURCE_DATE_EPOCH")"
+touch -d "@\$SOURCE_DATE_EPOCH" -- "\$HOME/in/SOURCE_DATE_EPOCH"
+export SOURCE_DATE_EPOCH
+exec >&2 time rpmbuild --rebuild --target="\$target" $nodeps $rpmargs "\$@"
+__EOF__
+	chmod 755 "chroot/.host/rebuild"
+	verbose 'Created rebuild script.'
+fi
 
 # Build the package.
 purge_chroot_out
