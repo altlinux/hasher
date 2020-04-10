@@ -72,6 +72,9 @@ make_srpm_from_pkgtar()
 	# The value must be quoted appropriately, so that it can be inserted
 	# into shell code text (example: srcrpmdir='"$HOME/in/srpm"'):
 	local srcrpmdir="${1-}" # optional; absent/empty means default
+	local srpm_fast_payload=
+	[ -n "$build_srpm_only" ] ||
+		srpm_fast_payload="--define '_source_payload w1.gzdio'"
 	if [ -z "$nodeps" ]; then
 		# Calculate, check and install BuildRequires(pre) dependencies.
 		create_filter_spec_buildreq
@@ -109,11 +112,13 @@ __EOF__
 	create_entry_header
 	cat >>"$entry" <<__EOF__
 ${srcrpmdir:+mkdir $verbose -m700 -- $srcrpmdir >&2}
+SOURCE_DATE_EPOCH="\$(cat -- "\$HOME/in/SOURCE_DATE_EPOCH")"
+export SOURCE_DATE_EPOCH
 rpmbuild -bs --nodeps \\
 	--target="$(quote_shell "${target:-$def_target}")" \\
 	--define '_allow_undefined_macros 1' \\
 	$rpmargs \\
-	--define "_source_payload w1.gzdio" \\
+	$srpm_fast_payload \\
 	--define "_specdir \$HOME/in/spec" \\
 	--define "_sourcedir \$HOME/in/source" \\
 	${srcrpmdir:+--define '_srcrpmdir '$srcrpmdir} \\

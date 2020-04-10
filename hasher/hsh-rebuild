@@ -21,6 +21,7 @@ Usage: $PROG [options] [<path-to-workdir>] <source-package>
 
 Options:
   --args=ARGS                       extra arguments for rpmbuild;
+  --build-srpm-only                 do not build binary packages, produce src.rpm only;
   --excludedocs                     do not install documentation files;
   --hasher-priv-dir=DIR             hasher-priv directory;
   --install-only                    do not build, stop after installing build dependencies;
@@ -55,16 +56,19 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l args:,excludedocs,hasher-priv-dir:,install-only,mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,save-fakeroot,source-only,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l args:,build-srpm-only,excludedocs,hasher-priv-dir:,install-only,mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,save-fakeroot,source-only,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
 nodeps=
 install_only=
 source_only=
+build_srpm_only=
 while :; do
 	case "$1" in
 		--args) shift; rpmargs="$1"
+			;;
+		--build-srpm-only) build_srpm_only=1
 			;;
 		--excludedocs) exclude_docs=--excludedocs
 			;;
@@ -135,6 +139,10 @@ done
 
 if [ -n "$prog_query_req" -a -n "$query_repackage" ]; then
 	show_usage '--query-req-prog and --query-repackage are mutually exclusive options.'
+fi
+
+if [ -n "$build_srpm_only" ] && [ -n "$prog_rebuild" ]; then
+	show_usage '--rebuild-prog does not make sense with --build-srpm-only.'
 fi
 
 if [ -z "$workdir" ]; then
@@ -236,11 +244,12 @@ fi
 
 [ -z "$install_only" ] || exit 0
 
-# Create rebuild script.
-if [ -n "$prog_rebuild" ]; then
-	install -p -m755 $verbose "$prog_rebuild" chroot/.host/rebuild >&2
-else
-	cat >"chroot/.host/rebuild" <<__EOF__
+if [ -z "$build_srpm_only" ]; then
+	# Create rebuild script.
+	if [ -n "$prog_rebuild" ]; then
+		install -p -m755 $verbose "$prog_rebuild" chroot/.host/rebuild >&2
+	else
+		cat >"chroot/.host/rebuild" <<__EOF__
 #!/bin/sh -le
 ${verbose:+set -x}
 export -n target ||:
@@ -249,16 +258,26 @@ touch -d "@\$SOURCE_DATE_EPOCH" -- "\$HOME/in/SOURCE_DATE_EPOCH"
 export SOURCE_DATE_EPOCH
 exec >&2 time rpmbuild --rebuild --target="\$target" $nodeps $rpmargs "\$@"
 __EOF__
-	chmod 755 "chroot/.host/rebuild"
-	verbose 'Created rebuild script.'
+		chmod 755 "chroot/.host/rebuild"
+		verbose 'Created rebuild script.'
+	fi
+
+	# Build the package.
+	purge_chroot_out
+	run_rebuild
+
+	# Execute sisyphus_check for output.
+	run_sisyphus_check '/.out' "$no_sisyphus_check_out" gpg
+else
+	create_entry_header
+	cat >>"$entry" <<__EOF__
+find "\$HOME/in/srpm" -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
+	xargs -r0 mv -f $verbose --target-directory=/.out/ -- >&2
+__EOF__
+	chrootuid2 </dev/null &&
+		verbose "copying of src.rpm for \`$sname' complete." ||
+		fatal "copying of src.rpm for \`$sname' failed."
 fi
-
-# Build the package.
-purge_chroot_out
-run_rebuild
-
-# Execute sisyphus_check for output.
-run_sisyphus_check '/.out' "$no_sisyphus_check_out" gpg
 
 # Copy binaries from chroot.
 case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |LC_ALL=C grep -c '\.src\.rpm$'` in
