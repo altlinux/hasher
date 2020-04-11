@@ -154,7 +154,7 @@ prog_rebuild=
 Helpify rebuild_prog prog_rebuild
 
 # whether to repackage the source before query for requirements
-query_repackage=
+query_repackage=1
 Helpify query_repackage
 
 # noinstall package pattern list
