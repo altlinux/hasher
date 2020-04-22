@@ -262,7 +262,6 @@ if [ -z "$build_srpm_only" ]; then
 ${verbose:+set -x}
 export -n target ||:
 SOURCE_DATE_EPOCH="\$(cat -- "\$HOME/in/SOURCE_DATE_EPOCH")"
-touch -d "@\$SOURCE_DATE_EPOCH" -- "\$HOME/in/SOURCE_DATE_EPOCH"
 export SOURCE_DATE_EPOCH
 exec >&2 time rpmbuild --rebuild --target="\$target" $nodeps $rpmargs "\$@"
 __EOF__
