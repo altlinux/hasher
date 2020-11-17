@@ -384,7 +384,7 @@ update_RPM_database()
 	for f; do
 		printf '%s\n' "$f"
 	done |sed 's/[][?*\]/\\&/g' >"$aptbox/rpmi.list"
-	"$aptbox/setarch" rpmi -i $verbose $hash $exclude_docs $extra_args --dbpath "$aptbox/var/lib/rpm" \
+	"$aptbox/setarch" rpmi -i $verbose $hash ${exclude_docs:+--excludedocs} $extra_args --dbpath "$aptbox/var/lib/rpm" \
 	     --ignorearch --ignoresize --noorder --noscripts --notriggers --justdb \
 	     "$aptbox/rpmi.list" &&
 		verbose 'RPM database updated.' ||
