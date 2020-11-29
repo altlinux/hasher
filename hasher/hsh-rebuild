@@ -20,7 +20,7 @@ Usage: $PROG [options] [<path-to-workdir>] <source-package>
 <path-to-workdir> must be valid writable directory.
 
 Options:
-  --args=ARGS                       extra arguments for rpmbuild;
+  --args=ARGS                       a deprecated synonym for --rpmbuild-args;
   --build-srpm-only                 do not build binary packages, produce src.rpm only;
   --excludedocs                     do not install documentation files;
   --hasher-priv-dir=DIR             hasher-priv directory;
@@ -40,6 +40,7 @@ Options:
                                     overriding --repo option for binary packages;
   --repo-src=DIR                    source packages destination directory,
                                     overriding --repo option for source packages;
+  --rpmbuild-args=ARGS              extra arguments for rpmbuild;
   --source-only                     do not build, stop after installing source package;
   --target=ARCH                     target architecture;
   --wait-lock                       wait for workdir and hasher-priv locks;
@@ -57,7 +58,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l args:,build-srpm-only,excludedocs,hasher-priv-dir:,install-only,mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,no-query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,save-fakeroot,source-only,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l args:,build-srpm-only,excludedocs,hasher-priv-dir:,install-only,mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,no-query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,rpmbuild-args:,save-fakeroot,source-only,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -68,8 +69,6 @@ build_srpm_only=
 query_repackage_option=
 while :; do
 	case "$1" in
-		--args) shift; rpmargs="$1"
-			;;
 		--build-srpm-only) build_srpm_only=1
 			;;
 		--excludedocs) exclude_docs=--excludedocs
@@ -120,6 +119,8 @@ while :; do
 		--repo-bin) shift; repo_bin="$1"
 			;;
 		--repo-src) shift; repo_src="$1"
+			;;
+		--rpmbuild-args|--args) shift; rpmargs="$1"
 			;;
 		--source-only) source_only=1
 			;;

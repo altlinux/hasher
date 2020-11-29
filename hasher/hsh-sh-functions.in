@@ -176,7 +176,7 @@ Helpify repo_src
 
 # extra arguments for rpmbuild
 rpmargs=
-Helpify build_args rpmargs
+Helpify rpmbuild_args rpmargs
 
 # path to rpmi
 def_rpmi=rpmi

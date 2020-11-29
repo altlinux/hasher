@@ -23,7 +23,7 @@ Usage: $PROG [options] [<path-to-workdir>] <package>...
 Options:
   --apt-config=FILE                 path to custom apt.conf file;
   --apt-prefix=DIR                  path to apt directory prefix (e.g. /usr);
-  --build-args=ARGS                 extra arguments for rpmbuild;
+  --build-args=ARGS                 a deprecated synonym for --rpmbuild-args;
   --build-srpm-only                 do not build binary packages, produce src.rpm only;
   --cleanup-only                    do not build at all, just cleanup workdir;
   --eager-cleanup                   cleanup build environment after each
@@ -66,6 +66,7 @@ Options:
                                     overriding --repo option for binary packages;
   --repo-src=DIR                    source packages destination directory,
                                     overriding --repo option for source packages;
+  --rpmbuild-args=ARGS              extra arguments for rpmbuild;
   --save-fakeroot                   save fakeroot state;
   --target=ARCH                     target architecture;
   --wait-lock                       wait for workdir and hasher-priv locks;
@@ -84,7 +85,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,build-srpm-only,cache-compress:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,query-repackage,no-query-repackage,query-req-prog:,printenv,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,save-fakeroot,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,with-qemu:,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,build-srpm-only,cache-compress:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,query-repackage,query-req-prog:,printenv,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,rpmbuild-args:,save-fakeroot,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,with-qemu:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -102,8 +103,6 @@ while :; do
 		--apt-prefix)
 			apt_prefix="$(opt_check_dir "$1" "$2")"
 			shift
-			;;
-		--build-args) shift; rpmargs="$1"
 			;;
 		--build-srpm-only) build_srpm_only="$1"
 			;;
@@ -187,6 +186,8 @@ while :; do
 		--repo-bin) shift; repo_bin="$1"
 			;;
 		--repo-src) shift; repo_src="$1"
+			;;
+		--rpmbuild-args|--build-args) shift; rpmargs="$1"
 			;;
 		--save-fakeroot) save_fakeroot=1
 			;;
@@ -391,7 +392,7 @@ handle_package()
 		${prog_query_req:+--query-req-prog="$prog_query_req"} \
 		$query_repackage_option \
 		${number:+--number=$number} \
-		${rpmargs:+--args="$rpmargs"} \
+		${rpmargs:+--rpmbuild-args="$rpmargs"} \
 		-- "$f"
 	if [ -z "$lazy_cleanup" -a -z "$initroot_only" ]; then
 		[ ! -d chroot ] || hsh-rmchroot --no-lock "$workdir" \
