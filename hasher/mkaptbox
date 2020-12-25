@@ -203,9 +203,20 @@ if printf %s "$apt_libdir" |LC_ALL=C grep -qs '[`"$\]'; then
 	fatal "$LD_LIBRARY_PATH: illegal symbols in LD_LIBRARY_PATH."
 fi
 
+# Create setarch wrapper.
+setarch=
+if setarch "${target:-$def_target}" true 2>/dev/null; then
+	setarch="setarch \"$(quote_shell "${target:-$def_target}")\""
+fi
+cat >setarch <<__EOF__
+#!/bin/sh -e
+exec $setarch "\$@"
+__EOF__
+chmod $verbose a+x setarch >&2
+
 # create aptbox version of ~/.rpmrc if necessary.
 aptbox_home=
-rpm_showrc="$(rpm --showrc)"
+rpm_showrc="$("$aptbox/setarch" rpm --showrc)"
 current_arch="$(printf %s "$rpm_showrc" |sed -ne 's/^install arch[[:space:]]*:[[:space:]]*\([^[:space:]]\+\).*/\1/p')"
 [ -n "$current_arch" ] ||
 	current_arch="$(uname -m)"
@@ -223,16 +234,7 @@ if [ -n "$alternate_arch" ] &&
 	echo "arch_compat: $current_arch: ${target:-$def_target}" >> "$aptbox_home/.rpmrc"
 fi
 
-# create wrappers.
-setarch=
-if setarch "${target:-$def_target}" true 2>/dev/null; then
-	setarch="setarch \"$(quote_shell "${target:-$def_target}")\""
-fi
-	cat >setarch <<__EOF__
-#!/bin/sh -e
-exec $setarch "\$@"
-__EOF__
-chmod $verbose a+x setarch >&2
+# Create apt wrappers.
 apt_config_file="$aptbox/etc/apt/apt.conf"
 for n in apt-cache apt-config apt-get; do
 	cat >"$n" <<__EOF__
@@ -320,7 +322,7 @@ __EOF__
 verbose "Created APT source list file \`$target_config'."
 
 # create a new rpm database.
-rpmdb --initdb --dbpath "$aptbox/var/lib/rpm"
+"$aptbox/setarch" rpmdb --initdb --dbpath "$aptbox/var/lib/rpm"
 verbose "Created RPM database in \`./var/lib/rpm/'."
 
 [ -z "$update" ] || "$aptbox/apt-get" update $([ -n "$verbose" ] || echo -qq)
