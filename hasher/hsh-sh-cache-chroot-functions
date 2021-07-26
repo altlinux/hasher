@@ -277,6 +277,8 @@ mkdir -p /sys
 rm -f /etc/rpm/macros.db1
 # WORKAROUND: glibc-locales is too large
 echo '%_install_langs ${install_langs:-$def_install_langs}' >>/etc/rpm/macros
+# Force the treatment of scriptlet errors as expected in install checks in Girar
+echo '%_rpmscript_werror 1' >>/etc/rpm/macros
 # /WORKAROUND
 rpmdb --initdb
 __EOF__
