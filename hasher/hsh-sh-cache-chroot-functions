@@ -366,6 +366,7 @@ __EOF__
 		create_entry_fakeroot_header
 		cat >>"$entry" <<__EOF__
 ldconfig
+rpmdb --rebuilddb
 if type adjust_kernel_headers >/dev/null 2>&1; then
 	adjust_kernel_headers
 fi
