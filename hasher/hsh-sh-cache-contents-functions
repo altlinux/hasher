@@ -65,8 +65,8 @@ create_contents_part()
 	# Alternatives-like virtual paths should map to themselves.
 	local Q2="[%{PROVIDENAME}\t%{PROVIDENAME}\t$NVRA\n]"
 
-	# Prepare egrep regular expression.
-	# We use egrep because it seems to be the fastest tool.
+	# Prepare grep -E regular expression.
+	# We use grep -E because it seems to be the fastest tool.
 	# And our special "leading slash" trick makes it even faster.
 	local dirs_or; dirs_or=$(printf %s "$contents_index_bin_dirs" |sed 's@^/@@;s@:/@|@g')
 	local RE="^/($dirs_or)/[^/]+$tab"
@@ -88,7 +88,7 @@ create_contents_part()
 	else
 		pkglist-query "$Q1$Q2" "$ref"
 	fi |
-		LC_ALL=C egrep "$RE" >"$tmpdir"/part || [ $? -eq 1 ]
+		LC_ALL=C grep -E "$RE" >"$tmpdir"/part || [ $? -eq 1 ]
 
 	if [ -s "$tmpdir"/part ]; then
 

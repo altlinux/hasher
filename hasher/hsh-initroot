@@ -191,7 +191,7 @@ $(printf %s "$initlist" |
 $(printf %s "$initlist" |
   LC_ALL=C grep '/filesystem[-_]' ||:)
 $(printf %s "$initlist" |
-  LC_ALL=C egrep -v '/(setup|filesystem)[-_]' ||:)"
+  LC_ALL=C grep -E -v '/(setup|filesystem)[-_]' ||:)"
 	initlist="$(printf %s "$initlist" |
 		    LC_ALL=C grep -v '^$' ||:)"
 fi
