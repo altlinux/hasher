@@ -13,7 +13,7 @@ ALIASES = hsh-shell
 AUTO_FUNCTIONS = hsh-sh-functions
 HELPERS = hsh-buildreq-filter hsh-rpmi-print-files
 FUNCTIONS = $(AUTO_FUNCTIONS) hsh-sh-cache-chroot-functions hsh-sh-cache-contents-functions hsh-sh-rebuild-functions
-PROGRAMS = hsh hsh-initroot hsh-install hsh-mkchroot hsh-rebuild hsh-rmchroot hsh-run mkaptbox
+PROGRAMS = hsh hsh-initroot hsh-install hsh-mkchroot hsh-rebuild hsh-rmchroot hsh-run hsh-copy mkaptbox
 MAN1PAGES = $(PROGRAMS:=.1) $(ALIASES:=.1)
 MAN7PAGES = $(PROJECT).7
 MANPAGES = $(MAN1PAGES) $(MAN7PAGES)

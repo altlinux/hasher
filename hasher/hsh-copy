@@ -1,0 +1,212 @@
+#!/bin/sh -ef
+#
+# Put specified file or directory inside hasher chroot.
+#
+# Copyright (C) 2022  Arseny Maslennikov <arseny@altlinux.org>
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+
+. hsh-sh-functions
+
+show_help()
+{
+        cat <<EOF
+hsh-copy - put specified file or directory inside hasher chroot
+
+Usage: $PROG [options] --workdir=<path-to-workdir> <source>
+  or:  $PROG [options] --workdir=<path-to-workdir> <source> [<sources>] <destination>
+
+<path-to-workdir> must be a valid hasher directory.
+
+This program copies the contents of a file or directory into the hasher chroot,
+either in the home directory or at a specified location in the chroot. If a
+local directory is specified as a source, its contents are recursively copied
+to the destination.
+To write the files inside the chroot, hsh-copy(1) assumes privileges of one of
+the satellite users. By default, it runs as builder. All other file object
+attributes, except the file uid or gid, are reproduced on each object.
+EOF
+	cat <<EOF
+
+Options:
+  --builder                 run program as builder;
+  --hasher-priv-dir=DIR     hasher-priv directory;
+  --number=NUMBER           subconfig identifier;
+  --rooter                  run program as pseudoroot;
+  --wait-lock               wait for workdir and hasher-priv locks;
+  --no-wait-lock            do not wait for workdir and hasher-priv locks;
+  --workdir=DIR             path to workdir to use;
+  -q, --quiet               try to be more quiet;
+  -v, --verbose             print all file names being copied and other info;
+  -V, --version             print program version and exit;
+  -h, --help                show this text and exit.
+
+Report bugs to https://bugzilla.altlinux.org/
+
+EOF
+	exit
+}
+
+# set_workdir will change current directory as a side effect.
+# We have to ensure that files denoted by relative paths will still be
+# accessible afterwards.
+# saved_cwd is expected to be set in caller scope.
+resolve_relatives() {
+	for __i; do case "$__i" in
+	/*)
+		printf "%s " "\"$(quote_shell "$__i")\"" ;;
+	*)
+		printf "%s " "\"$(quote_shell "$saved_cwd/$__i")\"" ;;
+	esac; done
+}
+
+run_as_rooter=
+no_lock=
+
+
+TEMP="$(getopt -n $PROG -o $getopt_common_opts -l builder,rooter,no-lock,number,wait-lock,no-wait-lock,workdir:,$getopt_common_longopts -- "$@")" || show_usage
+prepare_cgroup "$TEMP" "$0" "$@"
+eval set -- "$TEMP"
+
+while :; do
+	case "$1" in
+		--builder) run_as_rooter=
+			;;
+		--hasher-priv-dir)
+			hasher_priv_dir="$(opt_check_dir "$1" "$2")"
+			shift
+			;;
+		--no-lock) no_lock=1
+			;;
+		--number)
+			number="$(opt_check_number_ge_0 "$1" "$2")"
+			shift
+			;;
+		--rooter) run_as_rooter=1
+			;;
+		--wait-lock) lock_nowait=
+			;;
+		--no-wait-lock) lock_nowait=1
+			;;
+		--workdir) shift; workdir="$1"
+			;;
+		--) shift; break
+			;;
+		*) parse_common_option "$1"
+			;;
+	esac
+	shift
+done
+
+# At least one argument.
+[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+
+# cwd is saved to $saved_cwd when hsh-sh-functions are imported.
+if [ -z "$workdir" ]; then
+	show_usage "Working directory not set."
+else
+	set_workdir
+fi
+
+lock_workdir
+[ -d "$chroot" ] || fatal "$chroot: cannot find chroot."
+deduce_lock_hasher_priv
+
+cpio_create() {
+	"$chroot/.host/cpio" --quiet --create -Hnewc "$@"
+}
+
+# $dest is expected to be set in caller scope.
+# $dest_is_directory is expected to be set in caller scope.
+hsh_copy_file_objects() {
+	[ $# -ne 0 ] || return 0
+	if [ -n "$run_as_rooter" ]; then
+		create_entry_fakeroot_header
+		local cmd="chrootuid1"
+	else
+		create_entry_header
+		local cmd="chrootuid2"
+	fi
+
+	local td
+	local find="$chroot"/.host/find
+	local cpio="$chroot"/.host/cpio
+	[ -n "$dest" ] || dest="\$HOME"
+	td="$(mktemp -d -t hsh-copy.XXXXXXXXXX)"
+	trap "rm -rf -- $td" HUP INT QUIT TERM
+
+	local opt_deref basei dir_i i
+	opt_deref=
+	cpio_create < /dev/null > "$td"/hsh-copy-file.cpio
+	for i; do
+	if [ -d "$i" ]; then
+		basei="."
+		dir_i="$i"
+	elif [ -e "$i" ]; then
+		basei="$(basename "$i")"
+		dir_i="$(dirname "$i")"
+		opt_deref=-L
+	else
+		rm -rf -- "$td"
+		fatal "cannot access \"$(quote_shell "$i")\": No such file or directory"
+	fi
+	(cd "$dir_i" && $find -- ./"$basei" -print0 |
+		cpio_create -0 $opt_deref --append -O "$td"/hsh-copy-file.cpio)
+	done
+	# If we're passed a single non-directory source, and one
+	# of the following 2 is true:
+	# - the destination path exists and non-directory
+	# - the destination path does not exist
+	# then destination must refer to a non-directory.
+	cat >>"$entry" <<__EOF__
+cd
+if [ -n "$dest_is_directory" ] || [ -d "$dest" ]; then
+	mkdir $verbose -p "$dest"
+	/.host/cpio ${verbose:- --quiet} -i -u -d -D "$dest"
+else
+	desttmp="\$(mktemp -d)"
+	/.host/cpio ${verbose:- --quiet} -i -u -d -D "\$desttmp"
+	mv $verbose "\$desttmp"/* "$dest"
+	/.host/find "\$desttmp" -depth -delete
+fi
+__EOF__
+	$cmd < "$td"/hsh-copy-file.cpio
+	rm -rf -- "$td"
+	trap - HUP INT QUIT TERM
+}
+
+# Set destination path to the last command line argument,
+# if it is not the first.
+# If destination path is specified, store it separately
+# from other command line arguments.
+if [ "$#" -gt 1 ]; then
+	__xi=1
+	for i; do
+		if [ "$__xi" -eq "$#" ]; then
+			dest="$i"
+		else
+			__temp="${__temp}$(printf "%s " "\"$(quote_shell "$i")\"")"
+		fi
+		__xi=$((__xi + 1))
+	done
+	eval set -- "$__temp"
+
+	# Whether $dest must be a directory.
+	dest_is_directory=1
+	# If a single non-directory source is specified,
+	# then destination may refer to a non-directory.
+	if [ "$#" -eq 1 ]; then
+		(cd "$saved_cwd"; [ -d "$1" ]) || dest_is_directory=
+	fi
+elif [ "$#" -eq 1 ]; then
+	dest= # home directory inside chroot
+	dest_is_directory=1
+fi
+
+TEMP="$(resolve_relatives "$@")"
+eval set -- "$TEMP"
+
+# Copy all remaining arguments.
+hsh_copy_file_objects "$@"
