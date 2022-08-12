@@ -17,6 +17,13 @@ show_help()
 hsh - build package using hasher utilities.
 
 Usage: $PROG [options] [<path-to-workdir>] <package>...
+  or:  $PROG [options] --workdir=DIR <package>...
+  or:  $PROG [options] --initroot-only [<path-to-workdir>]
+  or:  $PROG [options] --initroot-only --workdir=DIR
+  or:  $PROG [options] --cleanup-only [<path-to-workdir>]
+  or:  $PROG [options] --cleanup-only --workdir=DIR
+  or:  $PROG [options] --printenv-only [<path-to-workdir>]
+  or:  $PROG [options] --printenv-only --workdir=DIR
 
 <path-to-workdir> must be valid writable directory.
 
@@ -74,6 +81,7 @@ Options:
   --without-stuff                   do not use built packages;
   --with-stuff                      allow use of built packages;
   --with-qemu=ARCH                  copy qemu executable into the chroot .host directory;
+  --workdir=DIR                     path to workdir to use;
   -q, --quiet                       try to be more quiet;
   -v, --verbose                     print a message for each action;
   -V, --version                     print program version and exit;
@@ -85,7 +93,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,build-srpm-only,cache-compress:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,query-repackage,query-req-prog:,printenv,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,rpmbuild-args:,save-fakeroot,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,with-qemu:,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,build-srpm-only,cache-compress:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,query-repackage,query-req-prog:,printenv,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,rpmbuild-args:,save-fakeroot,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,with-qemu:,workdir:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
@@ -94,6 +102,7 @@ initroot_only=
 printenv_only=
 build_srpm_only=
 query_repackage_option=
+workdir_from_opt=
 while :; do
 	case "$1" in
 		--apt-config)
@@ -207,6 +216,9 @@ while :; do
 			qemu_arch="$2"
 			shift
 			;;
+		--workdir) shift; workdir="$1"
+			workdir_from_opt=1
+			;;
 		--contents-index-*)
 			message "Warning: obsolete option $1 ignored."
 			shift
@@ -231,7 +243,10 @@ if [ -n "$prog_query_req" ] && [ -n "$query_repackage_option" ]; then
 fi
 
 if [ -z "$initroot_only" -a -z "$cleanup_only" -a -z "$printenv_only" ]; then
-	if [ -z "$workdir" ]; then
+	if [ -n "$workdir_from_opt" ]; then
+		# At least one argument.
+		[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+	elif [ -z "$workdir" ]; then
 		# At least two arguments.
 		[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
 	else
@@ -241,7 +256,9 @@ if [ -z "$initroot_only" -a -z "$cleanup_only" -a -z "$printenv_only" ]; then
 
 	[ -e "$1" ] || fatal "$1: no such file or directory."
 
-	if [ -z "$workdir" -o -d "${1:-}" ]; then
+	if [ -n "$workdir_from_opt" ]; then
+		set_workdir
+	elif [ -z "$workdir" -o -d "${1:-}" ]; then
 		set_workdir "${1:-}"
 		shift
 	else
@@ -251,7 +268,10 @@ if [ -z "$initroot_only" -a -z "$cleanup_only" -a -z "$printenv_only" ]; then
 	# At least one argument.
 	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
 else
-	if [ -z "$workdir" ]; then
+	if [ -n "$workdir_from_opt" ]; then
+		# No arguments.
+		[ "$#" -eq 0 ] || show_usage 'Too many arguments.'
+	elif [ -z "$workdir" ]; then
 		# Exactly one argument.
 		[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
 		[ "$#" -le 1 ] || show_usage 'Too many arguments.'

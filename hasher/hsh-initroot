@@ -16,6 +16,7 @@ show_help()
 hsh-initroot - fill hasher chroot created by hsh-mkchroot with initial set of packages.
 
 Usage: $PROG [options] [<path-to-workdir>]
+  or:  $PROG [options] --workdir=DIR
 
 <path-to-workdir> must be valid hasher directory.
 
@@ -37,6 +38,7 @@ Options:
   --save-fakeroot           save fakeroot state;
   --wait-lock               wait for workdir and hasher-priv locks;
   --no-wait-lock            do not wait for workdir and hasher-priv locks;
+  --workdir=DIR             path to workdir to use;
   -q, --quiet               try to be more quiet;
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;
@@ -48,13 +50,14 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l cache-compress:,cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-lock,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,wait-lock,no-wait-lock,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l cache-compress:,cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-lock,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,wait-lock,no-wait-lock,workdir:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
 : ${init_list:=$pkg_init_list}
 : ${build_list:=$pkg_build_list}
 
+workdir_from_opt=
 while :; do
 	case "$1" in
 		--excludedocs) exclude_docs=--excludedocs
@@ -105,6 +108,9 @@ while :; do
 			;;
 		--no-wait-lock) lock_nowait=1
 			;;
+		--workdir) shift; workdir="$1"
+			workdir_from_opt=1
+			;;
 		--contents-index-*)
 			message "Warning: obsolete option $1 ignored."
 			shift
@@ -126,7 +132,9 @@ else
 	[ "$#" -le 1 ] || show_usage 'Too many arguments.'
 fi
 
-if [ "$#" -ge 1 ]; then
+if [ -n "$workdir_from_opt" ]; then
+	set_workdir
+elif [ "$#" -ge 1 ]; then
 	set_workdir "$1"
 	shift
 else

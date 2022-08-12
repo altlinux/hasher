@@ -16,6 +16,7 @@ show_help()
 hsh-rebuild - rebuild source package in chroot prepared by hsh-initroot.
 
 Usage: $PROG [options] [<path-to-workdir>] <source-package>
+  or:  $PROG [options] --workdir=DIR <source-package>
 
 <path-to-workdir> must be valid writable directory.
 
@@ -47,6 +48,7 @@ Options:
   --no-wait-lock                    do not wait for workdir and hasher-priv locks;
   --without-stuff                   do not generate apt index files;
   --with-stuff                      generate apt index files;
+  --workdir=DIR                     path to workdir to use;
   -q, --quiet                       try to be more quiet;
   -v, --verbose                     print a message for each action;
   -V, --version                     print program version and exit;
@@ -58,10 +60,11 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l args:,build-srpm-only,excludedocs,hasher-priv-dir:,install-only,mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,no-query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,rpmbuild-args:,save-fakeroot,source-only,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l args:,build-srpm-only,excludedocs,hasher-priv-dir:,install-only,mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,no-query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,rpmbuild-args:,save-fakeroot,source-only,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,workdir:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 eval set -- "$TEMP"
 
+workdir_from_opt=
 nodeps=
 install_only=
 source_only=
@@ -138,6 +141,9 @@ while :; do
 			;;
 		--with-stuff) no_stuff=
 			;;
+		--workdir) shift; workdir="$1"
+			workdir_from_opt=1
+			;;
 		--) shift; break
 			;;
 		*) parse_common_option "$1"
@@ -154,7 +160,11 @@ if [ -n "$build_srpm_only" ] && [ -n "$prog_rebuild" ]; then
 	show_usage '--rebuild-prog does not make sense with --build-srpm-only.'
 fi
 
-if [ -z "$workdir" ]; then
+if [ -n "$workdir_from_opt" ]; then
+	# Exactly one argument.
+	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+	[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+elif [ -z "$workdir" ]; then
 	# Exactly two arguments.
 	[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
 	[ "$#" -le 2 ] || show_usage 'Too many arguments.'
