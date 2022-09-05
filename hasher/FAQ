@@ -146,7 +146,7 @@ CONTENTS
    $ hsh --number=1 /path/to/workdir1 package.src.rpm
 
 4.2. Proc filesystem and pseudo terminals.
- 
+
 4.2.1 Is there any way to use proc filesystem inside chroot while building
    the package?
 
@@ -163,7 +163,7 @@ CONTENTS
 	BuildPreReq: /proc
    Alternatively, at least one of packages installed to build environment
    should include /proc in its dependencies.
- 
+
    Third, hsh should be run with parameter --mountpoints=/proc.
 
 4.2.2 Is there any way to create pseudoterminals and use them inside
@@ -184,7 +184,7 @@ CONTENTS
 	BuildPreReq: /dev/pts
    Alternatively, at least one of packages installed to build environment
    should include /dev/pts in its dependencies.
- 
+
    Third, hsh should be run with parameter --mountpoints=/dev/pts.
 
 4.3. Native shell.

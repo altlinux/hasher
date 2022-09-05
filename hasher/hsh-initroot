@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2003-2019  Dmitry V. Levin <ldv@altlinux.org>
 # Copyright (C) 2007  Alexey Tourbin <at@altlinux.org>
-# 
+#
 # The hsh-initroot utility for the hasher project
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
@@ -43,7 +43,7 @@ Options:
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;
   -h, --help                show this text and exit.
-    
+
 Report bugs to http://bugs.altlinux.ru/
 
 EOF
@@ -91,12 +91,12 @@ while :; do
 		--packager) shift; packager="$1"
 			;;
 		--pkg-build-list) shift
-			[ "$1" != "${1#+}" -a -n "${1#+}" ] && 
+			[ "$1" != "${1#+}" -a -n "${1#+}" ] &&
 				build_list="$build_list,${1#+}" ||
 				build_list="$1"
 			;;
 		--pkg-init-list) shift
-			[ "$1" != "${1#+}" -a -n "${1#+}" ] && 
+			[ "$1" != "${1#+}" -a -n "${1#+}" ] &&
 				init_list="$init_list,${1#+}" ||
 				init_list="$1"
 			;;

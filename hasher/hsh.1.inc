@@ -1,5 +1,5 @@
 .\" Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
-.\" 
+.\"
 .\" Additional documentation for the hsh command.
 .\"
 .\" SPDX-License-Identifier: GPL-2.0-or-later
@@ -48,7 +48,7 @@ executes the copy at the end of package installation transaction.
 Working directory contents:
 .TP
 .B aptbox
-- created automatically by 
+- created automatically by
 .BR mkaptbox (1),
 required for apt.
 .TP

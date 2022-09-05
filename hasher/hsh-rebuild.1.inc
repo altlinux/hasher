@@ -1,5 +1,5 @@
 .\" Copyright (C) 2007  Dmitry V. Levin <ldv@altlinux.org>
-.\" 
+.\"
 .\" Additional documentation for the hsh-rebuild command.
 .\"
 .\" SPDX-License-Identifier: GPL-2.0-or-later

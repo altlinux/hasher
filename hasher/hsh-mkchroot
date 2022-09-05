@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2003-2019  Dmitry V. Levin <ldv@altlinux.org>
 # Copyright (C) 2007  Kirill A. Shutemov <kas@altlinux.org>
-# 
+#
 # The hsh-mkchroot utility for the hasher project
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
@@ -29,7 +29,7 @@ Options:
   -v, --verbose             print a message for each action;
   -V, --version             print program version and exit;
   -h, --help                show this text and exit.
-    
+
 Report bugs to http://bugs.altlinux.ru/
 
 EOF

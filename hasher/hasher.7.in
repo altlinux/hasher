@@ -1,9 +1,9 @@
 .\" Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
-.\" 
+.\"
 .\" Documentation for the hasher project.
 .\"
 .\" SPDX-License-Identifier: GPL-2.0-or-later
-.\" 
+.\"
 .TH "HASHER" "7" "January 2007" "hasher @VERSION@" "ALT Linux"
 .SH "NAME"
 hasher \- modern safe package building technology
@@ -84,7 +84,7 @@ and statically linked helper programs:
 .BR find (1)
 and
 .BR cpio (1).
-Basic device files are also created at this point by means of 
+Basic device files are also created at this point by means of
 .BR hasher\-priv (8).
 These devices are necessary for build environment and are secure
 for the host system.
