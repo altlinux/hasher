@@ -134,7 +134,7 @@ does caching of the basic build environment.  It allows to skip steps 4 and 5.
 .SH "AUTHOR"
 Written by Dmitry V. Levin <ldv@altlinux.org>
 .SH "REPORTING BUGS"
-Report bugs to http://bugs.altlinux.ru/
+Report bugs to https://bugzilla.altlinux.org/
 .SH "COPYRIGHT"
 Copyright \(co 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
 .br

@@ -28,7 +28,7 @@ Options:
   -V, --version             print program version and exit;
   -h, --help                show this text and exit.
 
-Report bugs to http://bugs.altlinux.ru/
+Report bugs to https://bugzilla.altlinux.org/
 
 EOF
 	exit
