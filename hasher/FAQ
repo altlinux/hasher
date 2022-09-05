@@ -55,21 +55,22 @@ CONTENTS
 
 2.1. What is hasher?
 
-   Hasher is modern safe package building technology.
-   In general, it inputs source package and outputs binary packages.
+   Hasher is a modern safe package building technology.
+   In general, it inputs a source package and outputs binary packages.
 
 2.2. What is hasher not?
 
-   Hasher is for package build only.  It is neither package repository
-   (in spite of the builtin repository it maintains) nor universal chroot
-   creation tool (in spite of the build environments it generates).
+   Hasher is designed for building packages.  It is neither a package
+   repository (in spite of the builtin repository it maintains) nor an
+   universal chroot creation tool (in spite of the build environments
+   it generates).
 
 2.3. Where can I learn more about hasher?
 
-   There is a hasher(7) manpage which describes hasher architecture.
-   It references to other useful manpages you might want to study.
+   There is hasher(7) manpage which describes hasher architecture.
+   It references other useful manpages you might want to study.
    There is a README file nearby.
-   And, of course, there is a Google.
+   And, of course, there are search engines.
 
 ------------------------------
 
@@ -77,7 +78,7 @@ CONTENTS
 
 3.1. Problems accessing privileged helpers.
 
-3.1.1 How to make hasher work? Every run ends up with the following:
+3.1.1 How to make hasher work? Every invocation ends up with the following:
 	Components: hasher
 	Processing pkglists... hasher done
 	Processing srclists...  hasher done
@@ -87,8 +88,8 @@ CONTENTS
 	All your base are belong to us!!!
 	hsh-mkchroot: cannot access getugid1 helper.
 
-  In order to prepare package hasher to use by USER, pair of special
-  satellite users must be added.  System administrator should run
+  In order to prepare package hasher to be used by USER, a pair of special
+  satellite users must be added.  The system administrator should run
 	# hasher-useradd USER
 
   This command creates two additional satellite users, USER_a and
@@ -120,9 +121,9 @@ CONTENTS
    $HOME or /tmp/.private only.  This is a security sensitive parameter.
    System administrator can change this default, either systemwide or
    personally for you.
-   In first case, change parameter "prefix" in systemwide config
+   In the first case, change parameter "prefix" in the systemwide config
    file /etc/hasher-priv/system to /path/to/workdir.
-   In second case, add the line
+   In the second case, add the line
 	prefix=/path/to/workdir
    to per-user config file /etc/hasher-priv/user.d/$USER.
 
@@ -137,7 +138,7 @@ CONTENTS
 
    Yes, there is.
 
-   First, additional pseudouser pairs should be created by hasher-useradd
+   First, an additional pseudouser pair should be created by hasher-useradd
    for each additional parallel build.
    Second, you have to pass subconfig identifier to hsh.
 
@@ -155,14 +156,14 @@ CONTENTS
    First, hasher-priv should be configured to allow mounting /proc inside
    chroot, either systemwide or personally for the user.  Add the line
 	allowed_mountpoints=/proc
-   either to systemwide config file /etc/hasher-priv/system or
-   to per-user config file /etc/hasher-priv/user.d/$USER.
+   either to the systemwide config file /etc/hasher-priv/system or
+   to the per-user config file /etc/hasher-priv/user.d/$USER.
 
    Second, the package you are going to build should include /proc
    in its build dependencies, e.g.
 	BuildPreReq: /proc
-   Alternatively, at least one of packages installed to build environment
-   should include /proc in its dependencies.
+   Alternatively, at least one of packages installed into the build
+   environment should include /proc in its dependencies.
 
    Third, hsh should be run with parameter --mountpoints=/proc.
 
@@ -176,33 +177,33 @@ CONTENTS
    personally for the user.  Add two lines:
 	allow_ttydev=yes
 	allowed_mountpoints=/dev/pts
-   either to systemwide config file /etc/hasher-priv/system or
-   to per-user config file /etc/hasher-priv/user.d/$USER.
+   either to the systemwide config file /etc/hasher-priv/system or
+   to the per-user config file /etc/hasher-priv/user.d/$USER.
 
    Second, the package you are going to build should include /dev/pts
    in its build dependencies, e.g.
 	BuildPreReq: /dev/pts
-   Alternatively, at least one of packages installed to build environment
-   should include /dev/pts in its dependencies.
+   Alternatively, at least one of packages installed into the build
+   environment should include /dev/pts in its dependencies.
 
    Third, hsh should be run with parameter --mountpoints=/dev/pts.
 
 4.3. Native shell.
 
-4.3.1 Is there any way to run shell with normal terminal inside chroot?
+4.3.1 Is there any way to run a shell with a regular terminal inside chroot?
 
    Yes, there is.
 
    You should understand that building packages and running shell are
-   incompatible tasks.  Hasher is devoted for the first one, however
+   incompatible tasks.  Hasher is designed for the first one, however,
    you can use it for the second one, too.
 
    For example, this command
    $ hsh-shell
-   will run bash as login shell with stdin, stdout and stderr associated
-   to pseudoterminal created by hasher.
+   will run bash as a login shell with stdin, stdout and stderr associated
+   with the pseudoterminal created by hasher.
 
-   If user is allowed to create tty devices and mount /dev/pts inside
+   If the user is allowed to create tty devices and mount /dev/pts inside
    build chroot, this command
    $ hsh-shell --mountpoints=/dev/pts
    will create tty devices and mount /dev/pts inside the build chroot in a

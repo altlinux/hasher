@@ -6,23 +6,28 @@
 .\" SPDX-License-Identifier: GPL-2.0-or-later
 .\"
 .TH "HASHER" "7" "September 2022" "hasher @VERSION@" "ALT"
+
 .SH "NAME"
 hasher \- modern safe package building technology
+
 .SH "SYNOPSIS"
 .B hsh
 .IR "" [ options ]
 .I <path\-to\-workdir>
 .IR <package> ...
-.SH "RATIONALE"
-Long ago, when instrumental OS distributions made by few developers were
-small enough to be placed on a single CD with sources, there was no real
-package building technology.  Developers built their packages in the host
-system created by installing the whole OS distribution.
 
-Nowadays instrumental OS distributions are made by dozens of developers.
-They are too large to be installed wholly.  As a result, traditional
-package building scheme in the host system no longer fits the
-requirements: it is insecure, unsafe and awkward.
+.SH "RATIONALE"
+
+Long ago, when instrumental OS distributions made by few developers were small
+enough to be placed on a single CD along with their sources, there was no real
+package building technology.  Developers built their packages in host systems
+that were created by installing the whole OS distribution.
+
+Nowadays instrumental OS distributions are made by dozens if not thousands of
+developers.  They are too large to be installed wholly.  As result, traditional
+package building scheme in host systems no longer fits the requirements:
+it is insecure, unsafe and awkward.
+
 .SH "REQUIREMENTS"
 Modern package building technology should:
 .TP
@@ -40,43 +45,43 @@ ensure reliability of build results;
 .TP
 5.
 provide reasonable performance.
+
 .SH "ARCHITECTURE"
 The
 .B hasher
-architecture is based on triple\-user model: caller user
+architecture is based on a triple\-user model: an unprivileged caller user
 .IR "" ( C )
 and two unprivileged pseudousers; the first one
 .IR "" ( R )
-emulates root in the generated build environment, the second one
+emulates the root user in the generated build environment, the second one
 .IR "" ( U )
 emulates a regular user who builds software.
 
-Switching between caller user and helper users is handled by a special
-privileged program
+Switching between the caller user and the helper users is handled by a special
+program
 .BR hasher\-priv (8).
-It is written with extreme caution to defend from attacks
-installed by unprivileged users.  This helper is also used to purge
-processes left after pseudousers, to create device files, and to
-control resources allocated for unprivileged processes to defend from
-DoS\-attacks.
+It is written with extreme caution to defend from attacks installed by
+unprivileged users.  It is also used to purge processes left after pseudousers,
+to create device files, to mount filesystems, and to control resources
+allocated for unprivileged processes to defend from DoS\-attacks.
 
-In general, the way of source package in hasher during the build
+In general, the way of a source package in hasher during the build
 process looks as follows:
 .TP
 1. Generate aptbox.
 User
 .I C
-generates environment (aptbox) for apt.
+generates an environment (aptbox) for apt.
 .TP
-2. Remove build environment probably left by previous builds.
-The removal is done sequentially: inside build chroot by user
+2. Remove the build environment that could be left by previous builds.
+The removal is done sequentially: inside the build chroot by user
 .IR U ,
-inside build chroot by user
+inside the build chroot by user
 .I R
-and finally outside chroot by user
+and finally outside the build chroot by user
 .IR C .
 .TP
-3. Generate new build chroot framework.
+3. Generate a new build chroot framework.
 User
 .I C
 generates the framework, which consists of helper directories
@@ -86,22 +91,22 @@ and statically linked helper programs:
 and
 .BR cpio (1).
 .TP
-4. Generate basic install environment.
+4. Generate a basic install environment.
 This environment contains everything necessary for regular package
 installs.
 User
 .I C
-using apt utilities determines set of packages requires to generate
-install environment.
+using apt utilities determines the set of packages required to generate
+the install environment.
 User
 .I R
 using static helper programs unpacks these packages.
 .TP
-5. Generate basic build environment.
-This environment contains tools required for every package build.
+5. Generate a basic build environment.
+This environment contains the tools required for every package build.
 User
 .I C
-using apt utilities determines set of packages, user
+using apt utilities determines the set of packages, user
 .I R
 installs them.
 .TP
@@ -110,7 +115,7 @@ User
 .I U
 fetches package build dependencies, user
 .I C
-using apt utilities determines set of packages to install, and user
+using apt utilities determines the set of packages to install, and user
 .I R
 installs them.
 .TP
@@ -125,13 +130,17 @@ These schemes are designed to eliminate attacks of the type
 .IR R "\->" C ,
 and all attacks targeted to root.
 
-In order to increase performance essential when building a lot of packages,
+In order to increase performance which is essential when building
+a lot of packages,
 .B hasher
-does caching of the basic build environment.  It allows to skip steps 4 and 5.
+implements caching of the basic build environment, this allows to skip steps 4 and 5.
+
 .SH "AUTHOR"
 Written by Dmitry V. Levin <ldv@altlinux.org> et al.
+
 .SH "REPORTING BUGS"
 Report bugs to https://bugzilla.altlinux.org/
+
 .SH "COPYRIGHT"
 Copyright \(co 2003-2022  Dmitry V. Levin <ldv@altlinux.org>
 .br
@@ -139,6 +148,7 @@ All rights reserved.
 .PP
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 .SH "SEE ALSO"
 .BR hsh (1),
 .BR hasher\-priv.conf (5),

@@ -1,8 +1,8 @@
 
 1. Prepare to work.
 
-  In order to prepare package hasher to use by USER, pair of special
-  satellite users must be added.  System administrator should run
+  In order to prepare package hasher to be used by USER, a pair of special
+  satellite users have to be added.  The system administrator should run
 	# hasher-useradd USER
 
   This command creates two additional satellite users, USER_a and
@@ -14,7 +14,7 @@
 
 2. Usage.
 
-  The package hasher consists of one high-level utility - hsh(1),
+  The package hasher contains one high-level utility - hsh(1),
   and several low-level utilities:
   hsh-initroot(1), hsh-install(1), hsh-mkchroot(1), hsh-rebuild(1),
   hsh-rmchroot(1), hsh-run(1), hsh-shell(1), mkaptbox(1).
@@ -24,21 +24,22 @@
 
   Working directory ("$HOME/hasher" by default) MUST exist.
 
-  Working directory shouldn't contain self-made files or directories
+  Working directory should not contain self-made files or directories
   with reserved names "aptbox", "cache", "chroot", "pid" and "repo".
 
-  During the work hasher creates there a subdirectory named "repo" to
-  store work repository.  Result of successful builds will be placed
-  into this repository.
+  During the work hasher creates there a subdirectory named "repo"
+  to maintain the working repository.  The results of successful builds
+  will be placed into this repository.
 
   Most useful options:
     --without-stuff
-    Do not use packages from auto repository in build system.
-    By default, auto repository will be used as well as system repository.
+    Do not use packages from the auto repository in the build system.
+    By default, the auto repository will be used as well as the system
+    repository.
 
     --nprocs=NUMBER
     Number of CPUs to use.
-    By default, number of CPUs is calculated using /proc/stat data.
+    By default, the number of CPUs is calculated using /proc/stat data.
 
     -v, --verbose
     Print a message for each action.  Useful for tracing and/or
@@ -51,24 +52,25 @@
   File system where workdir is located should not be mounted with
   "noexec" option.
 
-  Package repository used for creating build system must provide
-  following packages:
+  Package repository used for creating a build system must provide
+  the following packages:
     fakeroot >= 0:0.7.3
       (required for proper TCB support);
     fakeroot >= 0:1.2-alt3
       (required for --save-fakeroot support);
     rpm-build >= 0:4.0.4-alt21
       (required for proper package contents indices support);
-    sisyphus_check>=0:0.7.3
+    sisyphus_check >= 0:0.7.3
       (required for executing sisyphus_check inside chroot);
     kernel-headers-common >= 1.1.4-alt1
       (required for "adjust_kernel_headers --first" support).
 
 4. Caveats and limitations.
 
-  Depending on age of package repository, apt installed in your host system
-  will or will not work properly.  In case of essential difference between
-  apt versions in host system and repository, consider --apt-prefix option.
+  Depending on the age of the package repository, apt installed in your host
+  system will or will not work properly.  In case of essential differences
+  between apt versions in the host system and the repository, consider using
+  --apt-prefix option.
 
 5. Reporting bugs.
 

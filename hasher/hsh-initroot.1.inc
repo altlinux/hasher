@@ -6,7 +6,7 @@
 .\" SPDX-License-Identifier: GPL-2.0-or-later
 
 [NAME]
-hsh\-initroot \- fill hasher chroot created by hsh\-mkchroot with initial set of packages
+hsh\-initroot \- fill hasher chroot created by hsh\-mkchroot with an initial set of packages
 
 [SEE ALSO]
 .BR hsh (1),

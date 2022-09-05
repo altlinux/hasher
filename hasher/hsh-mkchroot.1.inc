@@ -6,7 +6,7 @@
 .\" SPDX-License-Identifier: GPL-2.0-or-later
 
 [NAME]
-hsh\-mkchroot \- create initial chroot
+hsh\-mkchroot \- create an initial chroot
 
 [SEE ALSO]
 .BR hsh (1),

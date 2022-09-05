@@ -6,7 +6,7 @@
 .\" SPDX-License-Identifier: GPL-2.0-or-later
 
 [NAME]
-hsh\-rebuild \- rebuild source package in chroot prepared by hsh\-initroot
+hsh\-rebuild \- rebuild source package in the chroot prepared by hsh\-initroot
 
 [SEE ALSO]
 .BR hsh (1),

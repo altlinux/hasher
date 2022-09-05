@@ -13,18 +13,18 @@ hsh \- build package using hasher utilities
 .BR \-\-with\-stuff " / " \-\-without\-stuff
 Controls whether to use results of previous builds stored in
 .IR <path\-to\-workdir> /repo
-during setup of new build environment.  Default is to use this stuff.
+during setup of a new build environment.  Default is to use this stuff.
 ($no_stuff);
 .TP
 .BR \-\-number = \fINUMBER
-Choose subconfig identifier (positive integer).  By default, simultaneous
-builds are not allowed, so user can do at most single build in every
-point of time.  To overcome this restriction, additional pseudouser
+Choose a subconfig identifier (positive integer).  By default, simultaneous
+builds are not allowed, so user can do at most a single build in every
+point of time.  To overcome this restriction, an additional pseudouser
 pairs should be created by
 .BR hasher\-useradd (8).
 The subconfig identifier defines the pair to use.  Additionally, when
 \fINUMBER\fR starts with slash character, it specifies a directory
-to deduce subconfig identifier from.
+to deduce the subconfig identifier from.
 ($number);
 .TP
 .BR \-\-mountpoints = \fILIST
@@ -32,7 +32,7 @@ Comma-separated list of known mount points.  Every build dependency that
 belongs to this list will be mounted.  If some mount point is not explicitly
 allowed in
 .BR hasher\-priv.conf (5),
-build will fail.
+then the build will fail.
 ($known_mountpoints);
 
 [FILES]
@@ -44,7 +44,7 @@ build will fail.
 .B mkchroot
 copies it into chroot, and
 .B install
-executes the copy at the end of package installation transaction.
+executes the copy at the end of the package installation transaction.
 .TP
 Working directory contents:
 .TP
@@ -65,7 +65,7 @@ by initroot.
 .BR hsh .
 .TP
 .B repo
-- package repository, contains build results.
+- package repository, contains the build results.
 
 [SEE ALSO]
 .BR mkaptbox (1),

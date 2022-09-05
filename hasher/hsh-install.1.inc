@@ -6,7 +6,7 @@
 .\" SPDX-License-Identifier: GPL-2.0-or-later
 
 [NAME]
-hsh\-install \- install binary packages into chroot prepared by hsh\-initroot
+hsh\-install \- install binary packages into the chroot prepared by hsh\-initroot
 
 [SEE ALSO]
 .BR hsh (1),

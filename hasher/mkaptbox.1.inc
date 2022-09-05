@@ -6,7 +6,7 @@
 .\" SPDX-License-Identifier: GPL-2.0-or-later
 
 [NAME]
-mkaptbox \- create initial aptbox
+mkaptbox \- create an initial aptbox
 
 [SEE ALSO]
 .BR hsh (1).

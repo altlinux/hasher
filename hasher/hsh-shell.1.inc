@@ -6,7 +6,7 @@
 .\" SPDX-License-Identifier: GPL-2.0-or-later
 
 [NAME]
-hsh\-shell \- run shell within hasher chroot
+hsh\-shell \- run a shell within the hasher chroot
 
 [SEE ALSO]
 .BR hsh (1),
