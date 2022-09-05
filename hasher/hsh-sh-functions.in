@@ -1,10 +1,11 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2019  Dmitry V. Levin <ldv@altlinux.org>
+# This file defines functions used by hasher scripts.
+#
+# Copyright (C) 2003-2022  Dmitry V. Levin <ldv@altlinux.org>
 # Copyright (C) 2006  Alexey Gladkov <legion@altlinux.org>
 # Copyright (C) 2007  Kirill A. Shutemov <kas@altlinux.org>
-#
-# This file defines functions used by hasher scripts.
+# All rights reserved.
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -33,9 +34,9 @@ print_version()
 	prog="$1" && shift
 	cat <<EOF
 $prog version @VERSION@
-Written by Dmitry V. Levin <ldv@altlinux.org>
+Written by Dmitry V. Levin <ldv@altlinux.org> et al.
 
-Copyright (C) 2003-2017  Dmitry V. Levin <ldv@altlinux.org>
+Copyright (C) 2003-2022  Dmitry V. Levin <ldv@altlinux.org>
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 EOF

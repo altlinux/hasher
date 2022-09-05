@@ -1,9 +1,10 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2019  Dmitry V. Levin <ldv@altlinux.org>
-# Copyright (C) 2007  Kirill A. Shutemov <kas@altlinux.org>
+# The hsh-mkchroot utility for the hasher project.
 #
-# The hsh-mkchroot utility for the hasher project
+# Copyright (C) 2003-2022  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2007  Kirill A. Shutemov <kas@altlinux.org>
+# All rights reserved.
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #

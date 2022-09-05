@@ -1,7 +1,9 @@
 #
-# Copyright (C) 2005  Fr. Br. George <george@altlinux.ru>
+# The sed script required for the hasher project manpages creation.
 #
-# Sed script required for the hasher project manpages creation.
+# Copyright (C) 2005  Fr. Br. George <george@altlinux.ru>
+# Copyright (c) 2005-2022  Dmitry V. Levin <ldv@altlinux.org>
+# All rights reserved.
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #

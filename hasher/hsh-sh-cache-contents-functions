@@ -1,9 +1,10 @@
 #!/bin/sh -ef
 #
-# Copyright (C) 2003-2019  Dmitry V. Levin <ldv@altlinux.org>
-# Copyright (C) 2007,2009  Alexey Tourbin <at@altlinux.org>
+# Contents index routines for hsh-initroot.
 #
-# Contents index routines for hsh-initroot
+# Copyright (C) 2003-2022  Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (C) 2007,2009  Alexey Tourbin <at@altlinux.org>
+# All rights reserved.
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #

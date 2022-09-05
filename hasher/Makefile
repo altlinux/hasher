@@ -1,7 +1,8 @@
 #
-# Copyright (C) 2003-2019  Dmitry V. Levin <ldv@altlinux.org>
+# The main Makefile for the hasher project.
 #
-# Makefile for the hasher project.
+# Copyright (C) 2003-2022  Dmitry V. Levin <ldv@altlinux.org>
+# All rights reserved.
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #

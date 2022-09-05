@@ -1,10 +1,11 @@
-.\" Copyright (C) 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
-.\"
 .\" Documentation for the hasher project.
+.\"
+.\" Copyright (C) 2003-2022  Dmitry V. Levin <ldv@altlinux.org>
+.\" All rights reserved.
 .\"
 .\" SPDX-License-Identifier: GPL-2.0-or-later
 .\"
-.TH "HASHER" "7" "January 2007" "hasher @VERSION@" "ALT Linux"
+.TH "HASHER" "7" "September 2022" "hasher @VERSION@" "ALT"
 .SH "NAME"
 hasher \- modern safe package building technology
 .SH "SYNOPSIS"
@@ -132,12 +133,14 @@ In order to increase performance essential when building a lot of packages,
 .B hasher
 does caching of the basic build environment.  It allows to skip steps 4 and 5.
 .SH "AUTHOR"
-Written by Dmitry V. Levin <ldv@altlinux.org>
+Written by Dmitry V. Levin <ldv@altlinux.org> et al.
 .SH "REPORTING BUGS"
 Report bugs to https://bugzilla.altlinux.org/
 .SH "COPYRIGHT"
-Copyright \(co 2003-2007  Dmitry V. Levin <ldv@altlinux.org>
+Copyright \(co 2003-2022  Dmitry V. Levin <ldv@altlinux.org>
 .br
+All rights reserved.
+.PP
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .SH "SEE ALSO"
