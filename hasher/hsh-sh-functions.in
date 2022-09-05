@@ -513,7 +513,7 @@ lock_hasher_config()
 list_user_subconfig_numbers()
 {
 	local n
-	for n in '' $(cd /etc/hasher-priv/user.d/ && set +f && ls $(id -un):[1-9]* 2>/dev/null); do
+	for n in '' $(cd /etc/hasher-priv/user.d/ && set +f && ls $(id -un):[1-9]* $(id -u):[1-9]* 2>/dev/null ||:); do
 		if [ -n "$n" ]; then
 			[ -n "${n##*\*}" ] || continue
 			n="${n#*:}"
