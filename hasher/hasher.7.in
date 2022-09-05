@@ -85,10 +85,6 @@ and statically linked helper programs:
 .BR find (1)
 and
 .BR cpio (1).
-Basic device files are also created at this point by means of
-.BR hasher\-priv (8).
-These devices are necessary for build environment and are secure
-for the host system.
 .TP
 4. Generate basic install environment.
 This environment contains everything necessary for regular package

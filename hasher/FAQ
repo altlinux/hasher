@@ -205,7 +205,6 @@ CONTENTS
    If user is allowed to create tty devices and mount /dev/pts inside
    build chroot, this command
    $ hsh-shell --mountpoints=/dev/pts
-   will create tty devices and mount /dev/pts inside build chroot,
-   execute bash as login shell with stdin, stdout and stderr associated
-   to pseudoterminal created by hasher, and after bash exit this command
-   will remove created devices and unmount /dev/pts from the chroot.
+   will create tty devices and mount /dev/pts inside the build chroot in a
+   temporary mount namespace, and execute bash as a login shell with stdin,
+   stdout and stderr associated with the pseudoterminal created by hasher.
