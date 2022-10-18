@@ -55,6 +55,8 @@ TEMP=`getopt -n $PROG -o $getopt_common_opts -l cache-compress:,cache-dir:,conte
 	show_usage
 eval set -- "$TEMP"
 
+prepare_cgroup "$0" "$@"
+
 : ${init_list:=$pkg_init_list}
 : ${build_list:=$pkg_build_list}
 

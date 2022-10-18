@@ -81,6 +81,8 @@ TEMP=`getopt -n $PROG -o x,X,Y,$getopt_common_opts -l builder,${i_am_hsh_run:+ex
 	show_usage
 eval set -- "$TEMP"
 
+prepare_cgroup "$0" "$@"
+
 run_as_rooter=
 run_script=
 run_shell=

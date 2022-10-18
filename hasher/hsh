@@ -98,6 +98,8 @@ TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-ar
 	show_usage
 eval set -- "$TEMP"
 
+prepare_cgroup "$0" "$@"
+
 cleanup_only=
 initroot_only=
 printenv_only=

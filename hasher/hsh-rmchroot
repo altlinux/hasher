@@ -39,6 +39,8 @@ TEMP=`getopt -n $PROG -o $getopt_common_opts -l hasher-priv-dir:,no-lock,number:
 	show_usage
 eval set -- "$TEMP"
 
+prepare_cgroup "$0" "$@"
+
 while :; do
 	case "$1" in
 		--hasher-priv-dir)

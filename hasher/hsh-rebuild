@@ -65,6 +65,8 @@ TEMP=`getopt -n $PROG -o $getopt_common_opts -l args:,build-srpm-only,excludedoc
 	show_usage
 eval set -- "$TEMP"
 
+prepare_cgroup "$0" "$@"
+
 workdir_from_opt=
 nodeps=
 install_only=

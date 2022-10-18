@@ -43,6 +43,8 @@ TEMP=`getopt -n $PROG -o $getopt_common_opts -l excludedocs,hasher-priv-dir:,no-
 	show_usage
 eval set -- "$TEMP"
 
+prepare_cgroup "$0" "$@"
+
 workdir_from_opt=
 while :; do
 	case "$1" in
