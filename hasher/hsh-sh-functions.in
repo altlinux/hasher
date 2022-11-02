@@ -495,12 +495,21 @@ lock_workdir()
 }
 
 owns_its_cgroup=
-# Receives "$0" "$@" as command line arguments. The "$@" are intended to be
-# picked up after getopt, but before they are consumed.
+# This function is to be used in the following fashion:
+# TEMP=`getopt ...` || show_usage
+# prepare_cgroup "$TEMP" "$0" "$@"
+# eval set -- "$TEMP"
+#
+# Receives "$quoted_args" "$0" "$@" as command line arguments.
+# The "$quoted_args" is tested for the presence of common options.
+# The "$@" are the preserved original command line.
 # This should be called by the utilities which make spawning job requests,
 # i. e. chrootuid, and does not need to be called by other utilities.
 prepare_cgroup()
 {
+	local TEMP="$1"
+	shift
+
 	[ -z "$owns_its_cgroup" ] || return 0
 	if ! is_systemd_user_present; then
 		owns_its_cgroup=1
@@ -517,7 +526,7 @@ prepare_cgroup()
 	# The caller has not yet set $verbose.
 	local sdr_q i
 	sdr_q=--quiet
-	for i; do case "$i" in
+	for i in $TEMP; do case "$i" in
 		-h|--help) show_help
 			;;
 		-q|--quiet) sdr_q=--quiet verbose=

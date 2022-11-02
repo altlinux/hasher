@@ -37,9 +37,8 @@ EOF
 
 TEMP=`getopt -n $PROG -o $getopt_common_opts -l hasher-priv-dir:,no-lock,number:,wait-lock,no-wait-lock,$getopt_common_longopts -- "$@"` ||
 	show_usage
+prepare_cgroup "$TEMP" "$0" "$@"
 eval set -- "$TEMP"
-
-prepare_cgroup "$0" "$@"
 
 while :; do
 	case "$1" in

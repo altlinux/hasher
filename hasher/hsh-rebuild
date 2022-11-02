@@ -63,9 +63,8 @@ EOF
 
 TEMP=`getopt -n $PROG -o $getopt_common_opts -l args:,build-srpm-only,excludedocs,hasher-priv-dir:,install-only,mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,no-query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,rpmbuild-args:,save-fakeroot,source-only,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,workdir:,$getopt_common_longopts -- "$@"` ||
 	show_usage
+prepare_cgroup "$TEMP" "$0" "$@"
 eval set -- "$TEMP"
-
-prepare_cgroup "$0" "$@"
 
 workdir_from_opt=
 nodeps=

@@ -53,9 +53,8 @@ EOF
 
 TEMP=`getopt -n $PROG -o $getopt_common_opts -l cache-compress:,cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-lock,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,wait-lock,no-wait-lock,workdir:,$getopt_common_longopts -- "$@"` ||
 	show_usage
+prepare_cgroup "$TEMP" "$0" "$@"
 eval set -- "$TEMP"
-
-prepare_cgroup "$0" "$@"
 
 : ${init_list:=$pkg_init_list}
 : ${build_list:=$pkg_build_list}
