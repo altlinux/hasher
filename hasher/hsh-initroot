@@ -125,23 +125,19 @@ while :; do
 	shift
 done
 
-if [ -z "$workdir" ]; then
-	# Exactly one argument.
-	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
-	[ "$#" -le 1 ] || show_usage 'Too many arguments.'
-else
-	# At most one argument.
-	[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+if [ -z "$workdir_from_opt" ]; then
+	if [ -z "$workdir" ] || [ "$#" -ge 1 ]; then
+		# At least one argument.
+		[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+		workdir="$1"
+		shift
+	fi
 fi
 
-if [ -n "$workdir_from_opt" ]; then
-	set_workdir
-elif [ "$#" -ge 1 ]; then
-	set_workdir "$1"
-	shift
-else
-	set_workdir
-fi
+# No arguments.
+[ "$#" -eq 0 ] || show_usage 'Too many arguments.'
+
+set_workdir
 
 lock_workdir
 [ -d "$chroot" ] || fatal "$chroot: cannot access chroot."
