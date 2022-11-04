@@ -149,19 +149,15 @@ while :; do
 	shift
 done
 
-if [ -z "$workdir" ]; then
-	# At least one argument.
-	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+if [ -z "$workdir_from_opt" ]; then
+	if [ -z "$workdir" ] || [ -d "${1-}" ]; then
+		# At least one argument.
+		[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+		workdir="$1"
+		shift
+	fi
 fi
-
-if [ -n "$workdir_from_opt" ]; then
-	set_workdir
-elif [ -z "$workdir" -o -d "${1-}" ]; then
-	set_workdir "${1-}"
-	shift
-else
-	set_workdir
-fi
+set_workdir
 
 if [ -n "$run_script" -a -n "$run_shell" ]; then
 	show_usage '--execute and --shell are mutually exclusive options.'
