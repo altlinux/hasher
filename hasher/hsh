@@ -244,51 +244,24 @@ if [ -n "$prog_query_req" ] && [ -n "$query_repackage_option" ]; then
 	show_usage "--query-req-prog and $query_repackage_option are mutually exclusive options."
 fi
 
-if [ -z "$initroot_only" -a -z "$cleanup_only" -a -z "$printenv_only" ]; then
-	if [ -n "$workdir_from_opt" ]; then
+if [ -z "$workdir_from_opt" ]; then
+	if [ -z "$workdir" ] || [ -d "${1-}" ]; then
 		# At least one argument.
 		[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
-	elif [ -z "$workdir" ]; then
-		# At least two arguments.
-		[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
-	else
-		# At least one argument.
-		[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
-	fi
-
-	[ -e "$1" ] || fatal "$1: no such file or directory."
-
-	if [ -n "$workdir_from_opt" ]; then
-		set_workdir
-	elif [ -z "$workdir" -o -d "${1-}" ]; then
-		set_workdir "${1-}"
+		workdir="$1"
 		shift
-	else
-		set_workdir
 	fi
+fi
 
+if [ -z "$initroot_only" -a -z "$cleanup_only" -a -z "$printenv_only" ]; then
 	# At least one argument.
 	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
 else
-	if [ -n "$workdir_from_opt" ]; then
-		# No arguments.
-		[ "$#" -eq 0 ] || show_usage 'Too many arguments.'
-	elif [ -z "$workdir" ]; then
-		# Exactly one argument.
-		[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
-		[ "$#" -le 1 ] || show_usage 'Too many arguments.'
-	else
-		# At most one argument.
-		[ "$#" -le 1 ] || show_usage 'Too many arguments.'
-	fi
-
-	if [ "$#" -ge 1 ]; then
-		set_workdir "$1"
-		shift
-	else
-		set_workdir
-	fi
+	# No arguments.
+	[ "$#" -eq 0 ] || show_usage 'Too many arguments.'
 fi
+
+set_workdir
 
 for f; do
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
