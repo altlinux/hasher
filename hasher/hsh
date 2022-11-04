@@ -290,7 +290,7 @@ else
 	fi
 fi
 
-for f in "$@"; do
+for f; do
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
 	[ -e "$f" ] ||
 		fatal "$f: file not found."
@@ -444,7 +444,7 @@ if [ -n "$cleanup_only" ]; then
 elif [ -n "$initroot_only" ]; then
 	handle_package
 else
-	for f in "$@"; do
+	for f; do
 		handle_package "$f"
 	done
 fi
