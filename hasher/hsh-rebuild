@@ -162,26 +162,20 @@ if [ -n "$build_srpm_only" ] && [ -n "$prog_rebuild" ]; then
 	show_usage '--rebuild-prog does not make sense with --build-srpm-only.'
 fi
 
-if [ -n "$workdir_from_opt" ]; then
-	# Exactly one argument.
-	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
-	[ "$#" -le 1 ] || show_usage 'Too many arguments.'
-elif [ -z "$workdir" ]; then
-	# Exactly two arguments.
-	[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
-	[ "$#" -le 2 ] || show_usage 'Too many arguments.'
-else
-	# At least one and at most two arguments.
-	[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
-	[ "$#" -le 2 ] || show_usage 'Too many arguments.'
+if [ -z "$workdir_from_opt" ]; then
+	if [ -z "$workdir" ] || [ "$#" -ge 2 ]; then
+		# One more argument for workdir.
+		[ "$#" -ge 2 ] || show_usage 'Insufficient arguments.'
+		workdir="$1"
+		shift
+	fi
 fi
 
-if [ "$#" -eq 2 ]; then
-	set_workdir "$1"
-	shift
-else
-	set_workdir
-fi
+# Exactly one argument.
+[ "$#" -ge 1 ] || show_usage 'Insufficient arguments.'
+[ "$#" -le 1 ] || show_usage 'Too many arguments.'
+
+set_workdir
 
 source="$1"
 [ -z "${source##/*}" ] || source="$saved_cwd/$source"
