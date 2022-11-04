@@ -156,8 +156,8 @@ fi
 
 if [ -n "$workdir_from_opt" ]; then
 	set_workdir
-elif [ -z "$workdir" -o -d "${1:-}" ]; then
-	set_workdir "${1:-}"
+elif [ -z "$workdir" -o -d "${1-}" ]; then
+	set_workdir "${1-}"
 	shift
 else
 	set_workdir

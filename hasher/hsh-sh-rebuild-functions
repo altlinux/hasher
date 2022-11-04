@@ -186,7 +186,7 @@ __EOF__
 
 run_sisyphus_check()
 {
-	local dir="$1" no_check="$2" add_gpg="${3:-}"
+	local dir="$1" no_check="$2" add_gpg="${3-}"
 
 	[ -n "$no_check" ] ||
 		no_check="$no_sisyphus_check"
