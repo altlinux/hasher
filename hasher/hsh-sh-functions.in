@@ -255,10 +255,9 @@ opt_check_number_ge_0()
 	fi
 }
 
+# Check $workdir and initialize variables based on $workdir.
 set_workdir()
 {
-	[ -n "$workdir" -a -z "${1-}" ] ||
-		workdir="${1-}"
 	cd "$workdir" || return 1
 	workdir="$(/bin/pwd)" || return 1
 
