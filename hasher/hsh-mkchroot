@@ -85,11 +85,10 @@ else
 fi
 
 if [ "$#" -ge 1 ]; then
-	set_workdir "$1"
+	workdir="$1"
 	shift
-else
-	set_workdir
 fi
+set_workdir
 
 lock_workdir
 
