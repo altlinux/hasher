@@ -10,6 +10,7 @@
 #
 
 . hsh-sh-functions
+. hsh-sh-rebuild-functions
 
 show_help()
 {
@@ -186,8 +187,6 @@ shift
 lock_workdir
 [ -d "$chroot" ] || fatal "$chroot: cannot find chroot."
 deduce_lock_hasher_priv
-
-. hsh-sh-rebuild-functions
 
 install_source_package
 
