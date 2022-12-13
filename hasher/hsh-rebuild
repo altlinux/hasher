@@ -197,115 +197,11 @@ run_sisyphus_check '$HOME/in/srpm' "$no_sisyphus_check_in"
 
 # Calculate, check and install build dependencies.
 if [ -z "$nodeps" ]; then
-	# Create query script.
-	if [ -n "$prog_query_req" ]; then
-		install -p -m755 $verbose "$prog_query_req" chroot/.host/query_req >&2
-	elif [ -n "$query_repackage" ] && [ "$source_package_type" = src.rpm ]; then
-		# Unpack srpm and treat it as pkg.tar to calculate the build deps.
-		# Since rpm-4.13, we could use rpmspec for a lightweight query instead
-		# of creating an srpm; for now, we exclude the sources and patches.
-		create_entry_header
-		cat >>"$entry" <<__EOF__
-cd "\$HOME/in/srpm"
-${rpmi:-$def_rpmi} -i \\
-	--define "_specdir \$HOME/in/spec" \\
-	--define "_sourcedir \$HOME/in/source" \\
--- *
-sed -i -r\\
-	-e 's/^[[:blank:]]*(Source|Patch)([0-9]+)[[:blank:]]*:.*\$/&\nNo\1: \2/I' \\
-	-e 's/^[[:blank:]]*(Source|Patch)[[:blank:]]*:.*\$/&\nNo\1: 0/I' \\
--- \$HOME/in/spec/*
-__EOF__
-		chrootuid2 </dev/null &&
-			verbose "$sname: unpacked srpm." ||
-			fatal "$sname: failed to unpack srpm."
-
-		make_srpm_from_pkgtar '"$HOME/in/nosrpm"'
-
-		# The repackaged in/nosrpm/*.(no)src.rpm is
-		# only used to query the build dependencies;
-		# the original in/srpm/*.src.rpm is used for the final rebuild.
-		# It may seem that if the build dependencies have shrunk
-		# after repackaging, then the final build could fail because
-		# the original srpm would list more build dependencies.
-		# This is not a problem, however, because rpmbuild --rebuild
-		# calculates correctly the new set of build deps;
-		# --nodeps is not needed for it to work properly.
-
-		cat >chroot/.host/query_req <<__EOF__
-#!/bin/sh -e
-cd "\$HOME/in/nosrpm"
-rpmquery -pR -- *.*src.rpm
-__EOF__
-	else
-		cat >chroot/.host/query_req <<__EOF__
-#!/bin/sh -e
-rpmquery -pR -- "\$@"
-__EOF__
-	fi
-	chmod 755 chroot/.host/query_req
-
-	create_entry_header
-	cat >>"$entry" <<__EOF__
-cd "\$HOME/in/srpm"
-/.host/query_req *
-__EOF__
-
-	calc_check_install_build_deps
-	calculate_required_mountpoints "$build_deps"
-	calculate_required_mountpoints_from_installed
+	install_deps_pkg
 fi
 
 [ -z "$install_only" ] || exit 0
 
-if [ -z "$build_srpm_only" ]; then
-	# Create rebuild script.
-	if [ -n "$prog_rebuild" ]; then
-		install -p -m755 $verbose "$prog_rebuild" chroot/.host/rebuild >&2
-	else
-		cat >"chroot/.host/rebuild" <<__EOF__
-#!/bin/sh -le
-${verbose:+set -x}
-export -n target ||:
-SOURCE_DATE_EPOCH="\$(cat -- "\$HOME/in/SOURCE_DATE_EPOCH")"
-export SOURCE_DATE_EPOCH
-exec >&2 time rpmbuild --rebuild --target="\$target" $nodeps $rpmargs "\$@"
-__EOF__
-		chmod 755 "chroot/.host/rebuild"
-		verbose 'Created rebuild script.'
-	fi
+build_pkg
 
-	# Build the package.
-	purge_chroot_out
-	run_rebuild
-
-	# Execute sisyphus_check for output.
-	run_sisyphus_check '/.out' "$no_sisyphus_check_out" gpg
-else
-	create_entry_header
-	cat >>"$entry" <<__EOF__
-find "\$HOME/in/srpm" -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
-	xargs -r0 mv -f $verbose --target-directory=/.out/ -- >&2
-__EOF__
-	chrootuid2 </dev/null &&
-		verbose "copying of src.rpm for \`$sname' complete." ||
-		fatal "copying of src.rpm for \`$sname' failed."
-fi
-
-# Copy binaries from chroot.
-case `find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm |LC_ALL=C grep -c '\.src\.rpm$'` in
-	0|1) ;;
-	*) fatal 'Too many src.rpm files written.' ;;
-esac
-
-make_repo
-repo_bin="${repo_bin:-${repo:-$def_repo}/"${target:-$def_target}"/RPMS.hasher/}"
-repo_src="${repo_src:-${repo:-$def_repo}/SRPMS.hasher/}"
-
-find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.src.rpm -print0 |
-	xargs -r0 mv -f $verbose --target-directory="$repo_src" -- >&2
-
-find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.rpm -print0 |
-	xargs -r0 mv -f $verbose --target-directory="$repo_bin" -- >&2
-
-purge_chroot_out
+copy_results_pkg
