@@ -44,6 +44,8 @@ Options:
   --printenv                        print configuration environment variables;
   --install-langs=LIST              colon-separated list of languages to install;
   --mountpoints=LIST                comma-separated list of known mount points;
+  --repo-mountpoints=LIST           comma-separated list of mountpoints
+                                    containing a repo used for image building;
   --cache-compress=FILE             alternative cache compress executable;
   --cache-dir=DIR                   alternative cache directory;
   --no-cache                        do not use initroot cache;
@@ -74,6 +76,7 @@ Options:
                                     overriding --repo option for binary packages;
   --repo-src=DIR                    source packages destination directory,
                                     overriding --repo option for source packages;
+  --images=DIR                      image output directory;
   --rpmbuild-args=ARGS              extra arguments for rpmbuild;
   --save-fakeroot                   save fakeroot state;
   --target=ARCH                     target architecture;
@@ -94,7 +97,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,build-srpm-only,cache-compress:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,query-repackage,no-query-repackage,query-req-prog:,printenv,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,rpmbuild-args:,save-fakeroot,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,with-qemu:,workdir:,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,build-srpm-only,cache-compress:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,repo-mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,query-repackage,no-query-repackage,query-req-prog:,printenv,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,images:,rpmbuild-args:,save-fakeroot,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,with-qemu:,workdir:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 prepare_cgroup "$TEMP" "$0" "$@"
 eval set -- "$TEMP"
@@ -138,6 +141,8 @@ while :; do
 		--lazy-cleanup) lazy_cleanup=1
 			;;
 		--mountpoints) shift; known_mountpoints="$1"
+			;;
+		--repo-mountpoints) shift; repo_mountpoints="$1"
 			;;
 		--no-cache) no_cache=1
 			;;
@@ -197,6 +202,8 @@ while :; do
 		--repo-bin) shift; repo_bin="$1"
 			;;
 		--repo-src) shift; repo_src="$1"
+			;;
+		--images) shift; images="$1"
 			;;
 		--rpmbuild-args|--build-args) shift; rpmargs="$1"
 			;;
@@ -374,6 +381,7 @@ handle_package()
 		${repo_src:+--repo-src="$repo_src"} \
 		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
 		${known_mountpoints:+--mountpoints="$known_mountpoints"} \
+		${repo_mountpoints:+--repo-mountpoints="$repo_mountpoints"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
 		${no_stuff:+--no-stuff} \

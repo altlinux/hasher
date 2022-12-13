@@ -161,12 +161,25 @@ case "\$header" in
 esac
 spec="\$(LC_ALL=C tar -tvf "$(quote_shell "$sname")" 2>/dev/null |
 	sed '/^V---------[[:space:]]\+0\/0[[:space:]]\+0[[:space:]]\+[^[:space:]]\+[[:space:]]\+[^[:space:]]\+[[:space:]]\+/!d;s///;s/--Volume Header--\$//;q')"
-if [ -n "\$spec" -a "\$spec" = "\${spec#*/}" ]; then
+
+case "\$spec" in
+	*/*)
+		type="\${spec%/*}"
+		spec="\${spec##*/}"
+		case "\$type" in
+			img|oci) ;;
+			*) exit 0 ;;
+		esac
+		;;
+	*) type=pkg.tar ;;
+esac
+
+if [ -n "\$spec" ]; then
 	mkdir $verbose -m700 -- "\$HOME/in/spec" "\$HOME/in/source" >&2
 	tar $verbose -xf "$(quote_shell "$sname")" -C "\$HOME/in/source/" >&2
 	mv $verbose "\$HOME/in/source/\$spec" "\$HOME/in/spec/" >&2
 	date +%s -r "\$HOME/in/spec"/\$spec > "\$HOME/in/SOURCE_DATE_EPOCH"
-	echo pkg.tar
+	echo "\$type"
 	exit 0
 fi
 __EOF__
@@ -180,6 +193,8 @@ __EOF__
 			;;
 		pkg.tar)
 			make_srpm_from_pkgtar '"$HOME/in/srpm"'
+			;;
+		img|oci)
 			;;
 		*)
 			fatal "$sname does not look like source package."
@@ -213,7 +228,6 @@ __EOF__
 		fatal "$sname: sisyphus_check failed."
 } # run_sisyphus_check
 
-sname=
 install_deps_pkg()
 {
 	# Create query script.
@@ -275,6 +289,63 @@ __EOF__
 	calculate_required_mountpoints_from_installed
 }
 
+install_img_build()
+{
+	hsh-install --no-lock \
+		${quiet:+$quiet} \
+		${verbose:+$verbose} \
+		${number:+--number=$number} \
+		${exclude_docs:+--excludedocs} \
+		${hasher_priv_dir:+--hasher-priv-dir="$hasher_priv_dir"} \
+		${known_mountpoints:+--mountpoints="$known_mountpoints"} \
+		-- \
+		"$workdir" img-build
+}
+
+install_deps_img()
+{
+	local prog_query_req="${1-}"
+
+	install_img_build
+	# Create query script.
+	if [ -n "$prog_query_req" ]; then
+		install -p -m755 $verbose "$prog_query_req" chroot/.host/query_req >&2
+	else
+		cat >chroot/.host/query_req <<__EOF__
+#!/bin/sh -e
+img-build --requires -- "\$@"
+__EOF__
+	fi
+	chmod 755 chroot/.host/query_req
+
+	create_entry_header
+	cat >>"$entry" <<__EOF__
+cd "\$HOME/in/spec"
+/.host/query_req *
+__EOF__
+
+	calc_check_install_build_deps
+	calculate_required_mountpoints "$build_deps"
+	calculate_required_mountpoints_from_installed
+
+	for mpoint in $(printf %s "$repo_mountpoints" |tr -s , ' '); do
+		[ ! -d chroot/"$mpoint" ] || continue
+		create_entry_fakeroot_header
+		cat >>"$entry" <<__EOF__
+cd /
+mkdir -p -- "$mpoint"
+__EOF__
+		wlimit_time_elapsed=$wlimit_time_short wlimit_time_idle=$wlimit_time_short \
+		    chrootuid1 &&
+			verbose "Created $mpoint mount point." ||
+			fatal "Failed to create $mpoint mount point."
+	done
+
+	[ -z "$required_mountpoints" ] &&
+		required_mountpoints="$repo_mountpoints" ||
+		required_mountpoints="$required_mountpoints,$repo_mountpoints"
+}
+
 run_rebuild()
 {
 	create_entry_header
@@ -297,6 +368,23 @@ __EOF__
 		verbose "rebuild of \`$sname' complete." ||
 		fatal "rebuild of \`$sname' failed."
 } # run_rebuild
+
+run_rebuild_img()
+{
+	create_entry_header
+	cat >>"$entry" <<__EOF__
+cd "\$HOME/in/spec"
+
+target="$(quote_shell "${target:-$def_target}")" /.host/rebuild *
+find "\$HOME/out/" -mindepth 1 -maxdepth 1 -type f -print0 |
+	xargs -r0 mv -f $verbose --target-directory=/.out/ -- >&2
+__EOF__
+
+	requested_mountpoints="$required_mountpoints" \
+	    chrootuid2 </dev/null &&
+		verbose "rebuild of \`$sname' complete." ||
+		fatal "rebuild of \`$sname' failed."
+} # run_rebuild_img
 
 build_srpm_only=
 nodeps=
@@ -337,6 +425,56 @@ __EOF__
 	fi
 }
 
+copy_apt_conf()
+{
+	cp -a "$aptbox"/etc/apt chroot/.in
+
+	create_entry_fakeroot_header
+	cat >>"$entry" <<-'__EOF__'
+	apt_conf_dir="$HOME"/apt
+	rm -rf "$apt_conf_dir"
+	cp -aT /.in/apt "$apt_conf_dir"
+
+	sed '1d' -i "$apt_conf_dir"/sources.list
+
+	apt_config_file="$apt_conf_dir/apt.conf"
+	cat >"$apt_config_file" <<__EOF__EOF__
+	Dir::Etc::main "/dev/null";
+	Dir::Etc::parts "/var/empty";
+	Dir::Etc::sourceparts "/var/empty";
+	Dir::Etc::sourcelist "$apt_conf_dir/sources.list";
+	Dir::Etc::preferences "$apt_conf_dir/preferences";
+	Dir::Etc::preferencesparts "$apt_conf_dir/preferences.d";
+	__EOF__EOF__
+	__EOF__
+	chrootuid2 </dev/null &&
+		verbose "Copied apt configuration." ||
+		fatal "Failed to copy apt configuration."
+	purge_chroot_in
+}
+
+build_img()
+{
+	if [ -n "$prog_rebuild" ]; then
+		install -p -m755 $verbose "$prog_rebuild" chroot/.host/rebuild >&2
+	else
+		cat >"chroot/.host/rebuild" <<__EOF__
+#!/bin/sh -le
+${verbose:+set -x}
+export -n target ||:
+SOURCE_DATE_EPOCH="\$(cat -- "\$HOME/in/SOURCE_DATE_EPOCH")"
+export SOURCE_DATE_EPOCH
+exec >&2 time img-build --sourcedir "\$HOME"/in/source "\$@"
+__EOF__
+		chmod 755 "chroot/.host/rebuild"
+		verbose 'Created rebuild script.'
+	fi
+
+	# Build the package.
+	purge_chroot_out
+	run_rebuild_img
+}
+
 # Copy binaries from chroot.
 copy_results_pkg()
 {
@@ -354,6 +492,17 @@ copy_results_pkg()
 
 	find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -name \*.rpm -print0 |
 		xargs -r0 mv -f $verbose --target-directory="$repo_bin" -- >&2
+	purge_chroot_out
+}
+
+# Copy images from the chroot.
+copy_results_img()
+{
+	images="${images:-${def_images}"/${target:-$def_target}"}"
+	mkdir -p $verbose -- "$images" >&2
+
+	find chroot/.out/ -mindepth 1 -maxdepth 1 -type f -print0 |
+		xargs -r0 mv -f $verbose --target-directory="$images" -- >&2
 
 	purge_chroot_out
 }

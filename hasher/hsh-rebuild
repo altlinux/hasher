@@ -29,6 +29,8 @@ Options:
   --hasher-priv-dir=DIR             hasher-priv directory;
   --install-only                    do not build, stop after installing build dependencies;
   --mountpoints=LIST                comma-separated list of known mount points;
+  --repo-mountpoints=LIST           comma-separated list of mountpoints
+                                    containing a repo used for image building;
   --nodeps                          ignore package dependencies (dangerous);
   --no-sisyphus-check-in[=LIST]     do not run sisyphus_check input tests [specified in LIST];
   --no-sisyphus-check[=LIST]        do not run sisyphus_check tests [specified in LIST];
@@ -43,6 +45,7 @@ Options:
                                     overriding --repo option for binary packages;
   --repo-src=DIR                    source packages destination directory,
                                     overriding --repo option for source packages;
+  --images=DIR                      image output directory;
   --rpmbuild-args=ARGS              extra arguments for rpmbuild;
   --source-only                     do not build, stop after installing source package;
   --target=ARCH                     target architecture;
@@ -62,7 +65,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l args:,build-srpm-only,excludedocs,hasher-priv-dir:,install-only,mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,no-query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,rpmbuild-args:,save-fakeroot,source-only,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,workdir:,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l args:,build-srpm-only,excludedocs,hasher-priv-dir:,install-only,mountpoints:,repo-mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,no-query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,images:,rpmbuild-args:,save-fakeroot,source-only,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,workdir:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 prepare_cgroup "$TEMP" "$0" "$@"
 eval set -- "$TEMP"
@@ -86,6 +89,8 @@ while :; do
 		--install-only) install_only=1
 			;;
 		--mountpoints) shift; known_mountpoints="$1"
+			;;
+		--repo-mountpoints) shift; repo_mountpoints="$1"
 			;;
 		--nodeps) nodeps=--nodeps
 			;;
@@ -125,6 +130,8 @@ while :; do
 		--repo-bin) shift; repo_bin="$1"
 			;;
 		--repo-src) shift; repo_src="$1"
+			;;
+		--images) shift; images="$1"
 			;;
 		--rpmbuild-args|--args) shift; rpmargs="$1"
 			;;
@@ -190,18 +197,49 @@ deduce_lock_hasher_priv
 
 install_source_package
 
+case "$source_package_type" in
+	img|oci) [ -z "$build_srpm_only" ] ||
+			fatal "--build-srpm-only is not supported for $source_package_type source packages"
+		;;
+esac
+
 # Execute sisyphus_check for input.
-run_sisyphus_check '$HOME/in/srpm' "$no_sisyphus_check_in"
+case "$source_package_type" in
+	pkg.tar|src.rpm)
+		run_sisyphus_check '$HOME/in/srpm' "$no_sisyphus_check_in" ;;
+esac
 
 [ -z "$source_only" ] || exit 0
 
 # Calculate, check and install build dependencies.
 if [ -z "$nodeps" ]; then
-	install_deps_pkg
+	case "$source_package_type" in
+		pkg.tar|src.rpm)
+			install_deps_pkg
+			;;
+		img)
+			install_deps_img "$prog_query_req"
+			;;
+	esac
 fi
 
 [ -z "$install_only" ] || exit 0
 
-build_pkg
+case "$source_package_type" in
+	pkg.tar|src.rpm)
+		build_pkg
+		;;
+	img|oci)
+		copy_apt_conf
+		build_img
+		;;
+esac
 
-copy_results_pkg
+case "$source_package_type" in
+	pkg.tar|src.rpm)
+		copy_results_pkg
+		;;
+	img|oci)
+		copy_results_img
+		;;
+esac

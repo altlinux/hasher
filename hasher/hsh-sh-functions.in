@@ -83,6 +83,10 @@ Helpify install_langs def_install_langs
 known_mountpoints=
 Helpify mountpoints known_mountpoints
 
+# comma-separated list of mount points required to build image
+repo_mountpoints=
+Helpify repo_mountpoints
+
 # whether to wait for lock
 lock_nowait=
 Helpify wait_lock lock_nowait
@@ -174,6 +178,11 @@ Helpify repo_bin
 # repo-src directory.
 repo_src=
 Helpify repo_src
+
+# image output directory.
+def_images=images
+images=
+Helpify images def_images
 
 # extra arguments for rpmbuild
 rpmargs=
