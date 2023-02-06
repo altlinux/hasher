@@ -82,6 +82,7 @@ Options:
   --target=ARCH                     target architecture;
   --wait-lock                       wait for workdir and hasher-priv locks;
   --no-wait-lock                    do not wait for workdir and hasher-priv locks;
+  --img-apt-config                  path to a custom apt.conf file used for image building;
   --without-stuff                   do not use built packages;
   --with-stuff                      allow use of built packages;
   --with-qemu=ARCH                  copy qemu executable into the chroot .host directory;
@@ -97,7 +98,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,build-srpm-only,cache-compress:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,repo-mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,query-repackage,no-query-repackage,query-req-prog:,printenv,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,images:,rpmbuild-args:,save-fakeroot,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,with-qemu:,workdir:,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,build-srpm-only,cache-compress:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,repo-mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,query-repackage,no-query-repackage,query-req-prog:,printenv,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,images:,rpmbuild-args:,save-fakeroot,target:,wait-lock,no-wait-lock,img-apt-config:,without-stuff,with-stuff,with-qemu:,workdir:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 prepare_cgroup "$TEMP" "$0" "$@"
 eval set -- "$TEMP"
@@ -217,6 +218,8 @@ while :; do
 			;;
 		--no-wait-lock) lock_nowait=1
 			;;
+		--img-apt-config) shift; img_apt_config="$1"
+			;;
 		--without-stuff|--no-stuff) no_stuff=1
 			;;
 		--with-stuff) no_stuff=
@@ -303,6 +306,11 @@ cleanup_workdir()
 			verbose 'Removed aptbox.' ||
 			fatal 'Failed to remove aptbox.'
 	fi
+	if [ -d img-workdir ]; then
+		rm -rf img-workdir &&
+			verbose 'Removed img-workdir.' ||
+			fatal 'Failed to remove img-workdir.'
+	fi
 	if [ -d cache ]; then
 		rm -rf cache &&
 			verbose 'Removed cache.' ||
@@ -384,6 +392,7 @@ handle_package()
 		${repo_mountpoints:+--repo-mountpoints="$repo_mountpoints"} \
 		${quiet:+$quiet} \
 		${verbose:+$verbose} \
+		${img_apt_config:+--img-apt-config=$img_apt_config} \
 		${no_stuff:+--no-stuff} \
 		${exclude_docs:+--excludedocs} \
 		${save_fakeroot:+--save-fakeroot} \

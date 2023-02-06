@@ -427,7 +427,22 @@ __EOF__
 
 copy_apt_conf()
 {
-	cp -a "$aptbox"/etc/apt chroot/.in
+	local img_apt_dir="$aptbox"/etc/apt
+	if [ -n "$img_apt_config" ]; then
+		rm -rf "$img_workdir"
+		mkdir -p -m700 $verbose "$img_workdir"
+		mkaptbox --no-lock "$img_workdir" \
+			${target:+--target="$target"} \
+			${quiet:+$quiet} \
+			${verbose:+$verbose} \
+			--apt-config="$img_apt_config" \
+			--no-stuff \
+			--no-update \
+			#
+		img_apt_dir="$img_workdir"/aptbox/etc/apt
+	fi
+
+	cp -a "$img_apt_dir" chroot/.in
 
 	create_entry_fakeroot_header
 	cat >>"$entry" <<-'__EOF__'
@@ -451,6 +466,12 @@ copy_apt_conf()
 		verbose "Copied apt configuration." ||
 		fatal "Failed to copy apt configuration."
 	purge_chroot_in
+
+	if [ -n "$img_apt_config" ]; then
+		rm -rf "$img_apt_dir" &&
+			verbose 'Removed temporary aptbox for image building' ||
+			fatal 'Failed to remove temporary aptbox for image building'
+	fi
 }
 
 build_img()

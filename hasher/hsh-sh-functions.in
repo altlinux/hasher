@@ -55,6 +55,10 @@ saved_cwd="$(/bin/pwd)"
 apt_config=
 Helpify apt_config
 
+# path to a custom apt.conf file used for image building
+img_apt_config=
+Helpify img_apt_config
+
 # path to apt directory prefix (e.g. /usr)
 apt_prefix=
 Helpify apt_prefix
@@ -239,6 +243,9 @@ fi
 # APT workdir, $workdir/aptbox
 aptbox=
 
+# APT workdir for image building, $workdir/img-workdir
+img_workdir=
+
 # chroot workdir, $workdir/chroot
 chroot=
 
@@ -279,6 +286,7 @@ set_workdir()
 
 	verbose "changed working directory to \`$workdir'"
 	aptbox="$workdir/aptbox"
+	img_workdir="$workdir/img-workdir"
 	chroot="$workdir/chroot"
 	cache_dir="${cache_dir:-$workdir/cache}"
 	entry="$chroot/.host/entry"

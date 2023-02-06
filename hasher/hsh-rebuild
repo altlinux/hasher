@@ -51,6 +51,7 @@ Options:
   --target=ARCH                     target architecture;
   --wait-lock                       wait for workdir and hasher-priv locks;
   --no-wait-lock                    do not wait for workdir and hasher-priv locks;
+  --img-apt-config                  path to a custom apt.conf file used for image building;
   --without-stuff                   do not generate apt index files;
   --with-stuff                      generate apt index files;
   --workdir=DIR                     path to workdir to use;
@@ -65,7 +66,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l args:,build-srpm-only,excludedocs,hasher-priv-dir:,install-only,mountpoints:,repo-mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,no-query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,images:,rpmbuild-args:,save-fakeroot,source-only,target:,wait-lock,no-wait-lock,without-stuff,with-stuff,workdir:,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l args:,build-srpm-only,excludedocs,hasher-priv-dir:,install-only,mountpoints:,repo-mountpoints:,nodeps,no-lock,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,number:,query-repackage,no-query-repackage,query-req-prog:,rebuild-prog:,repo:,repo-bin:,repo-src:,images:,rpmbuild-args:,save-fakeroot,source-only,target:,wait-lock,no-wait-lock,img-apt-config:,without-stuff,with-stuff,workdir:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 prepare_cgroup "$TEMP" "$0" "$@"
 eval set -- "$TEMP"
@@ -146,6 +147,8 @@ while :; do
 		--wait-lock) lock_nowait=
 			;;
 		--no-wait-lock) lock_nowait=1
+			;;
+		--img-apt-config) shift; img_apt_config="$1"
 			;;
 		--without-stuff|--no-stuff) no_stuff=1
 			;;
