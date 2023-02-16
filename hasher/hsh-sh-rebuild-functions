@@ -313,7 +313,10 @@ install_deps_img()
 	else
 		cat >chroot/.host/query_req <<__EOF__
 #!/bin/sh -e
-img-build --requires -- "\$@"
+img-build \\
+	--target="$(quote_shell "${target:-$def_target}")" \\
+	--requires \\
+	-- "\$@"
 __EOF__
 	fi
 	chmod 755 chroot/.host/query_req
@@ -485,7 +488,7 @@ ${verbose:+set -x}
 export -n target ||:
 SOURCE_DATE_EPOCH="\$(cat -- "\$HOME/in/SOURCE_DATE_EPOCH")"
 export SOURCE_DATE_EPOCH
-exec >&2 time img-build --sourcedir "\$HOME"/in/source "\$@"
+exec >&2 time img-build --target="\$target" --sourcedir "\$HOME"/in/source "\$@"
 __EOF__
 		chmod 755 "chroot/.host/rebuild"
 		verbose 'Created rebuild script.'
