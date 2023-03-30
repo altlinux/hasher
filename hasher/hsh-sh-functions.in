@@ -695,7 +695,7 @@ allocate_lock_hasher_priv()
 			fatal 'Failed to lock hasher-priv'
 
 		# wait for next iteration
-		n="$(($n+1))"
+		n="$((n+1))"
 		sleep "$n"
 		randomize=
 	done
@@ -711,7 +711,7 @@ print_uris()
 			local rc=$?
 			printf %s\\n "$out" >&2
 			[ $rc -le 128 ] ||
-				message "apt-get terminated by signal $(($rc-128))"
+				message "apt-get terminated by signal $((rc-128))"
 			fatal 'Failed to calculate package file list.'
 		}
 	else
@@ -719,7 +719,7 @@ print_uris()
 		       tee -a /dev/stderr)" || {
 			local rc=$?
 			[ $rc -le 128 ] ||
-				message "apt-get terminated by signal $(($rc-128))"
+				message "apt-get terminated by signal $((rc-128))"
 			fatal 'Failed to calculate package file list.'
 		}
 	fi
