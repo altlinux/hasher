@@ -463,6 +463,7 @@ copy_apt_conf()
 	Dir::Etc::sourcelist "$apt_conf_dir/sources.list";
 	Dir::Etc::preferences "$apt_conf_dir/preferences";
 	Dir::Etc::preferencesparts "$apt_conf_dir/preferences.d";
+	Dir::Etc::pkgpriorities "$apt_conf_dir/pkgpriorities";
 	__EOF__EOF__
 	__EOF__
 	chrootuid2 </dev/null &&
