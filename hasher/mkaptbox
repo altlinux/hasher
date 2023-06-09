@@ -297,6 +297,14 @@ else
 	prefsdir_value=
 fi
 
+# if pkgpriorities file is specified and not empty, copy it into aptbox either
+get_apt_config Dir::Etc::pkgpriorities/f prios_value
+if [ -r "$prios_value" -a -s "$prios_value" ]; then
+	install -p -m644 $verbose "$prios_value" "$aptbox/etc/apt/pkgpriorities" >&2
+else
+	prios_value=
+fi
+
 # create final apt.conf file.
 cat >"$apt_config_file" <<__EOF__
 Dir::State "$aptbox/var/lib/apt/";
@@ -305,6 +313,7 @@ ${apt_config:+$(cat "$apt_config")}
 Dir::Etc::SourceList "$aptbox/etc/apt/sources.list";
 Dir::Etc::preferences "$aptbox/etc/apt/preferences";
 Dir::Etc::preferencesparts "$aptbox/etc/apt/preferences.d";
+Dir::Etc::pkgpriorities "$aptbox/etc/apt/pkgpriorities";
 RPM::RootDir "$aptbox";
 APT::Install::Virtual "true";
 APT::Install::VirtualVersion "true";
