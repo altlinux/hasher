@@ -20,8 +20,8 @@ Requires: apt
 Requires: apt-repo-tools
 # due to "enable -f /usr/lib/bash/lockf lockf"
 Requires: bash-builtin-lockf >= 0:0.2
-# due to "readlink -e"
-Requires: coreutils >= 0:5.2.1-alt3
+# due to "b2sum"
+Requires: coreutils >= 8.26
 # due to "find -exec {} +"
 Requires: findutils >= 0:4.2.28
 # due to hasher-priv makedev removal
