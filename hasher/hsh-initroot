@@ -35,6 +35,8 @@ Options:
   --packager=EMAIL          override default packager tag;
   --pkg-build-list=LIST     override default build package file list;
   --pkg-init-list=LIST      override default initial package file list;
+  --predb-prog              program to run inside the chroot after unpacking
+                            of init list packages, but before rpmi --justdb;
   --repackage-source        repackage source along with binaries;
   --save-fakeroot           save fakeroot state;
   --wait-lock               wait for workdir and hasher-priv locks;
@@ -51,7 +53,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l cache-compress:,cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-lock,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,repackage-source,save-fakeroot,wait-lock,no-wait-lock,workdir:,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l cache-compress:,cache-dir:,contents-index-all:,contents-index-bin:,excludedocs,hasher-priv-dir:,install-langs:,no-cache,no-contents-indices,no-lock,no-repackage-source,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,predb-prog:,repackage-source,save-fakeroot,wait-lock,no-wait-lock,workdir:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 prepare_cgroup "$TEMP" "$0" "$@"
 eval set -- "$TEMP"
@@ -101,6 +103,10 @@ while :; do
 			[ "$1" != "${1#+}" -a -n "${1#+}" ] &&
 				init_list="$init_list,${1#+}" ||
 				init_list="$1"
+			;;
+		--predb-prog)
+			prog_predb="$(opt_check_read "$1" "$2")"
+			shift
 			;;
 		--repackage-source) repackage_source=1
 			;;

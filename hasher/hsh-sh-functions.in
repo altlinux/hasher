@@ -154,6 +154,10 @@ pkg_init_list='setup filesystem rpm fakeroot>=0:0.7.3'
 init_list=
 Helpify pkg_init_list
 
+# program to run inside the chroot after unpacking of init list packages, but before rpmi --justdb
+prog_predb=
+Helpify predb_prog prog_predb
+
 # program to run to query for requirements instead of autogenerted script
 prog_query_req=
 Helpify query_req_prog prog_query_req

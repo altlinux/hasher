@@ -62,6 +62,8 @@ Options:
   --packager=EMAIL                  override default RPM packager tag;
   --pkg-build-list=LIST             override default build package file list;
   --pkg-init-list=LIST              override default initial package file list;
+  --predb-prog                      program to run inside the chroot after unpacking
+                                    of init list packages, but before rpmi --justdb;
   --query-repackage                 repackage the source before query
                                     for requirements (default);
   --no-query-repackage              query original source package
@@ -98,7 +100,7 @@ EOF
 	exit
 }
 
-TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,build-srpm-only,cache-compress:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,repo-mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,query-repackage,no-query-repackage,query-req-prog:,printenv,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,images:,rpmbuild-args:,save-fakeroot,target:,wait-lock,no-wait-lock,img-apt-config:,without-stuff,with-stuff,with-qemu:,workdir:,$getopt_common_longopts -- "$@"` ||
+TEMP=`getopt -n $PROG -o $getopt_common_opts -l apt-config:,apt-prefix:,build-args:,build-srpm-only,cache-compress:,cache-dir:,cleanup-only,contents-index-all:,contents-index-bin:,eager-cleanup,excludedocs,hasher-priv-dir:,initroot-only,install-langs:,lazy-cleanup,mountpoints:,repo-mountpoints:,no-cache,no-contents-indices,no-repackage-source,no-sisyphus-check::,no-sisyphus-check-in::,no-sisyphus-check-out::,no-stuff,nprocs:,number:,packager:,pkg-build-list:,pkg-init-list:,predb-prog:,query-repackage,no-query-repackage,query-req-prog:,printenv,rebuild-prog:,repackage-source,repo:,repo-bin:,repo-src:,images:,rpmbuild-args:,save-fakeroot,target:,wait-lock,no-wait-lock,img-apt-config:,without-stuff,with-stuff,with-qemu:,workdir:,$getopt_common_longopts -- "$@"` ||
 	show_usage
 prepare_cgroup "$TEMP" "$0" "$@"
 eval set -- "$TEMP"
@@ -179,6 +181,10 @@ while :; do
 		--pkg-build-list) shift; build_list="$1 "
 			;;
 		--pkg-init-list) shift; init_list="$1 "
+			;;
+		--predb-prog)
+			prog_predb="$(opt_check_read "$1" "$2")"
+			shift
 			;;
 		--printenv) printenv_only=1
 			;;
@@ -380,6 +386,7 @@ handle_package()
 		${packager:+--packager="$packager"} \
 		${init_list:+--pkg-init-list="$init_list"} \
 		${build_list:+--pkg-build-list="$build_list"} \
+		${prog_predb:+--predb-prog="$prog_predb"} \
 		#
 	[ -n "$f" ] || return 0
 	hsh-rebuild --no-lock "$workdir" \
