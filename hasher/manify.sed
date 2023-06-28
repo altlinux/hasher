@@ -13,9 +13,9 @@
 Correspondent config file variable, if any, is mentioned by dollar sign\
 at the end of option description (\\$like_this).\
 
-/--/{
+/^ *(-[[:alnum:]], )?--/{
 		h
-		s/.*--([[:alnum:]_-]+).*/Var_of_\1/
+		s/^ *(-[[:alnum:]], )?--([[:alnum:]_-]+).*/Var_of_\2/
 		s/-/_/g
 		x
 	}
