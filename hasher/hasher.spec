@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.7.1
+Version: 1.7.2
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -61,6 +61,17 @@ network connection or local mirror is highly recommended.
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Wed Jun 28 2023 Gleb F-Malinovskiy <glebfm@altlinux.org> 1.7.2-alt1
+- hsh-sh-functions.in: fixed unnecessary $ on arithmetic variables
+  (thx Dmitry V. Levin).
+- Added support for pkgpriorities in mkaptbox and image building.
+- manify.sed: improved variable reference generation.
+- hsh, hsh-initroot: added the --predb-prog option to specify a program to run
+  inside the chroot before initializing the rpm database.
+- spec: updated R: coreutils to ">= 8.26" due to use of the b2sum utility.
+- Fixed initialization of chroots with unmerged /usr on systems
+  with merged /usr.
+
 * Thu Feb 16 2023 Gleb F-Malinovskiy <glebfm@altlinux.org> 1.7.1-alt1
 - hsh/hsh-rebuild: added --img-apt-config option to use a separate
   apt configuration for image building.
