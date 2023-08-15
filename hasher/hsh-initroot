@@ -35,7 +35,7 @@ Options:
   --packager=EMAIL          override default packager tag;
   --pkg-build-list=LIST     override default build package file list;
   --pkg-init-list=LIST      override default initial package file list;
-  --predb-prog              program to run inside the chroot after unpacking
+  --predb-prog=FILE         program to run inside the chroot after unpacking
                             of init list packages, but before rpmi --justdb;
   --repackage-source        repackage source along with binaries;
   --save-fakeroot           save fakeroot state;
