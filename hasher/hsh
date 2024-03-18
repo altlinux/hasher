@@ -331,7 +331,10 @@ cleanup_workdir()
 
 handle_package()
 {
-	local f="$1" && shift ||:
+	local f=
+	if [ $# -ge 1 ]; then
+		f="$1"; shift
+	fi
 	[ -z "${f##/*}" ] || f="$saved_cwd/$f"
 
 	rm -rf aptbox
