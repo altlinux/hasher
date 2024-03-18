@@ -771,14 +771,14 @@ prepare_x11_forwarding()
 		[ -n "${DISPLAY##localhost:*}" ] &&
 			display="$DISPLAY" ||
 			display="unix:${DISPLAY#localhost:}"
-		xentry="$(xauth list "$display")" ||
+		xentry="$($xauth list "$display")" ||
 			return 1
 	elif [ "$x11_forwarding" = untrusted ]; then
 		local xfile
 		xfile="$(mktemp -t xauth.XXXXXXXX)"
 		$xauth -f "$xfile" generate "$DISPLAY" . untrusted timeout "$x11_timeout" ||
 			{ rm -f "$xfile"; return 1; }
-		xentry="$(xauth -f "$xfile" list "$DISPLAY")" ||
+		xentry="$($xauth -f "$xfile" list "$DISPLAY")" ||
 			{ rm -f "$xfile"; return 1; }
 		rm -f "$xfile"
 	else
