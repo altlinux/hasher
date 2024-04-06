@@ -40,6 +40,8 @@ Obsoletes: pkg-build-utils, libbte
 
 BuildPreReq: help2man, libshell >= 0:0.0.2-alt4
 
+%{?!_without_check:%{?!_disable_check:BuildRequires: shellcheck}}
+
 %description
 Hasher is a set of tools for constructing chroot and safe building of
 packages in the clean environment.  It makes clean environment on every
@@ -54,6 +56,13 @@ network connection or local mirror is highly recommended.
 
 %install
 %makeinstall_std
+
+%check
+grep -lrZ '^#!\s*/bin/sh' %buildroot%_bindir | xargs -t0n1 sh -n
+if echo '#!/bin/sh' | shellcheck -Serror -; then
+	grep -lrZ '^#!\s*/bin/sh' %buildroot%_bindir |
+	xargs -t0 shellcheck -Serror
+fi
 
 %files
 %_bindir/*
