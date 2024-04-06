@@ -181,7 +181,7 @@ else
 	fi
 
 	slibdir="$(getconf SLIB ||:)"
-	[ -n slibdir ] || slibdir="lib"
+	[ -n "$slibdir" ] || slibdir="lib"
 
 	apt_libdir="$apt_prefix/$slibdir"
 	[ -d "$apt_libdir" ] ||
