@@ -455,6 +455,10 @@ create_entry_header()
 {
 	cat >"$entry" <<__EOF__
 #!/bin/sh -e
+d_e=/etc/default-environment
+if [ -f "\$d_e" -a -r "\$d_e" -a -s "\$d_e" ]; then
+    . "\$d_e"
+fi
 TMPDIR="\$HOME/tmp"
 export TMPDIR
 cd /.in
@@ -472,6 +476,10 @@ if [ -z "\$FAKEROOTKEY" -a "\$USER" = root -a -x /usr/bin/fakeroot ]; then
 	else
 		exec /usr/bin/fakeroot "\$0" "\$@"
 	fi
+fi
+d_e=/etc/default-environment
+if [ -f "\$d_e" -a -r "\$d_e" -a -s "\$d_e" ]; then
+    . "\$d_e"
 fi
 cd /.in
 __EOF__
