@@ -1,5 +1,5 @@
 Name: hasher
-Version: 1.7.2
+Version: 1.7.3
 Release: alt1
 
 Summary: Modern safe package building technology
@@ -70,6 +70,14 @@ fi
 %doc FAQ QUICKSTART README apt.conf *.sh
 
 %changelog
+* Wed Apr 17 2024 Gleb F-Malinovskiy <glebfm@altlinux.org> 1.7.3-alt1
+- hsh, hsh-initroot: documented the mandatory argument for the --predb-prog
+  option;
+- Hid xauth(1) calls from rpm-build's shell.req;
+- hsh: changed to avoid a warning with bash >=5.
+- spec: added a simple %check section with sh -n / shellcheck run
+  (thx Vitaly Chikunov).
+
 * Wed Jun 28 2023 Gleb F-Malinovskiy <glebfm@altlinux.org> 1.7.2-alt1
 - hsh-sh-functions.in: fixed unnecessary $ on arithmetic variables
   (thx Dmitry V. Levin).
